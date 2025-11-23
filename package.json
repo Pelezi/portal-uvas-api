@@ -1,18 +1,18 @@
 {
-  "name": "nest-template",
+  "name": "uvas-cells-api",
   "version": "0.1.0",
-  "description": "NestJS API project template crafted for Docker environments",
-  "author": "Saluki",
+  "description": "NestJS API project for church management",
+  "author": "Pelezi",
   "license": "MIT",
   "private": true,
   "engines": {
     "node": ">=20.0.0 <26.0.0"
   },
   "scripts": {
-  "clean": "rimraf ./dist",
-  "start": "node dist/server.js",
-  "dev": "env-cmd -f .env nodemon",
-  "build": "npx prisma migrate deploy && npx prisma generate && npm run clean && tsc",
+    "clean": "rimraf ./dist",
+    "start": "node dist/server.js",
+    "dev": "env-cmd -f .env nodemon",
+    "build": "npx prisma migrate deploy && npx prisma generate && npm run clean && tsc",
     "test": "env-cmd -f .env jest --config=jest.json",
     "lint": "eslint -c .eslintrc.js --ext .ts 'src/**/*.ts'"
   },
@@ -31,6 +31,7 @@
     "fastify": "^4.28.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.4",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "winston": "^3.17.0"
@@ -38,7 +39,8 @@
   "devDependencies": {
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^22.10.1",
+    "@types/node": "^22.19.1",
+    "@types/nodemailer": "^7.0.4",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.15.0",
     "@typescript-eslint/parser": "^8.15.0",

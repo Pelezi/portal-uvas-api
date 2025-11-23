@@ -14,10 +14,12 @@
     "strictNullChecks": true,
     "noUnusedLocals": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "prisma/*"
   ],
   "exclude": [
     "node_modules",

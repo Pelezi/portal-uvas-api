@@ -4,6 +4,8 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './controller';
 import { LogInterceptor } from './flow';
 import { configProvider, LoggerService, PrismaService } from './provider';
+import { PermissionGuard } from './security/permission.guard';
+import { EmailService } from './provider/email.provider';
 
 @Module({
     imports: [
@@ -13,13 +15,17 @@ import { configProvider, LoggerService, PrismaService } from './provider';
         configProvider,
         LoggerService,
         LogInterceptor,
-        PrismaService
+        PrismaService,
+        PermissionGuard,
+        EmailService
     ],
     exports: [
         configProvider,
         LoggerService,
         LogInterceptor,
-        PrismaService
+        PrismaService,
+        PermissionGuard,
+        EmailService
     ],
     controllers: [
         HealthController

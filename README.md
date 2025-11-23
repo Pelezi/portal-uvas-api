@@ -1,201 +1,173 @@
+# Videira Caruaru — Backend (API)
 
-# Money Manager API
+Este diretório contém a API do projeto "Videira Caruaru". A API é construída com Node.js/TypeScript e utiliza Prisma como ORM para PostgreSQL.
 
-[![License](https://img.shields.io/github/license/saluki/nestjs-template.svg)](https://github.com/saluki/nestjs-template/blob/master/LICENSE)
+## Sumário
 
-A comprehensive budget management REST API built with NestJS 10, inspired by Google Sheets' Monthly and Annual Budget templates.
+- [Requisitos](#requisitos)
+- [Rodando localmente](#rodando-localmente)
+- [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Estrutura do banco de dados (Prisma)](#estrutura-do-banco-de-dados-prisma)
+- [Diagrama ER (mermaid)](#diagrama-er-mermaid)
+- [Migrations e Prisma Client](#migrations-e-prisma-client)
+- [Endpoints principais (resumo)](#endpoints-principais-resumo)
 
-## Features
+## Requisitos
 
-- **User Management**: JWT-based authentication for secure access
-- **Budget Management**: Create and manage monthly and annual budgets with automatic synchronization
-  - Monthly budgets automatically update annual summaries
-  - Annual budget adjustments can be propagated to monthly budgets
-- **Category Management**: Organize expenses with categories and subcategories
-  - Support for hierarchical category structure
-  - Parent-child relationships for flexible grouping
-- **Transaction Tracking**: Record actual spending and compare against budgets
-  - Aggregate spending by category
-  - Budget vs. actual comparison reports
-- **REST API**: Fast API with [Fastify](https://fastify.dev/)
-- **Database ORM**: [Prisma](https://www.prisma.io/) for type-safe database access
-- **API Documentation**: Auto-generated Swagger documentation
-- **Docker Support**: Ready for containerized environments
+- Node.js 18+ e npm
+- PostgreSQL (pode ser iniciado via `docker-compose.yml` presente no repositório)
 
-## 1. Getting started
+## Rodando localmente
 
-### 1.1 Requirements
+1. Instale dependências:
 
-Before starting, make sure you have at least those components on your workstation:
-
-- An up-to-date release of [NodeJS](https://nodejs.org/) such as 20.x and NPM
-- A PostgreSQL database. You may use the provided `docker-compose.yml` file.
-
-[Docker](https://www.docker.com/) may also be useful for advanced testing and image building, although it is not required for development.
-
-### 1.2 Project configuration
-
-Install all the dependencies of the project:
-
-```sh
+```powershell
+cd videira-caruaru-api
 npm install
 ```
 
-Once the dependencies are installed, configure your project by creating a new `.env` file containing the environment variables:
+2. (Opcional) Inicie o Postgres com Docker:
 
-```sh
-cp .env.example .env
-```
-
-For a standard development configuration, you can leave the default values for `API_PORT`, `API_PREFIX` and `API_CORS` under the `Api configuration` section. The `SWAGGER_ENABLE` rule allows you to control the Swagger documentation module for NestJS. Leave it to `1` when starting this example.
-
-Configure the `DATABASE_URL` according to your own database setup.
-
-Define a `JWT_SECRET` to sign the JWT tokens or leave the default value in a development environment. Update the `JWT_ISSUER` to the correct value.
-
-### 1.3 Database Setup
-
-If you have Docker installed, you can start a PostgreSQL database using:
-
-```sh
+```powershell
 docker-compose up -d
 ```
 
-Then run the Prisma migrations:
+3. Rode migrations e gere o cliente Prisma:
 
-```sh
+```powershell
 npx prisma migrate dev
+npx prisma generate
 ```
 
-### 1.4 Launch and discover
+4. Inicie a API em modo desenvolvimento:
 
-You are now ready to launch the NestJS application:
-
-```sh
-# Launch the development server with TSNode
+```powershell
 npm run dev
 ```
 
-You can now head to `http://localhost:3000/docs` and see your API Swagger docs.
+## Variáveis de ambiente
 
-## 2. API Endpoints
+- `DATABASE_URL` — string de conexão com o Postgres
+- `API_PORT` — porta que a API deve escutar
+- `JWT_SECRET`, `JWT_ISSUER` — configuração para tokens JWT
 
-### Authentication
+## Estrutura do banco de dados (Prisma)
 
-- `POST /api/v1/users/register` - Register a new user
-- `POST /api/v1/users/login` - Login and receive JWT token
+A seguir as tabelas (modelos Prisma) presentes em `prisma/schema.prisma`, com campos e relações.
 
-### Users
+1) `User`
+   - `id: Int` (PK, autoincrement)
+   - `email: String` (unique)
+   - `password: String?`
+   - `firstName: String`
+   - `lastName: String`
+   - `phoneNumber: String?`
+   - `firstAccess: Boolean` (default: `true`)
+   - `timezone: String` (default: `UTC`)
+   - `createdAt: DateTime` (default: `now()`)
+   - `updatedAt: DateTime` (@updatedAt)
+   - Relação: `permission: Permission?` (1:1)
 
-- `GET /api/v1/users` - Get all users (requires authentication)
+2) `Cell`
+   - `id: Int` (PK)
+   - `name: String` (unique)
+   - `leaderUserId: Int?` (opcional)
+   - `createdAt`, `updatedAt`
+   - Relações: `members: Member[]`, `reports: Report[]`, `permissionCells: PermissionCell[]`, `discipulado: Discipulado?`
 
-### Categories
+3) `Member`
+   - `id: Int` (PK)
+   - `name: String`
+   - `status: MemberStatus` (enum: `ACTIVE` | `INACTIVE`)
+   - `cellId: Int` (FK -> `Cell.id`)
+   - `createdAt`, `updatedAt`
+   - Relações: `cell: Cell`, `attendances: ReportAttendance[]`
 
-- `GET /api/v1/categories` - Get all categories for authenticated user
-- `GET /api/v1/categories/:id` - Get a specific category
-- `POST /api/v1/categories` - Create a new category (can specify parentId for subcategories)
-- `PUT /api/v1/categories/:id` - Update a category
-- `DELETE /api/v1/categories/:id` - Delete a category
+4) `Permission`
+   - `id: Int` (PK)
+   - `userId: Int` (unique, FK -> `User.id`)
+   - `hasGlobalCellAccess: Boolean` (default: `false`)
+   - `canManageCells: Boolean` (default: `false`)
+   - `canManagePermissions: Boolean` (default: `false`)
+   - `role: String?` (default: `USER`)
+   - `createdAt`, `updatedAt`
+   - Relações: `user: User`, `permissionCells`, `permissionNetworks`, `permissionDiscipulados`
 
-### Budgets
+5) `Network`
+   - `id: Int` (PK)
+   - `name: String` (unique)
+   - `createdAt`, `updatedAt`
+   - Relações: `discipulados: Discipulado[]`, `permissionNetworks: PermissionNetwork[]`
 
-- `GET /api/v1/budgets` - Get all budgets (supports filtering by year and type)
-- `GET /api/v1/budgets/:id` - Get a specific budget
-- `GET /api/v1/budgets/comparison` - Compare budgeted vs actual spending
-- `POST /api/v1/budgets` - Create a new budget (MONTHLY or ANNUAL)
-- `PUT /api/v1/budgets/:id` - Update a budget (triggers auto-sync)
-- `DELETE /api/v1/budgets/:id` - Delete a budget
+6) `Discipulado`
+   - `id: Int` (PK)
+   - `name: String`
+   - `networkId: Int` (FK -> `Network.id`)
+   - `createdAt`, `updatedAt`
+   - Relações: `network: Network`, `cells: Cell[]`
 
-### Transactions
+7) `PermissionNetwork` (junção permission <-> network)
+   - `id: Int` (PK)
+   - `permissionId`, `networkId` (FKs)
+   - Constraint: `@@unique([permissionId, networkId])`
 
-- `GET /api/v1/transactions` - Get all transactions (supports filtering)
-- `GET /api/v1/transactions/:id` - Get a specific transaction
-- `GET /api/v1/transactions/aggregated` - Get aggregated spending by category
-- `POST /api/v1/transactions` - Create a new transaction
-- `PUT /api/v1/transactions/:id` - Update a transaction
-- `DELETE /api/v1/transactions/:id` - Delete a transaction
+8) `PermissionDiscipulado` (junção permission <-> discipulado)
+   - `id: Int` (PK)
+   - `permissionId`, `discipuladoId` (FKs)
+   - Constraint: `@@unique([permissionId, discipuladoId])`
 
-### Budget Synchronization
+9) `PermissionCell` (junção permission <-> cell)
+   - `id: Int` (PK)
+   - `permissionId`, `cellId` (FKs)
+   - Constraint: `@@unique([permissionId, cellId])`
 
-The API automatically synchronizes monthly and annual budgets:
-- When monthly budgets are created or updated, the corresponding annual budget is automatically updated to reflect the sum of all monthly budgets for that year and category
-- This ensures consistency between monthly planning and annual summaries
-- Both monthly and annual budgets can be independently managed while maintaining synchronization
+10) `Report`
+   - `id: Int` (PK)
+   - `createdAt: DateTime` (default now)
+   - `cellId: Int` (FK -> `Cell.id`)
+   - Relações: `attendances: ReportAttendance[]`
 
-## 3. Project structure
+11) `ReportAttendance`
+   - `id: Int` (PK)
+   - `reportId: Int` (FK -> `Report.id`)
+   - `memberId: Int` (FK -> `Member.id`)
+   - Indexes: `@@index([reportId])`, `@@index([memberId])`
+   - Unique: `@@unique([reportId, memberId])`
 
-This project follows a well-defined modular directory structure:
+### Observações
 
-```sh
-src/
-├── modules
-│   ├── app.module.ts
-│   ├── common/          # Shared pipes, guards, services and providers
-│   ├── user/            # User management and JWT authentication
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── model/
-│   │   └── spec/
-│   ├── category/        # Category and subcategory management
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── model/
-│   │   └── spec/
-│   ├── budget/          # Budget management with monthly/annual sync
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── model/
-│   │   └── spec/
-│   ├── transaction/     # Transaction tracking and aggregation
-│   │   ├── controller/
-│   │   ├── service/
-│   │   ├── model/
-│   │   └── spec/
-│   └── tokens.ts
-└── server.ts
+- Relacionamentos definem `onDelete` (Cascade / NoAction) — ver `schema.prisma` para detalhes exatos.
+- Campos com `@default(...)` (timestamps, flags) têm valores automáticos.
+
+## Diagrama ER (mermaid)
+
+```mermaid
+erDiagram
+    USER ||--o{ PERMISSION : has
+    PERMISSION ||--o{ PERMISSIONCELL : grants
+    PERMISSION ||--o{ PERMISSIONNETWORK : grants
+    PERMISSION ||--o{ PERMISSIONDISCIPULADO : grants
+    NETWORK ||--o{ DISCIPULADO : contains
+    DISCIPULADO ||--o{ CELL : contains
+    CELL ||--o{ MEMBER : has
+    CELL ||--o{ REPORT : creates
+    REPORT ||--o{ REPORTATTENDANCE : contains
+    MEMBER ||--o{ REPORTATTENDANCE : attends
 ```
 
-## 4. Default NPM commands
+## Migrations e Prisma Client
 
-The NPM commands below are already included with this template and can be used to quickly run, build and test your project.
+- Migrations ficam em `prisma/migrations/`.
+- Gere o client Prisma com `npx prisma generate` após alterações no schema.
 
-```sh
-# Start the application using the transpiled NodeJS
-npm run start
+## Endpoints principais (resumo)
 
-# Run the application using "ts-node"
-npm run dev
+- Autenticação: `POST /api/v1/users/login`, `POST /api/v1/users/register`
+- Usuários: `GET/POST/PUT/DELETE /api/v1/users`
+- Células e membros: endpoints CRUD (`/cells`, `/members`)
+- Relatórios: `POST /api/v1/reports` e `GET /api/v1/reports` (por célula)
+- Permissões: endpoints para gerenciar permissões e associações (cells/networks/discipulados)
 
-# Transpile the TypeScript files
-npm run build
+Para a lista completa das rotas, consulte os controllers em `src/modules/*/controller`.
 
-# Run the project' functional tests
-npm run test
-
-# Lint the project files using TSLint
-npm run lint
-```
-
-## 5. Healthcheck support
-
-A healthcheck API is a REST endpoint that can be used to validate the status of the service along with its dependencies. The healthcheck API endpoint internally triggers an overall health check of the service. This can include database connection checks, system properties, disk availability and memory availability.
-
-The example healthcheck endpoint can be request with the token located in the `HEALTH_TOKEN` environment variable.
-
-```sh
-curl -H 'Authorization: Bearer ThisMustBeChanged' http://localhost:3000/api/v1/health
-```
-
-## 6. Project goals
-
-The goal of this project is to provide a comprehensive budget management API that enables users to:
-- Track monthly and annual budgets with automatic synchronization
-- Organize expenses using categories and subcategories
-- Record transactions and compare actual spending against budgets
-- Manage financial data securely with JWT authentication
-
-This implementation is inspired by Google Sheets' Monthly and Annual Budget templates, bringing spreadsheet-like budget management capabilities to a REST API.
-
-## 7. Contributing
-
-Feel free to suggest an improvement, report a bug, or ask something through the project's issue tracker.
+---

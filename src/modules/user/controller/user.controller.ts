@@ -1,8 +1,9 @@
-import { Body, Controller, Get, HttpStatus, Post, Patch, UseGuards, UnauthorizedException, Request, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Patch, Delete, UseGuards, UnauthorizedException, Request, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
 
 import { RestrictedGuard } from '../../common';
-import { CategoryService } from '../../category/service';
+import { PermissionGuard } from '../../common/security/permission.guard';
+import { PrismaService } from '../../common/provider/prisma.provider';
 
 import { UserData, UserInput, LoginInput } from '../model';
 import { UserService } from '../service';
@@ -13,8 +14,12 @@ export class UserController {
 
     public constructor(
         private readonly userService: UserService,
-        private readonly categoryService: CategoryService
+        private readonly prisma: PrismaService
     ) { }
+
+    private ensureManagePermissions(permission: any) {
+        if (!permission || !permission.canManagePermissions) throw new Error('No rights');
+    }
 
     @Post('register')
     @ApiOperation({ 
@@ -27,19 +32,60 @@ export class UserController {
         return this.userService.create(input);
     }
 
+    @Post('invite')
+    @UseGuards(RestrictedGuard, PermissionGuard)
+    public async invite(@Request() req: any, @Body() body: { email: string; firstName?: string; lastName?: string; discipuladoId?: number }) {
+        const permission = req.permission;
+
+        // if a discipuladoId is provided, ensure the requester can invite for that discipulado
+        if (body.discipuladoId) {
+            const pd = await this.prisma.permissionDiscipulado.findFirst({ where: { permissionId: permission.id, discipuladoId: body.discipuladoId } });
+            if (!pd) {
+                // check pastor for that discipulado's network
+                const disc = await this.prisma.discipulado.findUnique({ where: { id: body.discipuladoId } });
+                if (!disc) throw new Error('Discipulado not found');
+                const pn = await this.prisma.permissionNetwork.findFirst({ where: { permissionId: permission.id, networkId: disc.networkId } });
+                if (!pn) throw new Error('No rights to invite for this discipulado');
+            }
+        }
+
+        return this.userService.inviteUser(body.email, body.firstName, body.lastName);
+    }
+
+    @Post('set-password')
+    public async setPassword(@Body() body: { token: string; password: string }) {
+        return this.userService.setPasswordWithToken(body.token, body.password);
+    }
+
+    @Post('request-set-password')
+    public async requestSetPassword(@Body() body: { email: string }) {
+        return this.userService.requestSetPassword(body.email);
+    }
+
     @Post('login')
     @ApiOperation({ 
         summary: 'Autenticar usuário e obter token JWT',
         description: 'Realiza a autenticação do usuário no sistema usando email e senha. Quando bem-sucedido, retorna um token JWT que deve ser usado no cabeçalho Authorization (Bearer token) para acessar endpoints protegidos da API. O token contém informações do usuário codificadas e tem validade configurável. Este é o ponto de entrada para todas as operações autenticadas na API.'
     })
-    @ApiResponse({ status: HttpStatus.OK, description: 'Login realizado com sucesso, retorna token JWT e dados do usuário' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Login realizado com sucesso, retorna token JWT, dados do usuário e permissões' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Credenciais inválidas - email ou senha incorretos' })
-    public async login(@Body() input: LoginInput): Promise<{ token: string; user: UserData }> {
+    public async login(@Body() input: LoginInput): Promise<any> {
         try {
             return await this.userService.login(input);
         } catch (error) {
             throw new UnauthorizedException('Credenciais inválidas');
         }
+    }
+
+    @Get('me')
+    @UseGuards(RestrictedGuard)
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Retorna os dados do usuário autenticado e suas permissões (sem token)' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'Dados do usuário autenticado e permissões' })
+    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Token JWT ausente ou inválido' })
+    public async me(@Request() req: any): Promise<{ user: UserData; permission?: { id: number; hasGlobalCellAccess: boolean; canManageCells: boolean; canManagePermissions: boolean; cellIds: number[] | null } | null }> {
+        const userId = req.user.userId;
+        return this.userService.me(userId);
     }
 
     @Get()
@@ -69,29 +115,9 @@ export class UserController {
         @Body() body: { categories: Array<{ name: string; type: 'EXPENSE' | 'INCOME'; subcategories: string[] }> }
     ): Promise<UserData> {
         const userId = req.user.userId;
-        
-        // Create categories and subcategories
-        await this.categoryService.bulkCreateWithSubcategories(userId, body.categories);
-        
+                
         // Mark first access as complete
         return this.userService.completeFirstAccess(userId);
-    }
-
-    @Patch('locale')
-    @UseGuards(RestrictedGuard)
-    @ApiBearerAuth()
-    @ApiOperation({ 
-        summary: 'Atualizar preferência de idioma do usuário',
-        description: 'Atualiza o idioma preferido do usuário. Aceita valores como "en" para inglês ou "pt" para português.'
-    })
-    @ApiResponse({ status: HttpStatus.OK, type: UserData, description: 'Idioma atualizado com sucesso' })
-    @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Token JWT ausente ou inválido' })
-    public async updateLocale(
-        @Request() req: any,
-        @Body() body: { locale: string }
-    ): Promise<UserData> {
-        const userId = req.user.userId;
-        return this.userService.updateLocale(userId, body.locale);
     }
 
     @Patch('profile')
@@ -99,16 +125,49 @@ export class UserController {
     @ApiBearerAuth()
     @ApiOperation({ 
         summary: 'Atualizar perfil do usuário',
-        description: 'Atualiza as informações do perfil do usuário, incluindo timezone e locale.'
+        description: 'Atualiza as informações do perfil do usuário, incluindo timezone.'
     })
     @ApiResponse({ status: HttpStatus.OK, type: UserData, description: 'Perfil atualizado com sucesso' })
     @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Token JWT ausente ou inválido' })
     public async updateProfile(
         @Request() req: any,
-        @Body() body: { timezone?: string; locale?: string }
+        @Body() body: { timezone?: string }
     ): Promise<UserData> {
         const userId = req.user.userId;
         return this.userService.updateProfile(userId, body);
+    }
+
+    @Patch(':id')
+    @UseGuards(RestrictedGuard, PermissionGuard)
+    @ApiBearerAuth()
+    public async updateUser(@Request() req: any, @Param('id') id: string, @Body() body: { firstName?: string; lastName?: string; phoneNumber?: string; timezone?: string }) {
+        const permission = (req as any).permission;
+        this.ensureManagePermissions(permission);
+        const userId = parseInt(id || '0', 10);
+        if (!userId) throw new Error('Invalid user id');
+        return this.userService.updateUser(userId, body);
+    }
+
+    @Delete(':id')
+    @UseGuards(RestrictedGuard, PermissionGuard)
+    @ApiBearerAuth()
+    public async deleteUser(@Request() req: any, @Param('id') id: string) {
+        const permission = (req as any).permission;
+        this.ensureManagePermissions(permission);
+        const userId = parseInt(id || '0', 10);
+        if (!userId) throw new Error('Invalid user id');
+        return this.userService.deleteUser(userId);
+    }
+
+    @Get(':id')
+    @UseGuards(RestrictedGuard, PermissionGuard)
+    @ApiBearerAuth()
+    public async getUserById(@Request() req: any, @Param('id') id: string) {
+        const permission = (req as any).permission;
+        this.ensureManagePermissions(permission);
+        const userId = parseInt(id || '0', 10);
+        if (!userId) throw new Error('Invalid user id');
+        return this.userService.getByIdWithPermission(userId);
     }
 
     @Get('search')
