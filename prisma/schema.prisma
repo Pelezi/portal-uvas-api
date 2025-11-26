@@ -8,158 +8,137 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
+  id          Int         @id @default(autoincrement())
+  email       String      @unique
   password    String?
   firstName   String
   lastName    String
-  phoneNumber String?
-  firstAccess Boolean  @default(true)
-  timezone    String   @default("UTC")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  phone       String?
+  firstAccess Boolean     @default(true)
+  timezone    String      @default("UTC")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  admin       Boolean     @default(false)
+  role        ChurchRoles @default(MEMBER)
 
-  permission Permission?
-  // cells where this user is the leader
-  ledCells    Cell[]   @relation("CellLeader")
+  members      Member[]
+  redes        Rede[]
+  discipulados Discipulado[]
+  ledCelulas   Celula[]      @relation("CelulaLeader")
+  viceLedCelulas Celula[]    @relation("CelulaViceLeader")
 }
 
-model Cell {
-  id         Int      @id @default(autoincrement())
-  name       String   @unique
-  leaderUserId Int?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+enum ChurchRoles {
+  PASTOR
+  PRESIDENTPASTOR
+  VICEPRESIDENTPASTOR
+  DISCIPULADOR
+  LEADER
+  MEMBER
+}
 
-  members           Member[]
-  reports           Report[]
-  permissionCells   PermissionCell[]
-  discipulado       Discipulado? @relation(fields: [discipuladoId], references: [id])
-  discipuladoId     Int?
-  // relation to User as leader
-  leader            User?    @relation("CellLeader", fields: [leaderUserId], references: [id], onDelete: SetNull)
+model Celula {
+  id               Int      @id @default(autoincrement())
+  name             String   @unique
+  leaderUserId     Int
+  viceLeaderUserId Int?
+  discipuladoId    Int
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  members Member[]
+  reports Report[]
+
+  discipulado Discipulado? @relation(fields: [discipuladoId], references: [id])
+  leader      User         @relation("CelulaLeader", fields: [leaderUserId], references: [id], onDelete: SetNull)
+  viceLeader  User?        @relation("CelulaViceLeader", fields: [viceLeaderUserId], references: [id], onDelete: SetNull)
+
+  @@index([discipuladoId])
+  @@index([leaderUserId])
+  @@index([viceLeaderUserId])
 }
 
 model Member {
-  id        Int      @id @default(autoincrement())
-  name      String
-  status    MemberStatus @default(ACTIVE)
-  cellId    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int           @id @default(autoincrement())
+  name          String
+  status        MemberStatus  @default(MEMBER)
+  celulaId      Int
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        Int?
+  maritalStatus MaritalStatus @default(SINGLE)
 
-  cell Cell @relation(fields: [cellId], references: [id], onDelete: NoAction)
   attendances ReportAttendance[]
 
-  @@index([cellId])
+  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  celula Celula @relation(fields: [celulaId], references: [id], onDelete: NoAction)
+
+  @@index([celulaId])
+}
+
+enum MaritalStatus {
+  SINGLE
+  COHABITATING
+  MARRIED
+  DIVORCED
+  WIDOWED
 }
 
 enum MemberStatus {
-  ACTIVE
+  VISITOR
+  MEMBER
+  FA
   INACTIVE
 }
 
-model Permission {
-  id Int @id @default(autoincrement())
-  userId Int @unique
-  hasGlobalCellAccess Boolean @default(false)
-  canManageCells Boolean @default(false)
-  canManagePermissions Boolean @default(false)
-  role String? @default("USER")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  permissionCells PermissionCell[]
-  permissionNetworks PermissionNetwork[]
-  permissionDiscipulados PermissionDiscipulado[]
-}
-
-model Network {
-  id Int @id @default(autoincrement())
-  name String @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Rede {
+  id           Int      @id @default(autoincrement())
+  name         String   @unique
+  pastorUserId Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   discipulados Discipulado[]
-  permissionNetworks PermissionNetwork[]
+
+  pastor User @relation(fields: [pastorUserId], references: [id], onDelete: Cascade)
 }
 
-// Discipulado (discipleship) groups cells and belongs to a Network
 model Discipulado {
-  id Int @id @default(autoincrement())
-  name String
-  networkId Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 Int      @id @default(autoincrement())
+  redeId             Int
+  discipuladorUserId Int
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)
-  cells Cell[]
-  permissionDiscipulados PermissionDiscipulado[]
-}
+  celulas Celula[]
 
-// Assign a permission to manage a specific network (pastor) - optional
-model PermissionNetwork {
-  id Int @id @default(autoincrement())
-  permissionId Int
-  networkId Int
+  rede         Rede @relation(fields: [redeId], references: [id], onDelete: Cascade)
+  discipulador User @relation(fields: [discipuladorUserId], references: [id], onDelete: Cascade)
 
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  network Network @relation(fields: [networkId], references: [id], onDelete: Cascade)
-
-  @@unique([permissionId, networkId])
-  @@index([permissionId])
-  @@index([networkId])
-}
-
-// Assign a permission to manage a specific discipulado (discipulador)
-model PermissionDiscipulado {
-  id Int @id @default(autoincrement())
-  permissionId Int
-  discipuladoId Int
-
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  discipulado Discipulado @relation(fields: [discipuladoId], references: [id], onDelete: Cascade)
-
-  @@unique([permissionId, discipuladoId])
-  @@index([permissionId])
-  @@index([discipuladoId])
-}
-
-model PermissionCell {
-  id Int @id @default(autoincrement())
-  permissionId Int
-  cellId Int
-
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  cell Cell @relation(fields: [cellId], references: [id], onDelete: Cascade)
-
-  @@unique([permissionId, cellId])
-  @@index([permissionId])
-  @@index([cellId])
+  @@index([redeId])
+  @@index([discipuladorUserId])
 }
 
 model Report {
-  id Int @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  cellId Int
+  celulaId  Int
 
-  cell Cell @relation(fields: [cellId], references: [id], onDelete: NoAction)
+  celula      Celula             @relation(fields: [celulaId], references: [id], onDelete: NoAction)
   attendances ReportAttendance[]
 
-  @@index([cellId])
+  @@index([celulaId])
 }
 
 model ReportAttendance {
-  id Int @id @default(autoincrement())
+  id       Int @id @default(autoincrement())
   reportId Int
   memberId Int
 
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
+  @@unique([reportId, memberId])
   @@index([reportId])
   @@index([memberId])
-  @@unique([reportId, memberId])
 }
-

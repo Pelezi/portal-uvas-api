@@ -5,23 +5,42 @@ import { PrismaService } from '../../common';
 export class ReportService {
     constructor(private readonly prisma: PrismaService) {}
 
-    public async create(cellId: number, memberIds: number[]) {
-        const nowUtc = new Date();
+    public async create(celulaId: number, memberIds: number[], date?: string) {
         const brazilOffsetHours = 3;
 
-        const nowBrazil = new Date(nowUtc.getTime() - brazilOffsetHours * 60 * 60 * 1000);
+        let startUtc: Date;
+        let endUtc: Date;
 
-        const startBrazilLocal = new Date(nowBrazil);
-        startBrazilLocal.setHours(0, 0, 0, 0);
-        const endBrazilLocal = new Date(nowBrazil);
-        endBrazilLocal.setHours(23, 59, 59, 999);
+        if (date) {
+            // date expected in YYYY-MM-DD
+            const parts = date.split('-').map(p => Number(p));
+            const y = parts[0];
+            const m = parts[1];
+            const d = parts[2];
+            const startBrazilUtcMillis = Date.UTC(y, m - 1, d, 0, 0, 0) + brazilOffsetHours * 60 * 60 * 1000;
+            const endBrazilUtcMillis = Date.UTC(y, m - 1, d, 23, 59, 59, 999) + brazilOffsetHours * 60 * 60 * 1000;
+            startUtc = new Date(startBrazilUtcMillis);
+            endUtc = new Date(endBrazilUtcMillis);
+        } else {
+            const nowUtc = new Date();
+            const nowBrazil = new Date(nowUtc.getTime() - brazilOffsetHours * 60 * 60 * 1000);
+            const startBrazilLocal = new Date(nowBrazil);
+            startBrazilLocal.setHours(0, 0, 0, 0);
+            const endBrazilLocal = new Date(nowBrazil);
+            endBrazilLocal.setHours(23, 59, 59, 999);
+            startUtc = new Date(startBrazilLocal.getTime() + brazilOffsetHours * 60 * 60 * 1000);
+            endUtc = new Date(endBrazilLocal.getTime() + brazilOffsetHours * 60 * 60 * 1000);
+        }
 
-        const startUtc = new Date(startBrazilLocal.getTime() + brazilOffsetHours * 60 * 60 * 1000);
-        const endUtc = new Date(endBrazilLocal.getTime() + brazilOffsetHours * 60 * 60 * 1000);
+        await this.prisma.report.deleteMany({ where: { celulaId, createdAt: { gte: startUtc, lte: endUtc } } });
 
-        await this.prisma.report.deleteMany({ where: { cellId, createdAt: { gte: startUtc, lte: endUtc } } });
+        const createData: any = { celulaId };
+        if (date) {
+            // set createdAt to startUtc so report shows provided date
+            createData.createdAt = startUtc;
+        }
 
-        const report = await this.prisma.report.create({ data: { cellId } });
+        const report = await this.prisma.report.create({ data: createData });
 
         const attendances = memberIds.map(mid => ({ reportId: report.id, memberId: mid }));
         if (attendances.length > 0) {
@@ -35,13 +54,13 @@ export class ReportService {
         return this.prisma.report.findUnique({ where: { id }, include: { attendances: { include: { member: true } } } });
     }
 
-    public async findByCell(cellId: number) {
-        return this.prisma.report.findMany({ where: { cellId }, orderBy: { createdAt: 'desc' }, include: { attendances: { include: { member: true } } } });
+    public async findByCelula(celulaId: number) {
+        return this.prisma.report.findMany({ where: { celulaId }, orderBy: { createdAt: 'desc' }, include: { attendances: { include: { member: true } } } });
     }
 
-    public async presences(cellId: number) {
+    public async presences(celulaId: number) {
         const reports = await this.prisma.report.findMany({
-            where: { cellId },
+            where: { celulaId },
             orderBy: { createdAt: 'desc' },
             include: { attendances: { include: { member: true } } }
         });

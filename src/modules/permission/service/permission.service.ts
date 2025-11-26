@@ -6,45 +6,38 @@ export class PermissionService {
     constructor(private readonly prisma: PrismaService) {}
 
     public async findAll() {
-        return this.prisma.permission.findMany({ include: { user: true, permissionCells: { include: { cell: true } } } });
+        // Return users with admin flag and their basic relations
+        const users = await this.prisma.user.findMany({ include: { ledCelulas: true, viceLedCelulas: true, discipulados: true, redes: true } });
+        return users.map(u => ({
+            user: u,
+            admin: u.admin,
+            celulaIds: Array.from(new Set([ ...(u.ledCelulas || []).map(c => c.id), ...(u.viceLedCelulas || []).map(c => c.id) ]))
+        }));
     }
 
-    public async createOrUpdate(email: string, cellIds: number[], hasGlobalCellAccess: boolean, canManageCells: boolean, canManagePermissions: boolean) {
+    public async createOrUpdate(email: string, celulaIds: number[], hasGlobalCelulaAccess: boolean, canManageCelulas: boolean, canManagePermissions: boolean) {
         const user = await this.prisma.user.findUnique({ where: { email } });
-        if (!user) {
-            throw new Error('User not found');
-        }
+        if (!user) throw new Error('User not found');
 
-        const existing = await this.prisma.permission.findUnique({ where: { userId: user.id } });
-
-        if (existing) {
-            // update
-            await this.prisma.permission.update({ where: { id: existing.id }, data: { hasGlobalCellAccess, canManageCells, canManagePermissions } });
-            // update permissionCells: simple approach: delete all and recreate
-            await this.prisma.permissionCell.deleteMany({ where: { permissionId: existing.id } });
-            if (!hasGlobalCellAccess && cellIds.length > 0) {
-                const rows = cellIds.map(cid => ({ permissionId: existing.id, cellId: cid }));
-                await this.prisma.permissionCell.createMany({ data: rows });
-            }
-            return this.findById(existing.id);
-        }
-
-        const created = await this.prisma.permission.create({ data: { userId: user.id, hasGlobalCellAccess, canManageCells, canManagePermissions } });
-        if (!hasGlobalCellAccess && cellIds.length > 0) {
-            const rows = cellIds.map(cid => ({ permissionId: created.id, cellId: cid }));
-            await this.prisma.permissionCell.createMany({ data: rows });
-        }
-
-        return this.findById(created.id);
+        // For now, map canManagePermissions -> admin flag on user
+        await this.prisma.user.update({ where: { id: user.id }, data: { admin: !!canManagePermissions } });
+        // We ignore celulaIds and other legacy flags in the new schema version
+        return { OK: true } as any;
     }
 
     public async findById(id: number) {
-        return this.prisma.permission.findUnique({ where: { id }, include: { user: true, permissionCells: { include: { cell: true } } } });
+        // Return user with computed celula ids
+        const u = await this.prisma.user.findUnique({ where: { id }, include: { ledCelulas: true, viceLedCelulas: true } });
+        if (!u) return null;
+        return { user: u, admin: u.admin, celulaIds: Array.from(new Set([ ...(u.ledCelulas || []).map(c => c.id), ...(u.viceLedCelulas || []).map(c => c.id) ])) };
     }
 
     public async remove(id: number) {
-        await this.prisma.permissionCell.deleteMany({ where: { permissionId: id } });
-        return this.prisma.permission.delete({ where: { id } });
+        // Interpret remove as demoting admin on the associated user id
+        const user = await this.prisma.user.findUnique({ where: { id } });
+        if (!user) throw new Error('User not found');
+        await this.prisma.user.update({ where: { id: user.id }, data: { admin: false } });
+        return true;
     }
 
 }

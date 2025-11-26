@@ -1,7 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
 
-import { Role } from '../../tokens';
 import { AuthenticatedRequest } from '../types/authenticated-request.interface';
 import { extractTokenPayload } from './security-utils';
 
@@ -16,14 +15,11 @@ export class RestrictedGuard implements CanActivate {
             return false;
         }
 
-        if (payload.role !== Role.RESTRICTED) {
-            return false;
-        }
-
         // Attach user info to request for use in controllers
         request.user = {
             userId: payload.userId,
-            role: payload.role
+            role: payload.role,
+            admin: payload.admin || false
         };
 
         return true;

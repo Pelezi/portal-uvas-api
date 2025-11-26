@@ -5,10 +5,11 @@ import { PrismaService } from '../provider/prisma.provider';
 export interface LoadedPermission {
     id: number;
     userId: number;
-    hasGlobalCellAccess: boolean;
-    canManageCells: boolean;
-    canManagePermissions: boolean;
-    role: 'USER' | 'ADMIN' | 'PASTOR' | 'DISCIPULADOR' | 'LEADER';
+    admin: boolean;
+    role: string | null;
+    celulaIds: number[];
+    redeIds: number[];
+    discipuladoIds: number[];
 }
 
 @Injectable()
@@ -23,19 +24,43 @@ export class PermissionGuard implements CanActivate {
             return false;
         }
 
-        const permission = await this.prisma.permission.findUnique({ where: { userId: user.userId } });
-        if (!permission) {
+        const dbUser = await this.prisma.user.findUnique({ where: { id: user.userId }, include: { redes: true, discipulados: true, ledCelulas: true, viceLedCelulas: true } });
+        if (!dbUser) {
             throw new HttpException('Você não tem permissão para acessar essa tela', HttpStatus.BAD_REQUEST);
         }
 
-        // Load scoped assignments (networks / discipulados)
-        const networks = await this.prisma.permissionNetwork.findMany({ where: { permissionId: permission.id } });
-        const discipulados = await this.prisma.permissionDiscipulado.findMany({ where: { permissionId: permission.id } });
+        // compute celula ids where user has explicit roles (leader/vice/discipulador/pastor)
+        // leader/vice
+        const leaderCelulaIds = (dbUser.ledCelulas || []).map(c => c.id);
+        const viceCelulaIds = (dbUser.viceLedCelulas || []).map(c => c.id);
 
-        // Attach permission and scopes to request for downstream use
-        (request as any).permission = permission as LoadedPermission;
-        (request as any).permissionNetworks = networks.map(n => n.networkId);
-        (request as any).permissionDiscipulados = discipulados.map(d => d.discipuladoId);
+        // discipulados owned
+        const discipuladoIds = (dbUser.discipulados || []).map(d => d.id);
+
+        // redes (pastor)
+        const redeIds = (dbUser.redes || []).map(r => r.id);
+
+        // gather celulas that belong to redes or discipulados the user owns
+        const celulasFromRede = await this.prisma.celula.findMany({ where: { discipulado: { rede: { pastorUserId: dbUser.id } } } }).catch(() => []);
+        const celulasFromDiscipulado = await this.prisma.celula.findMany({ where: { discipulado: { discipuladorUserId: dbUser.id } } }).catch(() => []);
+
+        const extraCelulaIds = [ ...(celulasFromRede || []).map(c => c.id), ...(celulasFromDiscipulado || []).map(c => c.id) ];
+
+        const celulaIds = Array.from(new Set([ ...leaderCelulaIds, ...viceCelulaIds, ...extraCelulaIds ]));
+
+        const permission: LoadedPermission = {
+            id: dbUser.id,
+            userId: dbUser.id,
+            admin: !!dbUser.admin,
+            role: dbUser.role || null,
+            celulaIds,
+            redeIds,
+            discipuladoIds
+        };
+
+        (request as any).permission = permission;
+        (request as any).permissionRede = redeIds;
+        (request as any).permissionDiscipulados = discipuladoIds;
 
         return true;
     }
@@ -43,70 +68,59 @@ export class PermissionGuard implements CanActivate {
 }
 
 /** Helper checks using DB when required */
-export async function isCellLeaderDb(prisma: PrismaService, userId: number, cellId: number): Promise<boolean> {
-    const c = await prisma.cell.findUnique({ where: { id: cellId } });
+export async function isCelulaLeaderDb(prisma: PrismaService, userId: number, celulaId: number): Promise<boolean> {
+    const c = await prisma.celula.findUnique({ where: { id: celulaId } });
     if (!c) return false;
     return !!c.leaderUserId && c.leaderUserId === userId;
 }
 
-export async function isDiscipuladorForCellDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, cellId: number): Promise<boolean> {
+export async function isDiscipuladorForCelulaDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, celulaId: number): Promise<boolean> {
     if (!permission) return false;
-    // fetch cell -> discipulado -> check permissionDiscipulado
-    const cell = await prisma.cell.findUnique({ where: { id: cellId } });
-    if (!cell || !cell.discipuladoId) return false;
-    const pd = await prisma.permissionDiscipulado.findFirst({ where: { permissionId: permission.id, discipuladoId: cell.discipuladoId } });
-    return !!pd;
+    const celula = await prisma.celula.findUnique({ where: { id: celulaId }, include: { discipulado: true } });
+    if (!celula || !celula.discipulado) return false;
+    return celula.discipulado.discipuladorUserId === permission.userId || (permission.discipuladoIds || []).includes(celula.discipulado.id);
 }
 
-export async function isPastorForCellDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, cellId: number): Promise<boolean> {
+export async function isPastorForCelulaDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, celulaId: number): Promise<boolean> {
     if (!permission) return false;
-    const cell = await prisma.cell.findUnique({ where: { id: cellId }, include: { discipulado: true } });
-    if (!cell || !cell.discipulado) return false;
-    const networkId = cell.discipulado.networkId;
-    const pn = await prisma.permissionNetwork.findFirst({ where: { permissionId: permission.id, networkId } });
-    return !!pn;
+    const celula = await prisma.celula.findUnique({ where: { id: celulaId }, include: { discipulado: { include: { rede: true } } } });
+    if (!celula || !celula.discipulado || !celula.discipulado.rede) return false;
+    return celula.discipulado.rede.pastorUserId === permission.userId || (permission.redeIds || []).includes(celula.discipulado.rede.id);
 }
 
-export async function hasManageRightsForCellDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, userId: number, cellId: number): Promise<boolean> {
+export async function hasManageRightsForCelulaDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, userId: number, celulaId: number): Promise<boolean> {
     if (!permission) return false;
-    if (permission.hasGlobalCellAccess) return true;
-    if (permission.role === 'ADMIN') return true;
+    if (permission.admin) return true;
     // Pastor of the network
-    if (await isPastorForCellDb(prisma, permission, cellId)) return true;
-    // Discipulador for discipulado that contains the cell
-    if (await isDiscipuladorForCellDb(prisma, permission, cellId)) return true;
-    // The leader of the cell (only limited actions like responding reports / adding members)
-    const isLeader = await isCellLeaderDb(prisma, userId, cellId);
+    if (await isPastorForCelulaDb(prisma, permission, celulaId)) return true;
+    // Discipulador for discipulado that contains the celula
+    if (await isDiscipuladorForCelulaDb(prisma, permission, celulaId)) return true;
+    // The leader or vice-leader of the celula
+    const isLeader = await isCelulaLeaderDb(prisma, userId, celulaId);
     if (isLeader) return true;
+    const cel = await prisma.celula.findUnique({ where: { id: celulaId } });
+    if (cel && cel.viceLeaderUserId && cel.viceLeaderUserId === userId) return true;
 
-    // fallback to explicit boolean flag
-    if (permission.canManageCells) return true;
+    // fallback: if the celula is in user's computed celulaIds
+    if ((permission.celulaIds || []).includes(celulaId)) return true;
 
     return false;
 }
 
-export function hasCellAccess(permission: LoadedPermission | null | undefined, cellId: number): boolean {
+export function hasCelulaAccess(permission: LoadedPermission | null | undefined, celulaId: number): boolean {
     if (!permission) return false;
-    if (permission.hasGlobalCellAccess) return true;
-    // We need to check permission_cells table — but callers can rely on helper below to query DB
-    return false;
+    if (permission.admin) return true;
+    return (permission.celulaIds || []).includes(celulaId);
 }
 
-export async function hasCellAccessDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, cellId: number): Promise<boolean> {
+export async function hasCelulaAccessDb(prisma: PrismaService, permission: LoadedPermission | null | undefined, celulaId: number): Promise<boolean> {
     if (!permission) return false;
-    if (permission.hasGlobalCellAccess) return true;
-    const pc = await prisma.permissionCell.findFirst({ where: { permissionId: permission.id, cellId } });
-    return !!pc;
-}
-
-export function requireCanManageCells(permission: LoadedPermission | null | undefined) {
-    if (!permission || !permission.canManageCells) {
-        throw new ForbiddenException('Requires canManageCells');
-    }
+    if (permission.admin) return true;
+    return (permission.celulaIds || []).includes(celulaId);
 }
 
 export function requireCanManagePermissions(permission: LoadedPermission | null | undefined) {
-    if (!permission || !permission.canManagePermissions) {
-        throw new ForbiddenException('Requires canManagePermissions');
+    if (!permission || !permission.admin) {
+        throw new ForbiddenException('Requires admin');
     }
 }

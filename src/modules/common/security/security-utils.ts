@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 
 import { Role } from '../../tokens';
 
-export function extractTokenPayload(request: FastifyRequest): { role: Role; userId: number } | null {
+export function extractTokenPayload(request: FastifyRequest): { role: Role; userId: number, admin: boolean } | null {
 
     const header = request.headers.authorization;
     if (!header || !header.startsWith('Bearer ')) {
@@ -27,7 +27,7 @@ export function extractTokenPayload(request: FastifyRequest): { role: Role; user
             return null;
         }
 
-        return payload as { role: Role; userId: number };
+        return payload as { role: Role; userId: number, admin: boolean };
 
     }
     catch (err) {

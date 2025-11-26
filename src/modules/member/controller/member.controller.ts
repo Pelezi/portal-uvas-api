@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, ForbiddenException, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, ForbiddenException, Delete, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { MemberService } from '../service/member.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
-import { PermissionGuard, hasCellAccessDb } from '../../common/security/permission.guard';
+import { PermissionGuard, hasCelulaAccessDb } from '../../common/security/permission.guard';
 import { PrismaService } from '../../common';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 import { MemberInput } from '../model/member.input';
@@ -13,28 +13,28 @@ export class MemberController {
     constructor(private readonly service: MemberService, private readonly prisma: PrismaService) {}
 
     @UseGuards(RestrictedGuard, PermissionGuard)
-    @Get('cells/:cellId/members')
-    public async list(@Req() req: AuthenticatedRequest, @Param('cellId') cellIdParam: string) {
+    @Get('celulas/:celulaId/members')
+    public async list(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string) {
         const permission = (req as any).permission;
-        const cellId = Number(cellIdParam);
-        const ok = await hasCellAccessDb(this.prisma, permission, cellId);
-        if (!ok) throw new ForbiddenException('No access to this cell');
+        const celulaId = Number(celulaIdParam);
+        const ok = await hasCelulaAccessDb(this.prisma, permission, celulaId);
+        if (!ok) throw new ForbiddenException('No access to this celula');
 
-        return this.service.findActiveByCell(cellId);
+        return this.service.findActiveByCelula(celulaId);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
-    @Post('cells/:cellId/members')
+    @Post('celulas/:celulaId/members')
     @ApiOperation({ summary: 'Criar membro na célula' })
     @ApiBody({ type: MemberInput })
     @ApiResponse({ status: 201, description: 'Membro criado' })
-    public async create(@Req() req: AuthenticatedRequest, @Param('cellId') cellIdParam: string, @Body() body: MemberInput) {
+    public async create(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string, @Body() body: MemberInput) {
         const permission = (req as any).permission;
-        const cellId = Number(cellIdParam);
-        const ok = await hasCellAccessDb(this.prisma, permission, cellId);
-        if (!ok) throw new ForbiddenException('No access to this cell');
+        const celulaId = Number(celulaIdParam);
+        const ok = await hasCelulaAccessDb(this.prisma, permission, celulaId);
+        if (!ok) throw new ForbiddenException('No access to this celula');
 
-        return this.service.create(cellId, body.name);
+        return this.service.create(celulaId, body.name);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
@@ -46,10 +46,25 @@ export class MemberController {
         const memberId = Number(memberIdParam);
         const member = await this.prisma.member.findUnique({ where: { id: memberId } });
         if (!member) throw new ForbiddenException('Member not found');
-        const ok = await hasCellAccessDb(this.prisma, permission, member.cellId);
-        if (!ok) throw new ForbiddenException('No access to this cell');
+        const ok = await hasCelulaAccessDb(this.prisma, permission, member.celulaId);
+        if (!ok) throw new ForbiddenException('No access to this celula');
 
         return this.service.inactivate(memberId);
+    }
+
+    @UseGuards(RestrictedGuard, PermissionGuard)
+    @Put('members/:memberId')
+    @ApiOperation({ summary: 'Atualizar membro' })
+    @ApiResponse({ status: 200, description: 'Membro atualizado' })
+    public async update(@Req() req: AuthenticatedRequest, @Param('memberId') memberIdParam: string, @Body() body: MemberInput) {
+        const permission = (req as any).permission;
+        const memberId = Number(memberIdParam);
+        const member = await this.prisma.member.findUnique({ where: { id: memberId } });
+        if (!member) throw new ForbiddenException('Member not found');
+        const ok = await hasCelulaAccessDb(this.prisma, permission, member.celulaId);
+        if (!ok) throw new ForbiddenException('No access to this celula');
+
+        return this.service.update(memberId, body as any);
     }
 
 }

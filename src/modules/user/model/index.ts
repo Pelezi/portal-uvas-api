@@ -1,2 +1,2 @@
-export { UserData } from './user.data';
+export { UserData, UserDataWithRoles, Role } from './user.data';
 export { UserInput, LoginInput } from './user.input';

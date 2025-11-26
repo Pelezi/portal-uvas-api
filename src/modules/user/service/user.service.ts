@@ -3,8 +3,7 @@ import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
 
 import { PrismaService } from '../../common';
-import { Role } from '../../tokens';
-import { UserData, UserInput, LoginInput } from '../model';
+import { UserData, UserInput, LoginInput, UserDataWithRoles, Role } from '../model';
 import { EmailService } from '../../common/provider/email.provider';
 
 @Injectable()
@@ -23,11 +22,25 @@ export class UserService {
      *
      * @returns A user list
      */
-    public async find(): Promise<UserData[]> {
-
-        const users = await this.prismaService.user.findMany({ include: { permission: true } });
-
-        return users.map(user => new UserData(user));
+    public async find(): Promise<UserDataWithRoles[]> {
+        const users = await this.prismaService.user.findMany();
+        let results: UserDataWithRoles[] = [];
+        for (let user of users) {
+            let roles: Role[] = [];
+            const redes = await this.prismaService.rede.count({ where: { pastorUserId: user.id } });
+            if (redes > 0) roles.push('PASTOR');
+            const discipulados = await this.prismaService.discipulado.count({ where: { discipuladorUserId: user.id } });
+            if (discipulados > 0) roles.push('DISCIPULADOR');
+            const ledCelulas = await this.prismaService.celula.count({ where: { leaderUserId: user.id } });
+            if (ledCelulas > 0) roles.push('LEADER');
+            const viceLedCelulas = await this.prismaService.celula.count({ where: { viceLeaderUserId: user.id } });
+            if (viceLedCelulas > 0) roles.push('VICELEADER');
+            roles.push((user.role || 'MEMBER') as Role);
+            if (user.admin) roles.push('ADMIN');
+            const userDataWithRoles = new UserDataWithRoles(user, roles);
+            results.push(userDataWithRoles);
+        }
+        return results;
     }
 
     /**
@@ -36,9 +49,27 @@ export class UserService {
      * @param id User ID
      * @returns A user or null
      */
-    public async findById(id: number): Promise<UserData | null> {
+    public async findById(id: number): Promise<UserDataWithRoles | null> {
 
         const user = await this.prismaService.user.findUnique({
+            include: {
+                viceLedCelulas: true,
+                ledCelulas: true,
+                discipulados: {
+                    include: {
+                        celulas: true
+                    }
+                },
+                redes: {
+                    include: {
+                        discipulados: {
+                            include: {
+                                celulas: true
+                            }
+                        }
+                    }
+                }
+            },
             where: { id }
         });
 
@@ -46,7 +77,19 @@ export class UserService {
             return null;
         }
 
-        return new UserData(user);
+        let roles: Role[] = [];
+        const redes = await this.prismaService.rede.count({ where: { pastorUserId: user.id } });
+        if (redes > 0) roles.push('PASTOR');
+        const discipulados = await this.prismaService.discipulado.count({ where: { discipuladorUserId: user.id } });
+        if (discipulados > 0) roles.push('DISCIPULADOR');
+        const ledCelulas = await this.prismaService.celula.count({ where: { leaderUserId: user.id } });
+        if (ledCelulas > 0) roles.push('LEADER');
+        const viceLedCelulas = await this.prismaService.celula.count({ where: { viceLeaderUserId: user.id } });
+        if (viceLedCelulas > 0) roles.push('VICELEADER');
+        roles.push((user.role || 'MEMBER') as Role);
+        if (user.admin) roles.push('ADMIN');
+        const userDataWithRoles = new UserDataWithRoles(user, roles);
+        return userDataWithRoles;
     }
 
     /**
@@ -140,9 +183,27 @@ export class UserService {
      * @param data Login credentials
      * @returns JWT token and user data
      */
-    public async login(data: LoginInput): Promise<{ token: string; user: UserData; permission?: { id: number; hasGlobalCellAccess: boolean; canManageCells: boolean; canManagePermissions: boolean; cellIds: number[] | null } | null }> {
+    public async login(data: LoginInput): Promise<{ token: string; user: UserData; permission?: { id: number; admin: boolean, viceLeader: boolean, leader: boolean, discipulador: boolean, pastor: boolean; celulaIds: number[] | null } | null }> {
 
         const user = await this.prismaService.user.findUnique({
+            include: {
+                viceLedCelulas: true,
+                ledCelulas: true,
+                discipulados: {
+                    include: {
+                        celulas: true
+                    }
+                },
+                redes: {
+                    include: {
+                        discipulados: {
+                            include: {
+                                celulas: true
+                            }
+                        }
+                    }
+                }
+            },
             where: { email: data.email }
         });
 
@@ -169,7 +230,8 @@ export class UserService {
             {
                 userId: user.id,
                 email: user.email,
-                role: Role.RESTRICTED
+                role: user.role,
+                admin: user.admin
             },
             process.env.JWT_SECRET || 'secret',
             { expiresIn: '24h', issuer: process.env.JWT_ISSUER || 'IssuerApplication' }
@@ -177,44 +239,57 @@ export class UserService {
 
         return {
             token,
-            user: new UserData(user),
+            user: user,
             permission: await this.loadPermissionForUser(user.id)
         };
     }
 
     private async loadPermissionForUser(userId: number) {
-        const permission = await this.prismaService.permission.findUnique({ where: { userId }, include: { permissionCells: true } });
-        if (!permission) return null;
-        const cellIds = (permission.permissionCells || []).map(pc => (pc as any).cellId).filter(Boolean) as number[];
+        // Build a permission object based on the new schema relations
+        const dbUser = await this.prismaService.user.findUnique({ where: { id: userId }, include: { redes: true, discipulados: true, ledCelulas: true, viceLedCelulas: true } });
+        if (!dbUser) return null;
+
+        const leaderCelulaIds = (dbUser.ledCelulas || []).map(c => c.id);
+        const viceCelulaIds = (dbUser.viceLedCelulas || []).map(c => c.id);
+
+        const celulasFromRede = await this.prismaService.celula.findMany({ where: { discipulado: { rede: { pastorUserId: dbUser.id } } } }).catch(() => []);
+        const celulasFromDiscipulado = await this.prismaService.celula.findMany({ where: { discipulado: { discipuladorUserId: dbUser.id } } }).catch(() => []);
+
+        const extraCelulaIds = [...(celulasFromRede || []).map(c => c.id), ...(celulasFromDiscipulado || []).map(c => c.id)];
+        const celulaIds = Array.from(new Set([...leaderCelulaIds, ...viceCelulaIds, ...extraCelulaIds]));
+
         return {
-            id: permission.id,
-            hasGlobalCellAccess: permission.hasGlobalCellAccess,
-            canManageCells: permission.canManageCells,
-            canManagePermissions: permission.canManagePermissions,
-            cellIds: cellIds.length ? cellIds : null
-        };
+            id: dbUser.id,
+            admin: dbUser.admin,
+            viceLeader: viceCelulaIds.length > 0,
+            leader: leaderCelulaIds.length > 0,
+            discipulador: (dbUser.discipulados || []).length > 0,
+            pastor: (dbUser.redes || []).length > 0,
+            celulaIds: celulaIds.length ? celulaIds : null
+        } as any;
     }
 
     /**
      * Return the logged user data and permissions (no token)
      */
-    public async me(userId: number): Promise<{ user: UserData; permission?: { id: number; hasGlobalCellAccess: boolean; canManageCells: boolean; canManagePermissions: boolean; cellIds: number[] | null } | null }> {
+    public async me(userId: number): Promise<{ user: UserData }> {
         const user = await this.findById(userId);
         if (!user) throw new Error('User not found');
-        const permission = await this.loadPermissionForUser(userId);
-        return { user, permission };
+        return { user };
     }
 
     /**
      * Update any user's basic profile (admin/perm only)
      */
     public async updateUser(userId: number, data: { firstName?: string; lastName?: string; phoneNumber?: string; timezone?: string }) {
-        const user = await this.prismaService.user.update({ where: { id: userId }, data: {
-            ...(data.firstName !== undefined && { firstName: data.firstName }),
-            ...(data.lastName !== undefined && { lastName: data.lastName }),
-            ...(data.phoneNumber !== undefined && { phoneNumber: data.phoneNumber }),
-            ...(data.timezone !== undefined && { timezone: data.timezone }),
-        } });
+        const user = await this.prismaService.user.update({
+            where: { id: userId }, data: {
+                ...(data.firstName !== undefined && { firstName: data.firstName }),
+                ...(data.lastName !== undefined && { lastName: data.lastName }),
+                ...(data.phoneNumber !== undefined && { phoneNumber: data.phoneNumber }),
+                ...(data.timezone !== undefined && { timezone: data.timezone }),
+            }
+        });
         return new UserData(user);
     }
 
@@ -297,7 +372,7 @@ export class UserService {
     /**
      * Get user by id including permission object
      */
-    public async getByIdWithPermission(userId: number): Promise<{ user: UserData; permission?: { id: number; hasGlobalCellAccess: boolean; canManageCells: boolean; canManagePermissions: boolean; cellIds: number[] | null } | null }> {
+    public async getByIdWithPermission(userId: number): Promise<{ user: UserData; permission?: { id: number; hasGlobalCelulaAccess: boolean; canManageCelulas: boolean; canManagePermissions: boolean; celulaIds: number[] | null } | null }> {
         const user = await this.findById(userId);
         if (!user) throw new Error('User not found');
         const permission = await this.loadPermissionForUser(userId);

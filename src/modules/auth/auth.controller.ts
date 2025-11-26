@@ -26,15 +26,7 @@ export class AuthController {
     public async me(@Req() req: AuthenticatedRequest) {
         const userId = req.user!.userId;
         const user = await this.prisma.user.findUnique({ where: { id: userId } });
-        const permission = await this.prisma.permission.findUnique({ where: { userId } });
 
-        return {
-            user,
-            permission
-        };
+        return user;
     }
-
-    // inject prisma via property to avoid modifying constructor signature
-    // PrismaService is injected via constructor
-
 }

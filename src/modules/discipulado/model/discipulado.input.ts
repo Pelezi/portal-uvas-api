@@ -1,0 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
+
+export class DiscipuladoCreateInput {
+    @ApiProperty({ description: 'Nome do discipulado', example: 'Discipulado Norte' })
+    public readonly name: string;
+
+    @ApiProperty({ description: 'Rede (network) id this discipulado belongs to', example: 1 })
+    public readonly redeId: number;
+
+    @ApiProperty({ description: 'User id of discipulador (optional)', required: false })
+    public readonly discipuladorUserId: number;
+}

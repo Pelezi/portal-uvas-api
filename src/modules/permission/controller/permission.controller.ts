@@ -28,7 +28,7 @@ export class PermissionController {
         const permission = (req as any).permission;
         requireCanManagePermissions(permission);
 
-        return this.service.createOrUpdate(body.email, body.cellIds || [], !!body.hasGlobalCellAccess, !!body.canManageCells, !!body.canManagePermissions);
+        return this.service.createOrUpdate(body.email, body.celulaIds || [], !!body.hasGlobalCelulaAccess, !!body.canManageCelulas, !!body.canManagePermissions);
     }
 
     @Delete(':id')
