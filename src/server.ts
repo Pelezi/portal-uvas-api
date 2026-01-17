@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { ApplicationModule } from './modules/app.module';
 import { CommonModule, LogInterceptor } from './modules/common';
+import { SecurityConfigService } from './modules/config/service/security-config.service';
 
 /**
  * These are API defaults that can be changed using environment variables,
@@ -57,6 +58,16 @@ async function bootstrap(): Promise<void> {
         new FastifyAdapter()
     );
 
+    // Validate security configuration on startup
+    // This ensures that JWT_SECRET, JWT_ISSUER and other critical configs are set
+    // The SecurityConfigService constructor will throw if validation fails
+    try {
+        app.get(SecurityConfigService);
+        console.log('✓ Configuração de segurança validada com sucesso');
+    } catch (error: unknown) {
+        console.error('✗ Falha na validação da configuração de segurança');
+        throw error;
+    }
     // Enable CORS for frontend access
     // Support multiple origins using `CORS_ORIGINS` (comma-separated) or
     // the legacy single `CORS_ORIGIN` env var.

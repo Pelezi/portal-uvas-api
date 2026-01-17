@@ -2,15 +2,18 @@ import { Controller, Post, Body, UseGuards, Req, Param, Get, ForbiddenException 
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { ReportService } from '../service/report.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
-import { PermissionGuard, hasCelulaAccessDb } from '../../common/security/permission.guard';
-import { PrismaService } from '../../common';
+import { PermissionGuard } from '../../common/security/permission.guard';
+import { PermissionService } from '../../common/security/permission.service';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 import { ReportCreateInput } from '../model/report.input';
 
 @Controller('celulas/:celulaId/reports')
 @ApiTags('reports')
 export class ReportController {
-    constructor(private readonly service: ReportService, private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly service: ReportService,
+        private readonly permissionService: PermissionService
+    ) {}
 
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Post()
@@ -18,10 +21,12 @@ export class ReportController {
     @ApiBody({ type: ReportCreateInput })
     @ApiResponse({ status: 201, description: 'Relatório criado' })
     public async create(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string, @Body() body: ReportCreateInput) {
-        const permission = (req as any).permission;
+        const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        const ok = await hasCelulaAccessDb(this.prisma, permission, celulaId);
-        if (!ok) throw new ForbiddenException('No access to this celula');
+        
+        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+            throw new ForbiddenException('No access to this celula');
+        }
 
         return this.service.create(celulaId, body.memberIds || [], body.date);
     }
@@ -29,10 +34,12 @@ export class ReportController {
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get()
     public async list(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string) {
-        const permission = (req as any).permission;
+        const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        const ok = await hasCelulaAccessDb(this.prisma, permission, celulaId);
-        if (!ok) throw new ForbiddenException('No access to this celula');
+        
+        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+            throw new ForbiddenException('No access to this celula');
+        }
 
         return this.service.findByCelula(celulaId);
     }
@@ -41,10 +48,12 @@ export class ReportController {
     @Get('presences')
     @ApiOperation({ summary: 'Relatório de presenças da célula' })
     public async presences(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string) {
-        const permission = (req as any).permission;
+        const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        const ok = await hasCelulaAccessDb(this.prisma, permission, celulaId);
-        if (!ok) throw new ForbiddenException('No access to this celula');
+        
+        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+            throw new ForbiddenException('No access to this celula');
+        }
 
         return this.service.presences(celulaId);
     }

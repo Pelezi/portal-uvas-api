@@ -8,5 +8,5 @@ export class DiscipuladoCreateInput {
     public readonly redeId: number;
 
     @ApiProperty({ description: 'User id of discipulador (optional)', required: false })
-    public readonly discipuladorUserId: number;
+    public readonly discipuladorMemberId?: number;
 }

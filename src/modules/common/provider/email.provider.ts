@@ -38,7 +38,7 @@ export class EmailService {
 
         try {
             await this.transporter.sendMail({ from, to, subject, html });
-        } catch (err) {
+        } catch (err: unknown) {
             // Log the SMTP error and fallback to console output so invite flow doesn't fail
             console.error('Failed to send invite email, falling back to console. Error:', err);
             console.log(`Invite email to ${to}: ${link}`);

@@ -63,7 +63,6 @@ A seguir as tabelas (modelos Prisma) presentes em `prisma/schema.prisma`, com ca
    - `lastName: String`
    - `phoneNumber: String?`
    - `firstAccess: Boolean` (default: `true`)
-   - `timezone: String` (default: `UTC`)
    - `createdAt: DateTime` (default: `now()`)
    - `updatedAt: DateTime` (@updatedAt)
    - Relação: `permission: Permission?` (1:1)

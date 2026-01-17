@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common';
+import { Prisma } from '../../../generated/prisma/client';
 
 @Injectable()
 export class ReportService {
@@ -34,11 +35,10 @@ export class ReportService {
 
         await this.prisma.report.deleteMany({ where: { celulaId, createdAt: { gte: startUtc, lte: endUtc } } });
 
-        const createData: any = { celulaId };
-        if (date) {
-            // set createdAt to startUtc so report shows provided date
-            createData.createdAt = startUtc;
-        }
+        const createData: Partial<Prisma.ReportCreateInput> & { celula: { connect: { id: number } } } = { 
+            celula: { connect: { id: celulaId } },
+            ...(date && { createdAt: startUtc })
+        };
 
         const report = await this.prisma.report.create({ data: createData });
 

@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../common';
 import { RedeCreateInput } from '../model/rede.input';
+import { canBePastor, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 
 @Injectable()
 export class RedeService {
@@ -18,11 +19,41 @@ export class RedeService {
     }
 
     public async create(data: RedeCreateInput) {
-        return this.prisma.rede.create({ data: { name: data.name, pastorUserId: data.pastorUserId } });
+        if (data.pastorMemberId) {
+            const pastor = await this.prisma.member.findUnique({
+                where: { id: data.pastorMemberId },
+                include: { ministryPosition: true }
+            });
+            if (!pastor) {
+                throw new BadRequestException('Pastor não encontrado');
+            }
+            if (!canBePastor(pastor.ministryPosition?.type)) {
+                throw new BadRequestException(
+                    `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(pastor.ministryPosition?.type)}. ` +
+                    `É necessário ser Pastor.`
+                );
+            }
+        }
+        return this.prisma.rede.create({ data: { name: data.name, pastorMemberId: data.pastorMemberId } });
     }
 
     public async update(id: number, data: Partial<RedeCreateInput>) {
-        return this.prisma.rede.update({ where: { id }, data: { name: data.name, pastorUserId: data.pastorUserId } });
+        if (data.pastorMemberId !== undefined && data.pastorMemberId !== null) {
+            const pastor = await this.prisma.member.findUnique({
+                where: { id: data.pastorMemberId },
+                include: { ministryPosition: true }
+            });
+            if (!pastor) {
+                throw new BadRequestException('Pastor não encontrado');
+            }
+            if (!canBePastor(pastor.ministryPosition?.type)) {
+                throw new BadRequestException(
+                    `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(pastor.ministryPosition?.type)}. ` +
+                    `É necessário ser Pastor.`
+                );
+            }
+        }
+        return this.prisma.rede.update({ where: { id }, data: { name: data.name, pastorMemberId: data.pastorMemberId } });
     }
 
     public async delete(id: number) {

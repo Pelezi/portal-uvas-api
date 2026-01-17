@@ -1,79 +1,132 @@
 generator client {
-  provider = "prisma-client-js"
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
-model User {
-  id          Int         @id @default(autoincrement())
-  email       String      @unique
-  password    String?
-  firstName   String
-  lastName    String
-  phone       String?
-  firstAccess Boolean     @default(true)
-  timezone    String      @default("UTC")
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  admin       Boolean     @default(false)
-  role        ChurchRoles @default(MEMBER)
-
-  members      Member[]
-  redes        Rede[]
-  discipulados Discipulado[]
-  ledCelulas   Celula[]      @relation("CelulaLeader")
-  viceLedCelulas Celula[]    @relation("CelulaViceLeader")
-}
-
-enum ChurchRoles {
-  PASTOR
-  PRESIDENTPASTOR
-  VICEPRESIDENTPASTOR
-  DISCIPULADOR
-  LEADER
-  MEMBER
 }
 
 model Celula {
-  id               Int      @id @default(autoincrement())
-  name             String   @unique
-  leaderUserId     Int
-  viceLeaderUserId Int?
-  discipuladoId    Int
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 Int      @id @default(autoincrement())
+  name               String   @unique
+  leaderMemberId     Int?
+  viceLeaderMemberId Int?
+  discipuladoId      Int?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   members Member[]
   reports Report[]
 
   discipulado Discipulado? @relation(fields: [discipuladoId], references: [id])
-  leader      User         @relation("CelulaLeader", fields: [leaderUserId], references: [id], onDelete: SetNull)
-  viceLeader  User?        @relation("CelulaViceLeader", fields: [viceLeaderUserId], references: [id], onDelete: SetNull)
+  leader      Member?      @relation("CelulaLeader", fields: [leaderMemberId], references: [id], onDelete: SetNull)
+  viceLeader  Member?      @relation("CelulaViceLeader", fields: [viceLeaderMemberId], references: [id], onDelete: SetNull)
 
   @@index([discipuladoId])
-  @@index([leaderUserId])
-  @@index([viceLeaderUserId])
+  @@index([leaderMemberId])
+  @@index([viceLeaderMemberId])
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // To do: Permissões de tesoureiro, gerenciar landing page, gerenciar revistas, etc.
+
+  members MemberRole[]
+}
+
+model Ministry {
+  id        Int          @id @default(autoincrement())
+  name      String       @unique
+  type      MinistryType @default(MEMBER)
+  priority  Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  members Member[]
+}
+
+model WinnerPath {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  priority  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members Member[]
 }
 
 model Member {
-  id            Int           @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
+  
+  // User/Auth fields (from old User model)
+  email       String?      @unique
+  password    String?
+  phone       String?
+  
+  // Member info fields (from old Member model)
   name          String
-  status        MemberStatus  @default(MEMBER)
-  celulaId      Int
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  userId        Int?
+  celulaId      Int?
+  isActive      Boolean       @default(true)
   maritalStatus MaritalStatus @default(SINGLE)
+  
+  // Personal info
+  photoUrl      String?
+  gender        Gender?
+  isBaptized    Boolean       @default(false)
+  baptismDate   DateTime?
+  birthDate     DateTime?
+  registerDate  DateTime?
+  spouseId      Int?          @unique
+  
+  // Church info
+  ministryPositionId  Int?
+  winnerPathId        Int?
+  canBeHost           Boolean    @default(false)
+  
+  // Address
+  country      String?       @default("Brasil")
+  zipCode      String?
+  street       String?
+  streetNumber String?
+  neighborhood String?
+  city         String?
+  complement   String?
+  state        String?
+  
+  // Access
+  hasSystemAccess  Boolean    @default(false)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
-  attendances ReportAttendance[]
-
-  user   User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
-  celula Celula @relation(fields: [celulaId], references: [id], onDelete: NoAction)
+  // Relations
+  attendances      ReportAttendance[]
+  redes            Rede[]
+  discipulados     Discipulado[]
+  ledCelulas       Celula[]      @relation("CelulaLeader")
+  viceLedCelulas   Celula[]      @relation("CelulaViceLeader")
+  celula           Celula?       @relation(fields: [celulaId], references: [id], onDelete: NoAction)
+  ministryPosition Ministry?     @relation(fields: [ministryPositionId], references: [id], onDelete: SetNull)
+  winnerPath       WinnerPath?   @relation(fields: [winnerPathId], references: [id], onDelete: SetNull)
+  spouse           Member?       @relation("MemberSpouse", fields: [spouseId], references: [id], onDelete: SetNull)
+  spouseOf         Member?       @relation("MemberSpouse")
+  roles            MemberRole[]
 
   @@index([celulaId])
+  @@index([ministryPositionId])
+  @@index([winnerPathId])
+  @@index([spouseId])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
 }
 
 enum MaritalStatus {
@@ -84,39 +137,43 @@ enum MaritalStatus {
   WIDOWED
 }
 
-enum MemberStatus {
-  VISITOR
+enum MinistryType {
+  PRESIDENT_PASTOR
+  PASTOR
+  DISCIPULADOR
+  LEADER
+  LEADER_IN_TRAINING
   MEMBER
-  FA
-  INACTIVE
+  REGULAR_ATTENDEE
+  VISITOR
 }
 
 model Rede {
   id           Int      @id @default(autoincrement())
   name         String   @unique
-  pastorUserId Int
+  pastorMemberId Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   discipulados Discipulado[]
 
-  pastor User @relation(fields: [pastorUserId], references: [id], onDelete: Cascade)
+  pastor Member? @relation(fields: [pastorMemberId], references: [id], onDelete: Cascade)
 }
 
 model Discipulado {
   id                 Int      @id @default(autoincrement())
   redeId             Int
-  discipuladorUserId Int
+  discipuladorMemberId Int?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
   celulas Celula[]
 
-  rede         Rede @relation(fields: [redeId], references: [id], onDelete: Cascade)
-  discipulador User @relation(fields: [discipuladorUserId], references: [id], onDelete: Cascade)
+  rede         Rede   @relation(fields: [redeId], references: [id], onDelete: Cascade)
+  discipulador Member? @relation(fields: [discipuladorMemberId], references: [id], onDelete: Cascade)
 
   @@index([redeId])
-  @@index([discipuladorUserId])
+  @@index([discipuladorMemberId])
 }
 
 model Report {
@@ -141,4 +198,17 @@ model ReportAttendance {
   @@unique([reportId, memberId])
   @@index([reportId])
   @@index([memberId])
+}
+
+model MemberRole {
+  id       Int @id @default(autoincrement())
+  memberId Int
+  roleId   Int
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  role   Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, roleId])
+  @@index([memberId])
+  @@index([roleId])
 }

@@ -1,9 +1,9 @@
 import { FastifyRequest } from 'fastify';
+import { LoadedPermission } from '../security/permission.service';
 
 export interface AuthenticatedRequest extends FastifyRequest {
-    user?: {
-        userId: number;
-        role: string;
-        admin: boolean;
+    member?: {
+        id: number;
     };
+    permission?: LoadedPermission;
 }

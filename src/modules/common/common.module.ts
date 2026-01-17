@@ -5,6 +5,7 @@ import { HealthController } from './controller';
 import { LogInterceptor } from './flow';
 import { configProvider, LoggerService, PrismaService } from './provider';
 import { PermissionGuard } from './security/permission.guard';
+import { PermissionService } from './security/permission.service';
 import { EmailService } from './provider/email.provider';
 
 @Module({
@@ -17,6 +18,7 @@ import { EmailService } from './provider/email.provider';
         LogInterceptor,
         PrismaService,
         PermissionGuard,
+        PermissionService,
         EmailService
     ],
     exports: [
@@ -25,6 +27,7 @@ import { EmailService } from './provider/email.provider';
         LogInterceptor,
         PrismaService,
         PermissionGuard,
+        PermissionService,
         EmailService
     ],
     controllers: [
