@@ -18,11 +18,6 @@ export class MinistryController {
 
     @Get()
     public async findAll(@Req() req: AuthenticatedRequest) {
-        try {
-            this.permissionService.requireAdmin(req.permission);
-        } catch (error: unknown) {
-            throw new HttpException('Apenas administradores podem acessar ministérios', HttpStatus.FORBIDDEN);
-        }
         return this.ministryService.findAll();
     }
 
