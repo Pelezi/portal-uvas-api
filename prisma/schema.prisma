@@ -69,6 +69,7 @@ model Member {
   email       String?      @unique
   password    String?
   phone       String?
+  hasDefaultPassword Boolean  @default(true)
   
   // Member info fields (from old Member model)
   name          String

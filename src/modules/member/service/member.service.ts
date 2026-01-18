@@ -465,7 +465,7 @@ export class MemberService {
             if (!payload || payload.purpose !== 'set-password') throw new HttpException('Token inválido', HttpStatus.UNAUTHORIZED);
             const userId = payload.userId;
             const hashed = await bcrypt.hash(password, this.securityConfig.bcryptSaltRounds);
-            const member = await this.prisma.member.update({ where: { id: userId }, data: { password: hashed } });
+            const member = await this.prisma.member.update({ where: { id: userId }, data: { password: hashed, hasDefaultPassword: false } });
             return member;
         } catch (err: unknown) {
             throw new HttpException('Token inválido ou expirado', HttpStatus.UNAUTHORIZED);
@@ -610,7 +610,7 @@ export class MemberService {
         const hashedPassword = await bcrypt.hash(newPassword, this.securityConfig.bcryptSaltRounds);
         await this.prisma.member.update({
             where: { id: memberId },
-            data: { password: hashedPassword }
+            data: { password: hashedPassword, hasDefaultPassword: false }
         });
         
         return { success: true };

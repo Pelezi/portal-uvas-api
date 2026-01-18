@@ -133,6 +133,7 @@ export const MemberScalarFieldEnum = {
   email: 'email',
   password: 'password',
   phone: 'phone',
+  hasDefaultPassword: 'hasDefaultPassword',
   name: 'name',
   celulaId: 'celulaId',
   isActive: 'isActive',

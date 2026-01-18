@@ -47,6 +47,7 @@ export type MemberMinAggregateOutputType = {
   email: string | null
   password: string | null
   phone: string | null
+  hasDefaultPassword: boolean | null
   name: string | null
   celulaId: number | null
   isActive: boolean | null
@@ -79,6 +80,7 @@ export type MemberMaxAggregateOutputType = {
   email: string | null
   password: string | null
   phone: string | null
+  hasDefaultPassword: boolean | null
   name: string | null
   celulaId: number | null
   isActive: boolean | null
@@ -111,6 +113,7 @@ export type MemberCountAggregateOutputType = {
   email: number
   password: number
   phone: number
+  hasDefaultPassword: number
   name: number
   celulaId: number
   isActive: number
@@ -161,6 +164,7 @@ export type MemberMinAggregateInputType = {
   email?: true
   password?: true
   phone?: true
+  hasDefaultPassword?: true
   name?: true
   celulaId?: true
   isActive?: true
@@ -193,6 +197,7 @@ export type MemberMaxAggregateInputType = {
   email?: true
   password?: true
   phone?: true
+  hasDefaultPassword?: true
   name?: true
   celulaId?: true
   isActive?: true
@@ -225,6 +230,7 @@ export type MemberCountAggregateInputType = {
   email?: true
   password?: true
   phone?: true
+  hasDefaultPassword?: true
   name?: true
   celulaId?: true
   isActive?: true
@@ -344,6 +350,7 @@ export type MemberGroupByOutputType = {
   email: string | null
   password: string | null
   phone: string | null
+  hasDefaultPassword: boolean
   name: string
   celulaId: number | null
   isActive: boolean
@@ -399,6 +406,7 @@ export type MemberWhereInput = {
   email?: Prisma.StringNullableFilter<"Member"> | string | null
   password?: Prisma.StringNullableFilter<"Member"> | string | null
   phone?: Prisma.StringNullableFilter<"Member"> | string | null
+  hasDefaultPassword?: Prisma.BoolFilter<"Member"> | boolean
   name?: Prisma.StringFilter<"Member"> | string
   celulaId?: Prisma.IntNullableFilter<"Member"> | number | null
   isActive?: Prisma.BoolFilter<"Member"> | boolean
@@ -442,6 +450,7 @@ export type MemberOrderByWithRelationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  hasDefaultPassword?: Prisma.SortOrder
   name?: Prisma.SortOrder
   celulaId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -489,6 +498,7 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.MemberWhereInput | Prisma.MemberWhereInput[]
   password?: Prisma.StringNullableFilter<"Member"> | string | null
   phone?: Prisma.StringNullableFilter<"Member"> | string | null
+  hasDefaultPassword?: Prisma.BoolFilter<"Member"> | boolean
   name?: Prisma.StringFilter<"Member"> | string
   celulaId?: Prisma.IntNullableFilter<"Member"> | number | null
   isActive?: Prisma.BoolFilter<"Member"> | boolean
@@ -531,6 +541,7 @@ export type MemberOrderByWithAggregationInput = {
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrderInput | Prisma.SortOrder
   phone?: Prisma.SortOrderInput | Prisma.SortOrder
+  hasDefaultPassword?: Prisma.SortOrder
   name?: Prisma.SortOrder
   celulaId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -571,6 +582,7 @@ export type MemberScalarWhereWithAggregatesInput = {
   email?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   password?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   phone?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
+  hasDefaultPassword?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
   name?: Prisma.StringWithAggregatesFilter<"Member"> | string
   celulaId?: Prisma.IntNullableWithAggregatesFilter<"Member"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
@@ -602,6 +614,7 @@ export type MemberCreateInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -641,6 +654,7 @@ export type MemberUncheckedCreateInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -679,6 +693,7 @@ export type MemberUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -718,6 +733,7 @@ export type MemberUncheckedUpdateInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -757,6 +773,7 @@ export type MemberCreateManyInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -788,6 +805,7 @@ export type MemberUpdateManyMutationInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -816,6 +834,7 @@ export type MemberUncheckedUpdateManyInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -863,6 +882,7 @@ export type MemberCountOrderByAggregateInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  hasDefaultPassword?: Prisma.SortOrder
   name?: Prisma.SortOrder
   celulaId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -903,6 +923,7 @@ export type MemberMaxOrderByAggregateInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  hasDefaultPassword?: Prisma.SortOrder
   name?: Prisma.SortOrder
   celulaId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -935,6 +956,7 @@ export type MemberMinOrderByAggregateInput = {
   email?: Prisma.SortOrder
   password?: Prisma.SortOrder
   phone?: Prisma.SortOrder
+  hasDefaultPassword?: Prisma.SortOrder
   name?: Prisma.SortOrder
   celulaId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -1257,6 +1279,7 @@ export type MemberCreateWithoutCelulaInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1295,6 +1318,7 @@ export type MemberUncheckedCreateWithoutCelulaInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1342,6 +1366,7 @@ export type MemberCreateWithoutLedCelulasInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1380,6 +1405,7 @@ export type MemberUncheckedCreateWithoutLedCelulasInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -1422,6 +1448,7 @@ export type MemberCreateWithoutViceLedCelulasInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1460,6 +1487,7 @@ export type MemberUncheckedCreateWithoutViceLedCelulasInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -1522,6 +1550,7 @@ export type MemberScalarWhereInput = {
   email?: Prisma.StringNullableFilter<"Member"> | string | null
   password?: Prisma.StringNullableFilter<"Member"> | string | null
   phone?: Prisma.StringNullableFilter<"Member"> | string | null
+  hasDefaultPassword?: Prisma.BoolFilter<"Member"> | boolean
   name?: Prisma.StringFilter<"Member"> | string
   celulaId?: Prisma.IntNullableFilter<"Member"> | number | null
   isActive?: Prisma.BoolFilter<"Member"> | boolean
@@ -1564,6 +1593,7 @@ export type MemberUpdateWithoutLedCelulasInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -1602,6 +1632,7 @@ export type MemberUncheckedUpdateWithoutLedCelulasInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1650,6 +1681,7 @@ export type MemberUpdateWithoutViceLedCelulasInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -1688,6 +1720,7 @@ export type MemberUncheckedUpdateWithoutViceLedCelulasInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1725,6 +1758,7 @@ export type MemberCreateWithoutMinistryPositionInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1763,6 +1797,7 @@ export type MemberUncheckedCreateWithoutMinistryPositionInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -1826,6 +1861,7 @@ export type MemberCreateWithoutWinnerPathInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1864,6 +1900,7 @@ export type MemberUncheckedCreateWithoutWinnerPathInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -1927,6 +1964,7 @@ export type MemberCreateWithoutSpouseOfInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -1965,6 +2003,7 @@ export type MemberUncheckedCreateWithoutSpouseOfInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -2007,6 +2046,7 @@ export type MemberCreateWithoutSpouseInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -2045,6 +2085,7 @@ export type MemberUncheckedCreateWithoutSpouseInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -2098,6 +2139,7 @@ export type MemberUpdateWithoutSpouseOfInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2136,6 +2178,7 @@ export type MemberUncheckedUpdateWithoutSpouseOfInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2184,6 +2227,7 @@ export type MemberUpdateWithoutSpouseInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2222,6 +2266,7 @@ export type MemberUncheckedUpdateWithoutSpouseInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2259,6 +2304,7 @@ export type MemberCreateWithoutRedesInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -2297,6 +2343,7 @@ export type MemberUncheckedCreateWithoutRedesInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -2350,6 +2397,7 @@ export type MemberUpdateWithoutRedesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2388,6 +2436,7 @@ export type MemberUncheckedUpdateWithoutRedesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2425,6 +2474,7 @@ export type MemberCreateWithoutDiscipuladosInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -2463,6 +2513,7 @@ export type MemberUncheckedCreateWithoutDiscipuladosInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -2516,6 +2567,7 @@ export type MemberUpdateWithoutDiscipuladosInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2554,6 +2606,7 @@ export type MemberUncheckedUpdateWithoutDiscipuladosInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2591,6 +2644,7 @@ export type MemberCreateWithoutAttendancesInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -2629,6 +2683,7 @@ export type MemberUncheckedCreateWithoutAttendancesInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -2682,6 +2737,7 @@ export type MemberUpdateWithoutAttendancesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2720,6 +2776,7 @@ export type MemberUncheckedUpdateWithoutAttendancesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2757,6 +2814,7 @@ export type MemberCreateWithoutRolesInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -2795,6 +2853,7 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -2848,6 +2907,7 @@ export type MemberUpdateWithoutRolesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2886,6 +2946,7 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2924,6 +2985,7 @@ export type MemberCreateManyCelulaInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   isActive?: boolean
   maritalStatus?: $Enums.MaritalStatus
@@ -2954,6 +3016,7 @@ export type MemberUpdateWithoutCelulaInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -2992,6 +3055,7 @@ export type MemberUncheckedUpdateWithoutCelulaInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -3030,6 +3094,7 @@ export type MemberUncheckedUpdateManyWithoutCelulaInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -3061,6 +3126,7 @@ export type MemberCreateManyMinistryPositionInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -3091,6 +3157,7 @@ export type MemberUpdateWithoutMinistryPositionInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -3129,6 +3196,7 @@ export type MemberUncheckedUpdateWithoutMinistryPositionInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3167,6 +3235,7 @@ export type MemberUncheckedUpdateManyWithoutMinistryPositionInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3198,6 +3267,7 @@ export type MemberCreateManyWinnerPathInput = {
   email?: string | null
   password?: string | null
   phone?: string | null
+  hasDefaultPassword?: boolean
   name: string
   celulaId?: number | null
   isActive?: boolean
@@ -3228,6 +3298,7 @@ export type MemberUpdateWithoutWinnerPathInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
@@ -3266,6 +3337,7 @@ export type MemberUncheckedUpdateWithoutWinnerPathInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3304,6 +3376,7 @@ export type MemberUncheckedUpdateManyWithoutWinnerPathInput = {
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.BoolFieldUpdateOperationsInput | boolean
   name?: Prisma.StringFieldUpdateOperationsInput | string
   celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3411,6 +3484,7 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   email?: boolean
   password?: boolean
   phone?: boolean
+  hasDefaultPassword?: boolean
   name?: boolean
   celulaId?: boolean
   isActive?: boolean
@@ -3455,6 +3529,7 @@ export type MemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   email?: boolean
   password?: boolean
   phone?: boolean
+  hasDefaultPassword?: boolean
   name?: boolean
   celulaId?: boolean
   isActive?: boolean
@@ -3491,6 +3566,7 @@ export type MemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   email?: boolean
   password?: boolean
   phone?: boolean
+  hasDefaultPassword?: boolean
   name?: boolean
   celulaId?: boolean
   isActive?: boolean
@@ -3527,6 +3603,7 @@ export type MemberSelectScalar = {
   email?: boolean
   password?: boolean
   phone?: boolean
+  hasDefaultPassword?: boolean
   name?: boolean
   celulaId?: boolean
   isActive?: boolean
@@ -3554,7 +3631,7 @@ export type MemberSelectScalar = {
   updatedAt?: boolean
 }
 
-export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "phone" | "name" | "celulaId" | "isActive" | "maritalStatus" | "photoUrl" | "gender" | "isBaptized" | "baptismDate" | "birthDate" | "registerDate" | "spouseId" | "ministryPositionId" | "winnerPathId" | "canBeHost" | "country" | "zipCode" | "street" | "streetNumber" | "neighborhood" | "city" | "complement" | "state" | "hasSystemAccess" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "phone" | "hasDefaultPassword" | "name" | "celulaId" | "isActive" | "maritalStatus" | "photoUrl" | "gender" | "isBaptized" | "baptismDate" | "birthDate" | "registerDate" | "spouseId" | "ministryPositionId" | "winnerPathId" | "canBeHost" | "country" | "zipCode" | "street" | "streetNumber" | "neighborhood" | "city" | "complement" | "state" | "hasSystemAccess" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
 export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   attendances?: boolean | Prisma.Member$attendancesArgs<ExtArgs>
   redes?: boolean | Prisma.Member$redesArgs<ExtArgs>
@@ -3602,6 +3679,7 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     email: string | null
     password: string | null
     phone: string | null
+    hasDefaultPassword: boolean
     name: string
     celulaId: number | null
     isActive: boolean
@@ -4065,6 +4143,7 @@ export interface MemberFieldRefs {
   readonly email: Prisma.FieldRef<"Member", 'String'>
   readonly password: Prisma.FieldRef<"Member", 'String'>
   readonly phone: Prisma.FieldRef<"Member", 'String'>
+  readonly hasDefaultPassword: Prisma.FieldRef<"Member", 'Boolean'>
   readonly name: Prisma.FieldRef<"Member", 'String'>
   readonly celulaId: Prisma.FieldRef<"Member", 'Int'>
   readonly isActive: Prisma.FieldRef<"Member", 'Boolean'>
