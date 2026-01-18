@@ -116,10 +116,10 @@ export class PermissionService {
 
         return {
             id: dbMember.id,
-            viceLeader: (dbMember.viceLedCelulas || []).length > 0,
-            leader: (dbMember.ledCelulas || []).length > 0,
-            discipulador: (dbMember.discipulados || []).length > 0,
-            pastor: (dbMember.redes || []).length > 0,
+            viceLeader: ((dbMember.viceLedCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER_IN_TRAINING,
+            leader: ((dbMember.ledCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER,
+            discipulador: ((dbMember.discipulados || []).length > 0) || permission.ministryType === $Enums.MinistryType.DISCIPULADOR,
+            pastor: ((dbMember.redes || []).length > 0) || permission.ministryType === $Enums.MinistryType.PASTOR,
             ministryType: permission.ministryType,
             isAdmin: permission.isAdmin,
             celulaIds: permission.celulaIds.length ? permission.celulaIds : null

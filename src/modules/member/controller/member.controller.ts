@@ -19,8 +19,16 @@ export class MemberController {
     @Get('statistics')
     @ApiOperation({ summary: 'Buscar estatísticas dos membros' })
     @ApiResponse({ status: 200, description: 'Estatísticas dos membros' })
-    public async getStatistics() {
-        return this.service.getStatistics();
+    public async getStatistics(
+        @Query('celulaId') celulaId?: string,
+        @Query('discipuladoId') discipuladoId?: string,
+        @Query('redeId') redeId?: string
+    ) {
+        const filters: { celulaId?: number; discipuladoId?: number; redeId?: number } = {};
+        if (celulaId) filters.celulaId = Number(celulaId);
+        if (discipuladoId) filters.discipuladoId = Number(discipuladoId);
+        if (redeId) filters.redeId = Number(redeId);
+        return this.service.getStatistics(filters);
     }
 
     @Get(':memberId')

@@ -256,9 +256,36 @@ export class MemberService {
         });
     }
 
-    public async getStatistics() {
+    public async getStatistics(filters: { celulaId?: number; discipuladoId?: number; redeId?: number } = {}) {
+        const where: MemberWhereInput = { isActive: true };
+
+        // Aplicar filtros
+        if (filters.celulaId !== undefined) {
+            if (filters.celulaId === 0) {
+                where.celulaId = null;
+            } else {
+                where.celulaId = filters.celulaId;
+            }
+        } else {
+            const celulaWhere: CelulaWhereInput = {};
+
+            if (filters.discipuladoId) {
+                celulaWhere.discipuladoId = filters.discipuladoId;
+            }
+
+            if (filters.redeId) {
+                celulaWhere.discipulado = {
+                    redeId: filters.redeId
+                };
+            }
+
+            if (Object.keys(celulaWhere).length > 0) {
+                where.celula = celulaWhere;
+            }
+        }
+
         const members = await this.prisma.member.findMany({
-            where: { isActive: true },
+            where,
             include: { celula: true }
         });
 
