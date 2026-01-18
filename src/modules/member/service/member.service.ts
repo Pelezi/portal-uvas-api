@@ -124,6 +124,11 @@ export class MemberService {
             throw new HttpException('Email é obrigatório para membros com acesso ao sistema', HttpStatus.BAD_REQUEST);
         }
 
+        // Validar cônjuge se casado
+        if (body.maritalStatus === 'MARRIED' && body.spouseId) {
+            await this.validateAndUpdateSpouse(body.spouseId, null);
+        }
+
         const { roleIds, ...memberData } = body;
 
         // Converter strings vazias em null para datas e garantir formato ISO-8601 completo
@@ -163,6 +168,11 @@ export class MemberService {
                 });
             }
 
+            // Atualizar cônjuge se casado
+            if (body.maritalStatus === 'MARRIED' && body.spouseId) {
+                await this.updateSpouseMaritalStatus(body.spouseId, member.id);
+            }
+
             return await this.prisma.member.findUnique({
                 where: { id: member.id },
                 include: {
@@ -188,6 +198,11 @@ export class MemberService {
                 if (!finalEmail || !finalEmail.trim()) {
                     throw new HttpException('Email é obrigatório para membros com acesso ao sistema', HttpStatus.BAD_REQUEST);
                 }
+            }
+
+            // Validar cônjuge se casado
+            if (data.maritalStatus === 'MARRIED' && data.spouseId) {
+                await this.validateAndUpdateSpouse(data.spouseId, memberId);
             }
 
             const { roleIds, ...memberData } = data;
@@ -235,6 +250,11 @@ export class MemberService {
                         }))
                     });
                 }
+            }
+
+            // Atualizar cônjuge se casado
+            if (data.maritalStatus === 'MARRIED' && data.spouseId) {
+                await this.updateSpouseMaritalStatus(data.spouseId, memberId);
             }
 
             return await this.prisma.member.findUnique({
@@ -345,6 +365,37 @@ export class MemberService {
             maritalStatus: maritalStatusStats,
             ageRanges,
         };
+    }
+
+    /**
+     * Validar se o cônjuge pode ser associado e atualizar
+     */
+    private async validateAndUpdateSpouse(spouseId: number, currentMemberId: number | null) {
+        const spouse = await this.prisma.member.findUnique({
+            where: { id: spouseId }
+        });
+
+        if (!spouse) {
+            throw new HttpException('Cônjuge não encontrado', HttpStatus.BAD_REQUEST);
+        }
+
+        // Verificar se o cônjuge já está casado com outra pessoa
+        if (spouse.spouseId && spouse.spouseId !== currentMemberId) {
+            throw new HttpException('O cônjuge selecionado já está casado com outro membro', HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    /**
+     * Atualizar o cônjuge para casado e vincular ao membro atual
+     */
+    private async updateSpouseMaritalStatus(spouseId: number, memberId: number) {
+        await this.prisma.member.update({
+            where: { id: spouseId },
+            data: {
+                maritalStatus: 'MARRIED',
+                spouseId: memberId
+            }
+        });
     }
 
     /**
