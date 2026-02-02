@@ -261,11 +261,11 @@ export class MemberService {
                     celula: true
                 }
             });
-        } catch (error: unknown) {
+        } catch (error) {
             if (typeof error === 'object' && error !== null && 'code' in error && error.code === 'P2002' && 'meta' in error && typeof error.meta === 'object' && error.meta !== null && 'target' in error.meta && Array.isArray(error.meta.target) && error.meta.target.includes('email')) {
                 throw new HttpException('Já existe um membro com este email', HttpStatus.BAD_REQUEST);
             }
-            throw new HttpException('Falha ao criar membro', HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new HttpException(`Falha ao criar membro ${error.message}`, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -342,19 +342,33 @@ export class MemberService {
             cleanedMemberData.registerDate = cleanDateField(memberData.registerDate);
             cleanedMemberData.phone = cleanPhoneField(memberData.phone);
 
-            // Validar que apenas admins podem atribuir roles admin
-            if (roleIds !== undefined && roleIds.length > 0 && requestingMemberId) {
-                const rolesBeingAssigned = await this.prisma.role.findMany({
-                    where: { id: { in: roleIds } }
+            // Validar que apenas admins podem atribuir/remover roles admin
+            if (roleIds !== undefined && requestingMemberId) {
+                // Verificar roles atuais do membro sendo editado
+                const currentMemberRoles = await this.prisma.memberRole.findMany({
+                    where: { memberId },
+                    include: { role: true }
                 });
+                const currentHasAdminRole = currentMemberRoles.some(mr => mr.role.isAdmin);
+                
+                // Verificar roles sendo atribuídas
+                const rolesBeingAssigned = roleIds.length > 0 
+                    ? await this.prisma.role.findMany({ where: { id: { in: roleIds } } })
+                    : [];
+                const newHasAdminRole = rolesBeingAssigned.some(r => r.isAdmin);
 
-                const hasAdminRole = rolesBeingAssigned.some(r => r.isAdmin);
+                // Verificar se o usuário solicitante é admin
+                const requestingPermission = await this.permissionService.loadPermissionForMember(requestingMemberId);
+                const isRequestingUserAdmin = requestingPermission && requestingPermission.isAdmin;
 
-                if (hasAdminRole) {
-                    const requestingPermission = await this.permissionService.loadPermissionForMember(requestingMemberId);
-                    if (!requestingPermission || !requestingPermission.isAdmin) {
-                        throw new HttpException('Apenas administradores podem atribuir roles de administrador', HttpStatus.UNAUTHORIZED);
-                    }
+                // Se membro já tem role admin e está tentando remover, apenas admins podem fazer isso
+                if (currentHasAdminRole && !newHasAdminRole && !isRequestingUserAdmin) {
+                    throw new HttpException('Apenas administradores podem remover roles de administrador', HttpStatus.UNAUTHORIZED);
+                }
+
+                // Se está tentando adicionar role admin, apenas admins podem fazer isso
+                if (newHasAdminRole && !currentHasAdminRole && !isRequestingUserAdmin) {
+                    throw new HttpException('Apenas administradores podem atribuir roles de administrador', HttpStatus.UNAUTHORIZED);
                 }
             }
 

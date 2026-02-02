@@ -52,6 +52,8 @@ export class CelulaUpdateInput {
     public readonly leaderMemberId?: number;
     @ApiProperty({ description: 'Discipulado id that this celula belongs to', example: 2, required: false })
     public readonly discipuladoId?: number;
+    @ApiProperty({ description: 'IDs dos líderes em treinamento', example: [7, 8], required: false, type: [Number] })
+    public readonly leaderInTrainingIds?: number[];
     @ApiProperty({ description: 'Dia da semana da reunião (0=Domingo, 1=Segunda, ..., 6=Sábado)', example: 3, required: false })
     public readonly weekday?: number;
     @ApiProperty({ description: 'Horário da reunião (formato HH:mm)', example: '19:30', required: false })

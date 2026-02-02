@@ -470,6 +470,7 @@ export type MemberWhereInput = {
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   createdApiKeys?: Prisma.ApiKeyListRelationFilter
   matrices?: Prisma.MemberMatrixListRelationFilter
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingListRelationFilter
 }
 
 export type MemberOrderByWithRelationInput = {
@@ -520,6 +521,7 @@ export type MemberOrderByWithRelationInput = {
   refreshTokens?: Prisma.RefreshTokenOrderByRelationAggregateInput
   createdApiKeys?: Prisma.ApiKeyOrderByRelationAggregateInput
   matrices?: Prisma.MemberMatrixOrderByRelationAggregateInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingOrderByRelationAggregateInput
 }
 
 export type MemberWhereUniqueInput = Prisma.AtLeast<{
@@ -573,6 +575,7 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   refreshTokens?: Prisma.RefreshTokenListRelationFilter
   createdApiKeys?: Prisma.ApiKeyListRelationFilter
   matrices?: Prisma.MemberMatrixListRelationFilter
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingListRelationFilter
 }, "id" | "email" | "spouseId">
 
 export type MemberOrderByWithAggregationInput = {
@@ -698,6 +701,7 @@ export type MemberCreateInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateInput = {
@@ -744,6 +748,7 @@ export type MemberUncheckedCreateInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUpdateInput = {
@@ -789,6 +794,7 @@ export type MemberUpdateInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateInput = {
@@ -835,6 +841,7 @@ export type MemberUncheckedUpdateInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateManyInput = {
@@ -1318,6 +1325,20 @@ export type MemberUncheckedUpdateOneWithoutSpouseNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutSpouseInput, Prisma.MemberUpdateWithoutSpouseInput>, Prisma.MemberUncheckedUpdateWithoutSpouseInput>
 }
 
+export type MemberCreateNestedOneWithoutLeadingInTrainingCelulasInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutLeadingInTrainingCelulasInput, Prisma.MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutLeadingInTrainingCelulasInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberUpdateOneRequiredWithoutLeadingInTrainingCelulasNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutLeadingInTrainingCelulasInput, Prisma.MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutLeadingInTrainingCelulasInput
+  upsert?: Prisma.MemberUpsertWithoutLeadingInTrainingCelulasInput
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutLeadingInTrainingCelulasInput, Prisma.MemberUpdateWithoutLeadingInTrainingCelulasInput>, Prisma.MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput>
+}
+
 export type MemberCreateNestedOneWithoutRedesInput = {
   create?: Prisma.XOR<Prisma.MemberCreateWithoutRedesInput, Prisma.MemberUncheckedCreateWithoutRedesInput>
   connectOrCreate?: Prisma.MemberCreateOrConnectWithoutRedesInput
@@ -1446,6 +1467,7 @@ export type MemberCreateWithoutMatricesInput = {
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutMatricesInput = {
@@ -1491,6 +1513,7 @@ export type MemberUncheckedCreateWithoutMatricesInput = {
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutMatricesInput = {
@@ -1551,6 +1574,7 @@ export type MemberUpdateWithoutMatricesInput = {
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutMatricesInput = {
@@ -1596,6 +1620,7 @@ export type MemberUncheckedUpdateWithoutMatricesInput = {
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutCelulaInput = {
@@ -1640,6 +1665,7 @@ export type MemberCreateWithoutCelulaInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutCelulaInput = {
@@ -1685,6 +1711,7 @@ export type MemberUncheckedCreateWithoutCelulaInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutCelulaInput = {
@@ -1739,6 +1766,7 @@ export type MemberCreateWithoutLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutLedCelulasInput = {
@@ -1784,6 +1812,7 @@ export type MemberUncheckedCreateWithoutLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutLedCelulasInput = {
@@ -1833,6 +1862,7 @@ export type MemberCreateWithoutViceLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutViceLedCelulasInput = {
@@ -1878,6 +1908,7 @@ export type MemberUncheckedCreateWithoutViceLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutViceLedCelulasInput = {
@@ -1993,6 +2024,7 @@ export type MemberUpdateWithoutLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutLedCelulasInput = {
@@ -2038,6 +2070,7 @@ export type MemberUncheckedUpdateWithoutLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUpsertWithoutViceLedCelulasInput = {
@@ -2093,6 +2126,7 @@ export type MemberUpdateWithoutViceLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutViceLedCelulasInput = {
@@ -2138,6 +2172,7 @@ export type MemberUncheckedUpdateWithoutViceLedCelulasInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutMinistryPositionInput = {
@@ -2182,6 +2217,7 @@ export type MemberCreateWithoutMinistryPositionInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutMinistryPositionInput = {
@@ -2227,6 +2263,7 @@ export type MemberUncheckedCreateWithoutMinistryPositionInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutMinistryPositionInput = {
@@ -2297,6 +2334,7 @@ export type MemberCreateWithoutWinnerPathInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutWinnerPathInput = {
@@ -2342,6 +2380,7 @@ export type MemberUncheckedCreateWithoutWinnerPathInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutWinnerPathInput = {
@@ -2412,6 +2451,7 @@ export type MemberCreateWithoutSpouseOfInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutSpouseOfInput = {
@@ -2457,6 +2497,7 @@ export type MemberUncheckedCreateWithoutSpouseOfInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutSpouseOfInput = {
@@ -2506,6 +2547,7 @@ export type MemberCreateWithoutSpouseInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutSpouseInput = {
@@ -2551,6 +2593,7 @@ export type MemberUncheckedCreateWithoutSpouseInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutSpouseInput = {
@@ -2611,6 +2654,7 @@ export type MemberUpdateWithoutSpouseOfInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutSpouseOfInput = {
@@ -2656,6 +2700,7 @@ export type MemberUncheckedUpdateWithoutSpouseOfInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUpsertWithoutSpouseInput = {
@@ -2711,6 +2756,7 @@ export type MemberUpdateWithoutSpouseInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutSpouseInput = {
@@ -2731,6 +2777,205 @@ export type MemberUncheckedUpdateWithoutSpouseInput = {
   baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  ministryPositionId?: Prisma.IntFieldUpdateOperationsInput | number
+  winnerPathId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
+  redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
+  discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
+  ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
+  viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
+  roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
+  createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
+  matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberCreateWithoutLeadingInTrainingCelulasInput = {
+  email?: string | null
+  password?: string | null
+  phone?: string | null
+  hasDefaultPassword?: boolean | null
+  inviteSent?: boolean
+  hasLoggedIn?: boolean
+  name: string
+  isActive?: boolean
+  maritalStatus?: $Enums.MaritalStatus
+  photoUrl?: string | null
+  gender?: $Enums.Gender | null
+  isBaptized?: boolean
+  baptismDate?: Date | string | null
+  birthDate?: Date | string | null
+  registerDate?: Date | string | null
+  canBeHost?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  hasSystemAccess?: boolean
+  isOwner?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
+  redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
+  discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
+  ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
+  viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
+  ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
+  winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
+  spouse?: Prisma.MemberCreateNestedOneWithoutSpouseOfInput
+  spouseOf?: Prisma.MemberCreateNestedOneWithoutSpouseInput
+  roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
+  createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
+  matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+}
+
+export type MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput = {
+  id?: number
+  email?: string | null
+  password?: string | null
+  phone?: string | null
+  hasDefaultPassword?: boolean | null
+  inviteSent?: boolean
+  hasLoggedIn?: boolean
+  name: string
+  celulaId?: number | null
+  isActive?: boolean
+  maritalStatus?: $Enums.MaritalStatus
+  photoUrl?: string | null
+  gender?: $Enums.Gender | null
+  isBaptized?: boolean
+  baptismDate?: Date | string | null
+  birthDate?: Date | string | null
+  registerDate?: Date | string | null
+  spouseId?: number | null
+  ministryPositionId: number
+  winnerPathId?: number | null
+  canBeHost?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  hasSystemAccess?: boolean
+  isOwner?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
+  redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
+  discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
+  ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
+  viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
+  roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
+  createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
+  matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+}
+
+export type MemberCreateOrConnectWithoutLeadingInTrainingCelulasInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutLeadingInTrainingCelulasInput, Prisma.MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput>
+}
+
+export type MemberUpsertWithoutLeadingInTrainingCelulasInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutLeadingInTrainingCelulasInput, Prisma.MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutLeadingInTrainingCelulasInput, Prisma.MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutLeadingInTrainingCelulasInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutLeadingInTrainingCelulasInput, Prisma.MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput>
+}
+
+export type MemberUpdateWithoutLeadingInTrainingCelulasInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  inviteSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasLoggedIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  isBaptized?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
+  redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
+  discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
+  ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
+  viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
+  ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
+  winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
+  spouse?: Prisma.MemberUpdateOneWithoutSpouseOfNestedInput
+  spouseOf?: Prisma.MemberUpdateOneWithoutSpouseNestedInput
+  roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
+  createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
+  matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  inviteSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasLoggedIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  isBaptized?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  spouseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ministryPositionId?: Prisma.IntFieldUpdateOperationsInput | number
   winnerPathId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2800,6 +3045,7 @@ export type MemberCreateWithoutRedesInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutRedesInput = {
@@ -2845,6 +3091,7 @@ export type MemberUncheckedCreateWithoutRedesInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutRedesInput = {
@@ -2905,6 +3152,7 @@ export type MemberUpdateWithoutRedesInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutRedesInput = {
@@ -2950,6 +3198,7 @@ export type MemberUncheckedUpdateWithoutRedesInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutDiscipuladosInput = {
@@ -2994,6 +3243,7 @@ export type MemberCreateWithoutDiscipuladosInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutDiscipuladosInput = {
@@ -3039,6 +3289,7 @@ export type MemberUncheckedCreateWithoutDiscipuladosInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutDiscipuladosInput = {
@@ -3099,6 +3350,7 @@ export type MemberUpdateWithoutDiscipuladosInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutDiscipuladosInput = {
@@ -3144,6 +3396,7 @@ export type MemberUncheckedUpdateWithoutDiscipuladosInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutAttendancesInput = {
@@ -3188,6 +3441,7 @@ export type MemberCreateWithoutAttendancesInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutAttendancesInput = {
@@ -3233,6 +3487,7 @@ export type MemberUncheckedCreateWithoutAttendancesInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutAttendancesInput = {
@@ -3293,6 +3548,7 @@ export type MemberUpdateWithoutAttendancesInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutAttendancesInput = {
@@ -3338,6 +3594,7 @@ export type MemberUncheckedUpdateWithoutAttendancesInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutRolesInput = {
@@ -3382,6 +3639,7 @@ export type MemberCreateWithoutRolesInput = {
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutRolesInput = {
@@ -3427,6 +3685,7 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutRolesInput = {
@@ -3487,6 +3746,7 @@ export type MemberUpdateWithoutRolesInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutRolesInput = {
@@ -3532,6 +3792,7 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutRefreshTokensInput = {
@@ -3576,6 +3837,7 @@ export type MemberCreateWithoutRefreshTokensInput = {
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutRefreshTokensInput = {
@@ -3621,6 +3883,7 @@ export type MemberUncheckedCreateWithoutRefreshTokensInput = {
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutRefreshTokensInput = {
@@ -3681,6 +3944,7 @@ export type MemberUpdateWithoutRefreshTokensInput = {
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutRefreshTokensInput = {
@@ -3726,6 +3990,7 @@ export type MemberUncheckedUpdateWithoutRefreshTokensInput = {
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateWithoutCreatedApiKeysInput = {
@@ -3770,6 +4035,7 @@ export type MemberCreateWithoutCreatedApiKeysInput = {
   roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
   matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
 }
 
 export type MemberUncheckedCreateWithoutCreatedApiKeysInput = {
@@ -3815,6 +4081,7 @@ export type MemberUncheckedCreateWithoutCreatedApiKeysInput = {
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
 }
 
 export type MemberCreateOrConnectWithoutCreatedApiKeysInput = {
@@ -3875,6 +4142,7 @@ export type MemberUpdateWithoutCreatedApiKeysInput = {
   roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutCreatedApiKeysInput = {
@@ -3920,6 +4188,7 @@ export type MemberUncheckedUpdateWithoutCreatedApiKeysInput = {
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberCreateManyCelulaInput = {
@@ -3999,6 +4268,7 @@ export type MemberUpdateWithoutCelulaInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutCelulaInput = {
@@ -4044,6 +4314,7 @@ export type MemberUncheckedUpdateWithoutCelulaInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateManyWithoutCelulaInput = {
@@ -4158,6 +4429,7 @@ export type MemberUpdateWithoutMinistryPositionInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutMinistryPositionInput = {
@@ -4203,6 +4475,7 @@ export type MemberUncheckedUpdateWithoutMinistryPositionInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateManyWithoutMinistryPositionInput = {
@@ -4317,6 +4590,7 @@ export type MemberUpdateWithoutWinnerPathInput = {
   refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateWithoutWinnerPathInput = {
@@ -4362,6 +4636,7 @@ export type MemberUncheckedUpdateWithoutWinnerPathInput = {
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
 }
 
 export type MemberUncheckedUpdateManyWithoutWinnerPathInput = {
@@ -4414,6 +4689,7 @@ export type MemberCountOutputType = {
   refreshTokens: number
   createdApiKeys: number
   matrices: number
+  leadingInTrainingCelulas: number
 }
 
 export type MemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4426,6 +4702,7 @@ export type MemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   refreshTokens?: boolean | MemberCountOutputTypeCountRefreshTokensArgs
   createdApiKeys?: boolean | MemberCountOutputTypeCountCreatedApiKeysArgs
   matrices?: boolean | MemberCountOutputTypeCountMatricesArgs
+  leadingInTrainingCelulas?: boolean | MemberCountOutputTypeCountLeadingInTrainingCelulasArgs
 }
 
 /**
@@ -4501,6 +4778,13 @@ export type MemberCountOutputTypeCountMatricesArgs<ExtArgs extends runtime.Types
   where?: Prisma.MemberMatrixWhereInput
 }
 
+/**
+ * MemberCountOutputType without action
+ */
+export type MemberCountOutputTypeCountLeadingInTrainingCelulasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CelulaLeaderInTrainingWhereInput
+}
+
 
 export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -4550,6 +4834,7 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   refreshTokens?: boolean | Prisma.Member$refreshTokensArgs<ExtArgs>
   createdApiKeys?: boolean | Prisma.Member$createdApiKeysArgs<ExtArgs>
   matrices?: boolean | Prisma.Member$matricesArgs<ExtArgs>
+  leadingInTrainingCelulas?: boolean | Prisma.Member$leadingInTrainingCelulasArgs<ExtArgs>
   _count?: boolean | Prisma.MemberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["member"]>
 
@@ -4685,6 +4970,7 @@ export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   refreshTokens?: boolean | Prisma.Member$refreshTokensArgs<ExtArgs>
   createdApiKeys?: boolean | Prisma.Member$createdApiKeysArgs<ExtArgs>
   matrices?: boolean | Prisma.Member$matricesArgs<ExtArgs>
+  leadingInTrainingCelulas?: boolean | Prisma.Member$leadingInTrainingCelulasArgs<ExtArgs>
   _count?: boolean | Prisma.MemberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type MemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4717,6 +5003,7 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     refreshTokens: Prisma.$RefreshTokenPayload<ExtArgs>[]
     createdApiKeys: Prisma.$ApiKeyPayload<ExtArgs>[]
     matrices: Prisma.$MemberMatrixPayload<ExtArgs>[]
+    leadingInTrainingCelulas: Prisma.$CelulaLeaderInTrainingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -5160,6 +5447,7 @@ export interface Prisma__MemberClient<T, Null = never, ExtArgs extends runtime.T
   refreshTokens<T extends Prisma.Member$refreshTokensArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$refreshTokensArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RefreshTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdApiKeys<T extends Prisma.Member$createdApiKeysArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$createdApiKeysArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ApiKeyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   matrices<T extends Prisma.Member$matricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$matricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MemberMatrixPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leadingInTrainingCelulas<T extends Prisma.Member$leadingInTrainingCelulasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$leadingInTrainingCelulasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CelulaLeaderInTrainingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5907,6 +6195,30 @@ export type Member$matricesArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.MemberMatrixScalarFieldEnum | Prisma.MemberMatrixScalarFieldEnum[]
+}
+
+/**
+ * Member.leadingInTrainingCelulas
+ */
+export type Member$leadingInTrainingCelulasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CelulaLeaderInTraining
+   */
+  select?: Prisma.CelulaLeaderInTrainingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CelulaLeaderInTraining
+   */
+  omit?: Prisma.CelulaLeaderInTrainingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CelulaLeaderInTrainingInclude<ExtArgs> | null
+  where?: Prisma.CelulaLeaderInTrainingWhereInput
+  orderBy?: Prisma.CelulaLeaderInTrainingOrderByWithRelationInput | Prisma.CelulaLeaderInTrainingOrderByWithRelationInput[]
+  cursor?: Prisma.CelulaLeaderInTrainingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CelulaLeaderInTrainingScalarFieldEnum | Prisma.CelulaLeaderInTrainingScalarFieldEnum[]
 }
 
 /**

@@ -59,6 +59,7 @@ export const ModelName = {
   Ministry: 'Ministry',
   WinnerPath: 'WinnerPath',
   Member: 'Member',
+  CelulaLeaderInTraining: 'CelulaLeaderInTraining',
   Rede: 'Rede',
   Discipulado: 'Discipulado',
   Report: 'Report',
@@ -212,6 +213,17 @@ export const MemberScalarFieldEnum = {
 } as const
 
 export type MemberScalarFieldEnum = (typeof MemberScalarFieldEnum)[keyof typeof MemberScalarFieldEnum]
+
+
+export const CelulaLeaderInTrainingScalarFieldEnum = {
+  id: 'id',
+  celulaId: 'celulaId',
+  memberId: 'memberId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CelulaLeaderInTrainingScalarFieldEnum = (typeof CelulaLeaderInTrainingScalarFieldEnum)[keyof typeof CelulaLeaderInTrainingScalarFieldEnum]
 
 
 export const RedeScalarFieldEnum = {

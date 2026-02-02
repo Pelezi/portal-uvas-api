@@ -14,7 +14,11 @@ export class CelulaService {
         return this.prisma.celula.findMany({ 
             where: { matrixId }, 
             orderBy: { name: 'asc' }, 
-            include: { leader: true, viceLeader: true } 
+            include: { 
+                leader: true, 
+                viceLeader: true,
+                leadersInTraining: { include: { member: true } }
+            } 
         });
     }
 
@@ -23,7 +27,11 @@ export class CelulaService {
 
         return this.prisma.celula.findMany({
             where: { id: { in: celulaIds } },
-            include: { leader: true, viceLeader: true },
+            include: { 
+                leader: true, 
+                viceLeader: true,
+                leadersInTraining: { include: { member: true } }
+            },
             orderBy: { name: 'asc' }
         });
     }
@@ -137,11 +145,12 @@ export class CelulaService {
         });
     }
 
-    public async update(id: number, data: { 
-        name?: string; 
-        leaderMemberId?: number; 
-        discipuladoId?: number; 
-        weekday?: number; 
+    public async update(id: number, data: {
+        name?: string;
+        leaderMemberId?: number;
+        discipuladoId?: number;
+        leaderInTrainingIds?: number[];
+        weekday?: number;
         time?: string;
         country?: string;
         zipCode?: string;
@@ -228,7 +237,81 @@ export class CelulaService {
             updateData.discipuladoId = data.discipuladoId;
         }
 
-        return this.prisma.celula.update({ where: { id }, data: updateData, include: { leader: true, viceLeader: true, discipulado: { include: { rede: true } } } });
+        await this.prisma.celula.update({ where: { id }, data: updateData });
+
+        // Atualizar líderes em treinamento se fornecidos
+        if (data.leaderInTrainingIds !== undefined) {
+            // Remover todos os líderes em treinamento existentes
+            await this.prisma.celulaLeaderInTraining.deleteMany({
+                where: { celulaId: id }
+            });
+
+            // Adicionar novos líderes em treinamento
+            if (data.leaderInTrainingIds.length > 0) {
+                // Validar que todos os membros pertencem à célula
+                const members = await this.prisma.member.findMany({
+                    where: {
+                        id: { in: data.leaderInTrainingIds },
+                        celulaId: id
+                    },
+                    include: { ministryPosition: true }
+                });
+
+                if (members.length !== data.leaderInTrainingIds.length) {
+                    throw new HttpException('Alguns membros selecionados não pertencem a esta célula', HttpStatus.BAD_REQUEST);
+                }
+
+                // Verificar se algum membro é o líder
+                const celula = await this.prisma.celula.findUnique({ where: { id } });
+                if (!celula) {
+                    throw new HttpException('Célula não encontrada', HttpStatus.NOT_FOUND);
+                }
+                const isLeader = data.leaderInTrainingIds.some((memberId: number) => memberId === celula.leaderMemberId);
+                if (isLeader) {
+                    throw new HttpException('O líder da célula não pode ser líder em treinamento', HttpStatus.BAD_REQUEST);
+                }
+
+                // Criar as associações de líderes em treinamento
+                await this.prisma.celulaLeaderInTraining.createMany({
+                    data: data.leaderInTrainingIds.map((memberId: number) => ({
+                        celulaId: id,
+                        memberId
+                    }))
+                });
+
+                // Atualizar cargo ministerial para LEADER_IN_TRAINING se necessário
+                const ministryTypeHierarchy = ['VISITOR', 'REGULAR_ATTENDEE', 'MEMBER'];
+                for (const member of members) {
+                    const currentType = member.ministryPosition?.type;
+                    if (currentType && ministryTypeHierarchy.includes(currentType)) {
+                        // Buscar cargo de LEADER_IN_TRAINING na mesma matriz
+                        const leaderInTrainingMinistry = await this.prisma.ministry.findFirst({
+                            where: {
+                                matrixId,
+                                type: 'LEADER_IN_TRAINING'
+                            }
+                        });
+
+                        if (leaderInTrainingMinistry) {
+                            await this.prisma.member.update({
+                                where: { id: member.id },
+                                data: { ministryPositionId: leaderInTrainingMinistry.id }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        return this.prisma.celula.findUnique({ 
+            where: { id }, 
+            include: { 
+                leader: true, 
+                viceLeader: true, 
+                discipulado: { include: { rede: true } },
+                leadersInTraining: { include: { member: true } }
+            } 
+        });
     }
 
     /**

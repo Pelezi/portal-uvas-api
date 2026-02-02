@@ -392,6 +392,7 @@ export const ModelName = {
   Ministry: 'Ministry',
   WinnerPath: 'WinnerPath',
   Member: 'Member',
+  CelulaLeaderInTraining: 'CelulaLeaderInTraining',
   Rede: 'Rede',
   Discipulado: 'Discipulado',
   Report: 'Report',
@@ -414,7 +415,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey"
+    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1007,6 +1008,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MemberCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MemberCountAggregateOutputType> | number
+        }
+      }
+    }
+    CelulaLeaderInTraining: {
+      payload: Prisma.$CelulaLeaderInTrainingPayload<ExtArgs>
+      fields: Prisma.CelulaLeaderInTrainingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CelulaLeaderInTrainingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CelulaLeaderInTrainingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>
+        }
+        findFirst: {
+          args: Prisma.CelulaLeaderInTrainingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CelulaLeaderInTrainingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>
+        }
+        findMany: {
+          args: Prisma.CelulaLeaderInTrainingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>[]
+        }
+        create: {
+          args: Prisma.CelulaLeaderInTrainingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>
+        }
+        createMany: {
+          args: Prisma.CelulaLeaderInTrainingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CelulaLeaderInTrainingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>[]
+        }
+        delete: {
+          args: Prisma.CelulaLeaderInTrainingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>
+        }
+        update: {
+          args: Prisma.CelulaLeaderInTrainingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>
+        }
+        deleteMany: {
+          args: Prisma.CelulaLeaderInTrainingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CelulaLeaderInTrainingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CelulaLeaderInTrainingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>[]
+        }
+        upsert: {
+          args: Prisma.CelulaLeaderInTrainingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CelulaLeaderInTrainingPayload>
+        }
+        aggregate: {
+          args: Prisma.CelulaLeaderInTrainingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCelulaLeaderInTraining>
+        }
+        groupBy: {
+          args: Prisma.CelulaLeaderInTrainingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CelulaLeaderInTrainingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CelulaLeaderInTrainingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CelulaLeaderInTrainingCountAggregateOutputType> | number
         }
       }
     }
@@ -1697,6 +1772,17 @@ export const MemberScalarFieldEnum = {
 export type MemberScalarFieldEnum = (typeof MemberScalarFieldEnum)[keyof typeof MemberScalarFieldEnum]
 
 
+export const CelulaLeaderInTrainingScalarFieldEnum = {
+  id: 'id',
+  celulaId: 'celulaId',
+  memberId: 'memberId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CelulaLeaderInTrainingScalarFieldEnum = (typeof CelulaLeaderInTrainingScalarFieldEnum)[keyof typeof CelulaLeaderInTrainingScalarFieldEnum]
+
+
 export const RedeScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2014,6 +2100,7 @@ export type GlobalOmitConfig = {
   ministry?: Prisma.MinistryOmit
   winnerPath?: Prisma.WinnerPathOmit
   member?: Prisma.MemberOmit
+  celulaLeaderInTraining?: Prisma.CelulaLeaderInTrainingOmit
   rede?: Prisma.RedeOmit
   discipulado?: Prisma.DiscipuladoOmit
   report?: Prisma.ReportOmit

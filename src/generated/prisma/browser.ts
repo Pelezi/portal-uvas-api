@@ -58,6 +58,11 @@ export type WinnerPath = Prisma.WinnerPathModel
  */
 export type Member = Prisma.MemberModel
 /**
+ * Model CelulaLeaderInTraining
+ * 
+ */
+export type CelulaLeaderInTraining = Prisma.CelulaLeaderInTrainingModel
+/**
  * Model Rede
  * 
  */

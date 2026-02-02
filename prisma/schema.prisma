@@ -75,6 +75,7 @@ model Celula {
 
   members Member[]
   reports Report[]
+  leadersInTraining CelulaLeaderInTraining[]
 
   matrix      Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   discipulado Discipulado @relation(fields: [discipuladoId], references: [id])
@@ -198,11 +199,27 @@ model Member {
   refreshTokens    RefreshToken[]
   createdApiKeys   ApiKey[]
   matrices         MemberMatrix[]
+  leadingInTrainingCelulas CelulaLeaderInTraining[]
 
   @@index([celulaId])
   @@index([ministryPositionId])
   @@index([winnerPathId])
   @@index([spouseId])
+}
+
+model CelulaLeaderInTraining {
+  id        Int      @id @default(autoincrement())
+  celulaId  Int
+  memberId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  celula Celula @relation(fields: [celulaId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([celulaId, memberId])
+  @@index([celulaId])
+  @@index([memberId])
 }
 
 enum Gender {

@@ -19,11 +19,9 @@ export class CelulaController {
         if (!permission) throw new HttpException('Você não tem permissão', HttpStatus.UNAUTHORIZED);
         if (!req.member?.matrixId) throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         
-        if (permission.isAdmin) {
-            return this.service.findAll(req.member.matrixId);
-        }
-
-        return this.service.findByPermission(permission.celulaIds);
+        // Retornar todas as células da matriz, independente da permissão
+        // O controle de ações será feito no frontend baseado nas permissões
+        return this.service.findAll(req.member.matrixId);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
