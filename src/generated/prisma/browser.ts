@@ -97,3 +97,8 @@ export type RefreshToken = Prisma.RefreshTokenModel
  * 
  */
 export type ApiKey = Prisma.ApiKeyModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel

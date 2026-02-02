@@ -48,6 +48,36 @@ export class EmailService {
             return;
         }
     }
+
+    public async sendPasswordResetEmail(to: string, resetLink: string, fullname: string) {
+        if (!to) {
+            console.warn('EmailService.sendPasswordResetEmail called without recipient (to is empty) - skipping SMTP send.');
+            return;
+        }
+        const from = process.env.EMAIL_FROM || `no-reply@${process.env.SMTP_HOST || 'example.com'}`;
+        const subject = 'Redefinição de Senha - Portal Uvas';
+        const html = `Olá ${fullname},<br/><br/>
+        Você solicitou a redefinição de senha da sua conta.<br/><br/>
+        Clique no link abaixo para criar uma nova senha:<br/><br/>
+        <a href="${resetLink}">Redefinir senha</a><br/><br/>
+        Este link é válido por 1 hora.<br/><br/>
+        Se você não solicitou esta redefinição, ignore este email. Sua senha permanecerá inalterada.<br/><br/>
+        Atenciosamente,<br/>
+        Equipe Portal Uvas`;
+
+        if (!this.transporter) {
+            console.log(`Password reset email to ${to}. Link: ${resetLink}`);
+            return;
+        }
+
+        try {
+            await this.transporter.sendMail({ from, to, subject, html });
+        } catch (err: unknown) {
+            console.error('Failed to send password reset email, falling back to console. Error:', err);
+            console.log(`Password reset email to ${to}. Link: ${resetLink}`);
+            return;
+        }
+    }
 }
 
 export default EmailService;

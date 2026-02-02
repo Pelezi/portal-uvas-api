@@ -7,8 +7,11 @@ import { PermissionService } from '../common/security/permission.service';
 import { AuthenticatedRequest } from '../common/types/authenticated-request.interface';
 import { AuthService } from './auth.service';
 import { MatrixService } from '../matrix/service/matrix.service';
+import { EmailService } from '../common/provider/email.provider';
 import * as jwt from 'jsonwebtoken';
 import { SecurityConfigService } from '../config/service/security-config.service';
+import { PrismaService } from '../common/provider/prisma.provider';
+import * as bcrypt from 'bcrypt';
 
 class RefreshTokenInput {
     refreshToken: string;
@@ -23,6 +26,8 @@ export class AuthController {
         private readonly authService: AuthService,
         private readonly matrixService: MatrixService,
         private readonly securityConfig: SecurityConfigService,
+        private readonly emailService: EmailService,
+        private readonly prisma: PrismaService,
     ) {}
 
     @Post('login')
@@ -253,6 +258,119 @@ export class AuthController {
                 throw error;
             }
             throw new HttpException('Token inválido ou expirado', HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @Post('forgot-password')
+    @ApiOperation({ summary: 'Solicita redefinição de senha' })
+    @ApiBody({ 
+        schema: {
+            type: 'object',
+            properties: {
+                email: { type: 'string', description: 'Email do usuário' }
+            },
+            required: ['email']
+        }
+    })
+    @ApiResponse({ status: 200, description: 'Email de redefinição enviado com sucesso' })
+    public async forgotPassword(@Request() req: any, @Body() body: { email: string }) {
+        try {
+            const { email } = body;
+            
+            if (!email || !email.trim()) {
+                throw new HttpException('Email é obrigatório', HttpStatus.BAD_REQUEST);
+            }
+
+            // Find member by email
+            const member = await this.prisma.member.findUnique({
+                where: { email: email.toLowerCase().trim() }
+            });
+
+            // Always return success even if user doesn't exist (security best practice)
+            // This prevents email enumeration attacks
+            if (!member) {
+                return {
+                    success: true,
+                    message: 'Se o email estiver cadastrado, você receberá um link para redefinir sua senha.'
+                };
+            }
+
+            // Generate reset token
+            const resetToken = await this.authService.generatePasswordResetToken(member.id);
+
+            // Get origin from request to build reset link
+            const origin = req.headers['origin'] || process.env.FRONTEND_URL || 'http://localhost:3000';
+            const resetLink = `${origin}/auth/reset-password?token=${resetToken}`;
+
+            // Send email
+            await this.emailService.sendPasswordResetEmail(member.email!, resetLink, member.name);
+
+            return {
+                success: true,
+                message: 'Se o email estiver cadastrado, você receberá um link para redefinir sua senha.'
+            };
+        } catch (error) {
+            console.error('Error in forgot-password:', error);
+            // Return generic message to avoid leaking information
+            return {
+                success: true,
+                message: 'Se o email estiver cadastrado, você receberá um link para redefinir sua senha.'
+            };
+        }
+    }
+
+    @Post('reset-password')
+    @ApiOperation({ summary: 'Redefine a senha usando token' })
+    @ApiBody({ 
+        schema: {
+            type: 'object',
+            properties: {
+                token: { type: 'string', description: 'Token de redefinição de senha' },
+                newPassword: { type: 'string', description: 'Nova senha' }
+            },
+            required: ['token', 'newPassword']
+        }
+    })
+    @ApiResponse({ status: 200, description: 'Senha redefinida com sucesso' })
+    public async resetPassword(@Body() body: { token: string; newPassword: string }) {
+        const { token, newPassword } = body;
+        
+        if (!token || !newPassword) {
+            throw new HttpException('Token e nova senha são obrigatórios', HttpStatus.BAD_REQUEST);
+        }
+
+        if (newPassword.length < 6) {
+            throw new HttpException('A senha deve ter no mínimo 6 caracteres', HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Validate token and get member ID
+            const memberId = await this.authService.validatePasswordResetToken(token);
+
+            // Hash new password
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            // Update member password
+            await this.prisma.member.update({
+                where: { id: memberId },
+                data: { 
+                    password: hashedPassword,
+                    hasDefaultPassword: false
+                }
+            });
+
+            // Mark token as used
+            await this.authService.markPasswordResetTokenAsUsed(token);
+
+            return {
+                success: true,
+                message: 'Senha redefinida com sucesso'
+            };
+        } catch (error) {
+            if (error instanceof HttpException) {
+                throw error;
+            }
+            throw new HttpException('Erro ao redefinir senha', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

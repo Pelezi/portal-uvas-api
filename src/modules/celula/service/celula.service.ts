@@ -140,6 +140,16 @@ export class CelulaService {
                     include: {
                         role: true
                     }
+                },
+                celula: {
+                    include: {
+                        discipulado: {
+                            include: {
+                                rede: true,
+                                discipulador: true
+                            }
+                        }
+                    }
                 }
             }
         });

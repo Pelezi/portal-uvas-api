@@ -124,6 +124,16 @@ export class MemberService {
         return await this.prisma.member.findMany({
             where: { celulaId },
             include: {
+                celula: {
+                    include: {
+                        discipulado: {
+                            include: {
+                                rede: true,
+                                discipulador: true
+                            }
+                        }
+                    }
+                },
                 roles: {
                     include: { role: true }
                 }

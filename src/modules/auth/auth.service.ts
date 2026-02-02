@@ -149,4 +149,81 @@ export class AuthService {
                 return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         }
     }
+
+    /**
+     * Generates a password reset token and stores it in the database
+     */
+    public async generatePasswordResetToken(memberId: number): Promise<string> {
+        // Generate a secure random token
+        const token = crypto.randomBytes(32).toString('hex');
+        
+        // Token expires in 1 hour
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+        // Store in database
+        await this.prisma.passwordResetToken.create({
+            data: {
+                token,
+                memberId,
+                expiresAt,
+            }
+        });
+
+        return token;
+    }
+
+    /**
+     * Validates a password reset token and returns the member ID
+     */
+    public async validatePasswordResetToken(token: string): Promise<number> {
+        const resetToken = await this.prisma.passwordResetToken.findUnique({
+            where: { token }
+        });
+
+        if (!resetToken) {
+            throw new HttpException('Token de redefinição de senha inválido', HttpStatus.BAD_REQUEST);
+        }
+
+        if (resetToken.isUsed) {
+            throw new HttpException('Token de redefinição de senha já foi utilizado', HttpStatus.BAD_REQUEST);
+        }
+
+        if (new Date() > resetToken.expiresAt) {
+            throw new HttpException('Token de redefinição de senha expirado', HttpStatus.BAD_REQUEST);
+        }
+
+        return resetToken.memberId;
+    }
+
+    /**
+     * Marks a password reset token as used
+     */
+    public async markPasswordResetTokenAsUsed(token: string): Promise<void> {
+        await this.prisma.passwordResetToken.update({
+            where: { token },
+            data: { isUsed: true }
+        });
+    }
+
+    /**
+     * Cleans up expired password reset tokens from the database
+     */
+    public async cleanupExpiredPasswordResetTokens(): Promise<number> {
+        const result = await this.prisma.passwordResetToken.deleteMany({
+            where: {
+                OR: [
+                    {
+                        expiresAt: {
+                            lt: new Date()
+                        }
+                    },
+                    {
+                        isUsed: true
+                    }
+                ]
+            }
+        });
+
+        return result.count;
+    }
 }

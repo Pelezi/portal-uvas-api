@@ -200,6 +200,7 @@ model Member {
   createdApiKeys   ApiKey[]
   matrices         MemberMatrix[]
   leadingInTrainingCelulas CelulaLeaderInTraining[]
+  passwordResetTokens PasswordResetToken[]
 
   @@index([celulaId])
   @@index([ministryPositionId])
@@ -354,4 +355,18 @@ model ApiKey {
   @@index([matrixId])
   @@index([key])
   @@index([createdById])
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  memberId  Int
+  expiresAt DateTime
+  isUsed    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([token])
 }
