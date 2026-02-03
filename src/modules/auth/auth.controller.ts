@@ -8,6 +8,8 @@ import { AuthenticatedRequest } from '../common/types/authenticated-request.inte
 import { AuthService } from './auth.service';
 import { MatrixService } from '../matrix/service/matrix.service';
 import { EmailService } from '../common/provider/email.provider';
+import { HttpService } from '@nestjs/axios';
+import { firstValueFrom } from 'rxjs';
 import * as jwt from 'jsonwebtoken';
 import { SecurityConfigService } from '../config/service/security-config.service';
 import { PrismaService } from '../common/provider/prisma.provider';
@@ -28,6 +30,7 @@ export class AuthController {
         private readonly securityConfig: SecurityConfigService,
         private readonly emailService: EmailService,
         private readonly prisma: PrismaService,
+        private readonly httpService: HttpService,
     ) {}
 
     @Post('login')
@@ -283,7 +286,18 @@ export class AuthController {
 
             // Find member by email
             const member = await this.prisma.member.findUnique({
-                where: { email: email.toLowerCase().trim() }
+                where: { email: email.toLowerCase().trim() },
+                include: {
+                    matrices: {
+                        include: {
+                            matrix: {
+                                include: {
+                                    domains: true
+                                }
+                            }
+                        }
+                    }
+                }
             });
 
             // Always return success even if user doesn't exist (security best practice)
@@ -302,8 +316,45 @@ export class AuthController {
             const origin = req.headers['origin'] || process.env.FRONTEND_URL || 'http://localhost:3000';
             const resetLink = `${origin}/auth/reset-password?token=${resetToken}`;
 
+            // Get matrix name from the first matrix the user belongs to
+            const matrixName = member.matrices && member.matrices.length > 0 
+                ? member.matrices[0].matrix.name 
+                : '';
+
             // Send email
-            await this.emailService.sendPasswordResetEmail(member.email!, resetLink, member.name);
+            await this.emailService.sendPasswordResetEmail(member.email!, resetLink, member.name, matrixName);
+
+            // Send WhatsApp if phone exists
+            if (member.phone && member.phone.trim()) {
+                try {
+                    const whatsappApiUrl = process.env.WHATSAPP_MANAGER_API;
+                    if (whatsappApiUrl) {
+                        // Use the same matrixName or fallback
+                        const whatsappMatrixName = matrixName || 'Portal Uvas';
+
+                        const params = new URLSearchParams({
+                            to: member.phone,
+                            name: member.name,
+                            platform_name: whatsappMatrixName,
+                            password_reset_url: resetLink
+                        });
+
+                        const url = `${whatsappApiUrl}/conversations/passwordReset?${params.toString()}`;
+
+                        await firstValueFrom(
+                            this.httpService.post(url, null, {
+                                headers: { 'accept': '*/*' }
+                            })
+                        );
+
+                        console.log(`WhatsApp de redefinição de senha enviado com sucesso para ${member.phone}`);
+                    }
+                } catch (err: unknown) {
+                    const message = err instanceof Error ? err.message : 'Erro desconhecido';
+                    console.error(`Falha ao enviar WhatsApp de redefinição de senha: ${message}`);
+                    // Não bloquear o fluxo se o WhatsApp falhar
+                }
+            }
 
             return {
                 success: true,

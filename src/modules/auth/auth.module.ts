@@ -1,4 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { CommonModule } from '../common';
 import { ConfigModule } from '../config/config.module';
 import { MemberModule } from '../member/member.module';
@@ -11,6 +12,7 @@ import { AuthService } from './auth.service';
         CommonModule,
         ConfigModule,
         MatrixModule,
+        HttpModule,
         forwardRef(() => MemberModule)
     ],
     controllers: [AuthController],

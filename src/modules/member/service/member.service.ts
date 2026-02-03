@@ -640,7 +640,7 @@ export class MemberService {
         let whatsappSent = false;
 
         try {
-            await this.emailService.sendWelcomeEmail(email, loginLink, name, '123456');
+            await this.emailService.sendWelcomeEmail(email, loginLink, name, '123456', matrixName);
             // Marcar como enviado
             await this.prisma.member.update({
                 where: { id: memberId },
@@ -660,8 +660,8 @@ export class MemberService {
                     const params = new URLSearchParams({
                         to: phone,
                         name: name,
-                        platform: matrixName,  // Use matrix name instead of hardcoded
-                        platformUrl: matrixDomain,  // Use matrix domain instead of hardcoded
+                        platform: matrixName,
+                        platformUrl: matrixDomain,
                         login: email,
                         password: '123456'
                     });
