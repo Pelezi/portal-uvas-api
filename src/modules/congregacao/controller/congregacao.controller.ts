@@ -2,17 +2,18 @@ import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpEx
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
-import { RedeService } from '../service/rede.service';
-import { RedeCreateInput } from '../model/rede.input';
+import { CongregacaoService } from '../service/congregacao.service';
+import { CongregacaoCreateInput, CongregacaoUpdateInput } from '../model/congregacao.input';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 
 @UseGuards(RestrictedGuard, PermissionGuard)
-@Controller('redes')
-@ApiTags('redes')
-export class RedeController {
-    constructor(private readonly service: RedeService) {}
+@Controller('congregacoes')
+@ApiTags('congregacoes')
+export class CongregacaoController {
+    constructor(private readonly service: CongregacaoService) {}
 
     @Get()
+    @ApiOperation({ summary: 'Listar congregações' })
     public async list(@Req() req: AuthenticatedRequest) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
@@ -21,11 +22,20 @@ export class RedeController {
         return this.service.findAll(req.member.matrixId, permission);
     }
 
+    @Get(':id')
+    @ApiOperation({ summary: 'Buscar congregação por ID' })
+    public async findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+        return this.service.findOne(Number(id), req.member.matrixId, req.permission);
+    }
+
     @Post()
-    @ApiOperation({ summary: 'Criar rede' })
-    @ApiBody({ type: RedeCreateInput })
-    @ApiResponse({ status: 201, description: 'Rede criada' })
-    public async create(@Req() req: AuthenticatedRequest, @Body() body: RedeCreateInput) {
+    @ApiOperation({ summary: 'Criar congregação' })
+    @ApiBody({ type: CongregacaoCreateInput })
+    @ApiResponse({ status: 201, description: 'Congregação criada' })
+    public async create(@Req() req: AuthenticatedRequest, @Body() body: CongregacaoCreateInput) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
@@ -34,22 +44,23 @@ export class RedeController {
     }
 
     @Put(':id')
-    @ApiOperation({ summary: 'Atualizar rede' })
-    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: RedeCreateInput) {
+    @ApiOperation({ summary: 'Atualizar congregação' })
+    @ApiBody({ type: CongregacaoUpdateInput })
+    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: CongregacaoUpdateInput) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.update(Number(id), body as any, req.member!.matrixId, permission);
+        return this.service.update(Number(id), body, req.member!.matrixId, permission);
     }
 
     @Delete(':id')
-    @ApiOperation({ summary: 'Excluir rede' })
+    @ApiOperation({ summary: 'Excluir congregação' })
     public async delete(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.delete(Number(id), permission);
+        return this.service.delete(Number(id), req.member!.matrixId, permission);
     }
 }

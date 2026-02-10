@@ -83,6 +83,11 @@ export type Member = Prisma.MemberModel
  */
 export type CelulaLeaderInTraining = Prisma.CelulaLeaderInTrainingModel
 /**
+ * Model Congregacao
+ * 
+ */
+export type Congregacao = Prisma.CongregacaoModel
+/**
  * Model Rede
  * 
  */

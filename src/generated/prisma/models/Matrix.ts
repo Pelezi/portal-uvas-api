@@ -214,6 +214,7 @@ export type MatrixWhereInput = {
   roles?: Prisma.RoleListRelationFilter
   ministries?: Prisma.MinistryListRelationFilter
   winnerPaths?: Prisma.WinnerPathListRelationFilter
+  congregacoes?: Prisma.CongregacaoListRelationFilter
   redes?: Prisma.RedeListRelationFilter
   discipulados?: Prisma.DiscipuladoListRelationFilter
   reports?: Prisma.ReportListRelationFilter
@@ -231,6 +232,7 @@ export type MatrixOrderByWithRelationInput = {
   roles?: Prisma.RoleOrderByRelationAggregateInput
   ministries?: Prisma.MinistryOrderByRelationAggregateInput
   winnerPaths?: Prisma.WinnerPathOrderByRelationAggregateInput
+  congregacoes?: Prisma.CongregacaoOrderByRelationAggregateInput
   redes?: Prisma.RedeOrderByRelationAggregateInput
   discipulados?: Prisma.DiscipuladoOrderByRelationAggregateInput
   reports?: Prisma.ReportOrderByRelationAggregateInput
@@ -251,6 +253,7 @@ export type MatrixWhereUniqueInput = Prisma.AtLeast<{
   roles?: Prisma.RoleListRelationFilter
   ministries?: Prisma.MinistryListRelationFilter
   winnerPaths?: Prisma.WinnerPathListRelationFilter
+  congregacoes?: Prisma.CongregacaoListRelationFilter
   redes?: Prisma.RedeListRelationFilter
   discipulados?: Prisma.DiscipuladoListRelationFilter
   reports?: Prisma.ReportListRelationFilter
@@ -289,6 +292,7 @@ export type MatrixCreateInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -306,6 +310,7 @@ export type MatrixUncheckedCreateInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -322,6 +327,7 @@ export type MatrixUpdateInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -339,6 +345,7 @@ export type MatrixUncheckedUpdateInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -499,6 +506,20 @@ export type MatrixUpdateOneRequiredWithoutWinnerPathsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.MatrixUpdateToOneWithWhereWithoutWinnerPathsInput, Prisma.MatrixUpdateWithoutWinnerPathsInput>, Prisma.MatrixUncheckedUpdateWithoutWinnerPathsInput>
 }
 
+export type MatrixCreateNestedOneWithoutCongregacoesInput = {
+  create?: Prisma.XOR<Prisma.MatrixCreateWithoutCongregacoesInput, Prisma.MatrixUncheckedCreateWithoutCongregacoesInput>
+  connectOrCreate?: Prisma.MatrixCreateOrConnectWithoutCongregacoesInput
+  connect?: Prisma.MatrixWhereUniqueInput
+}
+
+export type MatrixUpdateOneRequiredWithoutCongregacoesNestedInput = {
+  create?: Prisma.XOR<Prisma.MatrixCreateWithoutCongregacoesInput, Prisma.MatrixUncheckedCreateWithoutCongregacoesInput>
+  connectOrCreate?: Prisma.MatrixCreateOrConnectWithoutCongregacoesInput
+  upsert?: Prisma.MatrixUpsertWithoutCongregacoesInput
+  connect?: Prisma.MatrixWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MatrixUpdateToOneWithWhereWithoutCongregacoesInput, Prisma.MatrixUpdateWithoutCongregacoesInput>, Prisma.MatrixUncheckedUpdateWithoutCongregacoesInput>
+}
+
 export type MatrixCreateNestedOneWithoutRedesInput = {
   create?: Prisma.XOR<Prisma.MatrixCreateWithoutRedesInput, Prisma.MatrixUncheckedCreateWithoutRedesInput>
   connectOrCreate?: Prisma.MatrixCreateOrConnectWithoutRedesInput
@@ -564,6 +585,7 @@ export type MatrixCreateWithoutDomainsInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -580,6 +602,7 @@ export type MatrixUncheckedCreateWithoutDomainsInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -611,6 +634,7 @@ export type MatrixUpdateWithoutDomainsInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -627,6 +651,7 @@ export type MatrixUncheckedUpdateWithoutDomainsInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -642,6 +667,7 @@ export type MatrixCreateWithoutMembersInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -658,6 +684,7 @@ export type MatrixUncheckedCreateWithoutMembersInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -689,6 +716,7 @@ export type MatrixUpdateWithoutMembersInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -705,6 +733,7 @@ export type MatrixUncheckedUpdateWithoutMembersInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -720,6 +749,7 @@ export type MatrixCreateWithoutCelulasInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -736,6 +766,7 @@ export type MatrixUncheckedCreateWithoutCelulasInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -767,6 +798,7 @@ export type MatrixUpdateWithoutCelulasInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -783,6 +815,7 @@ export type MatrixUncheckedUpdateWithoutCelulasInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -798,6 +831,7 @@ export type MatrixCreateWithoutRolesInput = {
   celulas?: Prisma.CelulaCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -814,6 +848,7 @@ export type MatrixUncheckedCreateWithoutRolesInput = {
   celulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -845,6 +880,7 @@ export type MatrixUpdateWithoutRolesInput = {
   celulas?: Prisma.CelulaUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -861,6 +897,7 @@ export type MatrixUncheckedUpdateWithoutRolesInput = {
   celulas?: Prisma.CelulaUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -876,6 +913,7 @@ export type MatrixCreateWithoutMinistriesInput = {
   celulas?: Prisma.CelulaCreateNestedManyWithoutMatrixInput
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -892,6 +930,7 @@ export type MatrixUncheckedCreateWithoutMinistriesInput = {
   celulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutMatrixInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -923,6 +962,7 @@ export type MatrixUpdateWithoutMinistriesInput = {
   celulas?: Prisma.CelulaUpdateManyWithoutMatrixNestedInput
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -939,6 +979,7 @@ export type MatrixUncheckedUpdateWithoutMinistriesInput = {
   celulas?: Prisma.CelulaUncheckedUpdateManyWithoutMatrixNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -954,6 +995,7 @@ export type MatrixCreateWithoutWinnerPathsInput = {
   celulas?: Prisma.CelulaCreateNestedManyWithoutMatrixInput
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -970,6 +1012,7 @@ export type MatrixUncheckedCreateWithoutWinnerPathsInput = {
   celulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutMatrixInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -1001,6 +1044,7 @@ export type MatrixUpdateWithoutWinnerPathsInput = {
   celulas?: Prisma.CelulaUpdateManyWithoutMatrixNestedInput
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -1017,6 +1061,89 @@ export type MatrixUncheckedUpdateWithoutWinnerPathsInput = {
   celulas?: Prisma.CelulaUncheckedUpdateManyWithoutMatrixNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
+  redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
+  discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
+  apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutMatrixNestedInput
+}
+
+export type MatrixCreateWithoutCongregacoesInput = {
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
+  members?: Prisma.MemberMatrixCreateNestedManyWithoutMatrixInput
+  celulas?: Prisma.CelulaCreateNestedManyWithoutMatrixInput
+  roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
+  ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
+  winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
+  discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
+  reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
+  apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutMatrixInput
+}
+
+export type MatrixUncheckedCreateWithoutCongregacoesInput = {
+  id?: number
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
+  members?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMatrixInput
+  celulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutMatrixInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
+  ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
+  winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
+  discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
+  apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutMatrixInput
+}
+
+export type MatrixCreateOrConnectWithoutCongregacoesInput = {
+  where: Prisma.MatrixWhereUniqueInput
+  create: Prisma.XOR<Prisma.MatrixCreateWithoutCongregacoesInput, Prisma.MatrixUncheckedCreateWithoutCongregacoesInput>
+}
+
+export type MatrixUpsertWithoutCongregacoesInput = {
+  update: Prisma.XOR<Prisma.MatrixUpdateWithoutCongregacoesInput, Prisma.MatrixUncheckedUpdateWithoutCongregacoesInput>
+  create: Prisma.XOR<Prisma.MatrixCreateWithoutCongregacoesInput, Prisma.MatrixUncheckedCreateWithoutCongregacoesInput>
+  where?: Prisma.MatrixWhereInput
+}
+
+export type MatrixUpdateToOneWithWhereWithoutCongregacoesInput = {
+  where?: Prisma.MatrixWhereInput
+  data: Prisma.XOR<Prisma.MatrixUpdateWithoutCongregacoesInput, Prisma.MatrixUncheckedUpdateWithoutCongregacoesInput>
+}
+
+export type MatrixUpdateWithoutCongregacoesInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
+  members?: Prisma.MemberMatrixUpdateManyWithoutMatrixNestedInput
+  celulas?: Prisma.CelulaUpdateManyWithoutMatrixNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
+  ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
+  winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
+  discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
+  apiKeys?: Prisma.ApiKeyUpdateManyWithoutMatrixNestedInput
+}
+
+export type MatrixUncheckedUpdateWithoutCongregacoesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
+  members?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMatrixNestedInput
+  celulas?: Prisma.CelulaUncheckedUpdateManyWithoutMatrixNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
+  ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
+  winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1033,6 +1160,7 @@ export type MatrixCreateWithoutRedesInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutMatrixInput
@@ -1049,6 +1177,7 @@ export type MatrixUncheckedCreateWithoutRedesInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutMatrixInput
@@ -1080,6 +1209,7 @@ export type MatrixUpdateWithoutRedesInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutMatrixNestedInput
@@ -1096,6 +1226,7 @@ export type MatrixUncheckedUpdateWithoutRedesInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1111,6 +1242,7 @@ export type MatrixCreateWithoutDiscipuladosInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutMatrixInput
@@ -1127,6 +1259,7 @@ export type MatrixUncheckedCreateWithoutDiscipuladosInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutMatrixInput
@@ -1158,6 +1291,7 @@ export type MatrixUpdateWithoutDiscipuladosInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutMatrixNestedInput
@@ -1174,6 +1308,7 @@ export type MatrixUncheckedUpdateWithoutDiscipuladosInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1189,6 +1324,7 @@ export type MatrixCreateWithoutReportsInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   apiKeys?: Prisma.ApiKeyCreateNestedManyWithoutMatrixInput
@@ -1205,6 +1341,7 @@ export type MatrixUncheckedCreateWithoutReportsInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   apiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutMatrixInput
@@ -1236,6 +1373,7 @@ export type MatrixUpdateWithoutReportsInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   apiKeys?: Prisma.ApiKeyUpdateManyWithoutMatrixNestedInput
@@ -1252,6 +1390,7 @@ export type MatrixUncheckedUpdateWithoutReportsInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   apiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1267,6 +1406,7 @@ export type MatrixCreateWithoutApiKeysInput = {
   roles?: Prisma.RoleCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportCreateNestedManyWithoutMatrixInput
@@ -1283,6 +1423,7 @@ export type MatrixUncheckedCreateWithoutApiKeysInput = {
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutMatrixInput
   ministries?: Prisma.MinistryUncheckedCreateNestedManyWithoutMatrixInput
   winnerPaths?: Prisma.WinnerPathUncheckedCreateNestedManyWithoutMatrixInput
+  congregacoes?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutMatrixInput
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutMatrixInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutMatrixInput
   reports?: Prisma.ReportUncheckedCreateNestedManyWithoutMatrixInput
@@ -1314,6 +1455,7 @@ export type MatrixUpdateWithoutApiKeysInput = {
   roles?: Prisma.RoleUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUpdateManyWithoutMatrixNestedInput
@@ -1330,6 +1472,7 @@ export type MatrixUncheckedUpdateWithoutApiKeysInput = {
   roles?: Prisma.RoleUncheckedUpdateManyWithoutMatrixNestedInput
   ministries?: Prisma.MinistryUncheckedUpdateManyWithoutMatrixNestedInput
   winnerPaths?: Prisma.WinnerPathUncheckedUpdateManyWithoutMatrixNestedInput
+  congregacoes?: Prisma.CongregacaoUncheckedUpdateManyWithoutMatrixNestedInput
   redes?: Prisma.RedeUncheckedUpdateManyWithoutMatrixNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutMatrixNestedInput
   reports?: Prisma.ReportUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1347,6 +1490,7 @@ export type MatrixCountOutputType = {
   roles: number
   ministries: number
   winnerPaths: number
+  congregacoes: number
   redes: number
   discipulados: number
   reports: number
@@ -1360,6 +1504,7 @@ export type MatrixCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   roles?: boolean | MatrixCountOutputTypeCountRolesArgs
   ministries?: boolean | MatrixCountOutputTypeCountMinistriesArgs
   winnerPaths?: boolean | MatrixCountOutputTypeCountWinnerPathsArgs
+  congregacoes?: boolean | MatrixCountOutputTypeCountCongregacoesArgs
   redes?: boolean | MatrixCountOutputTypeCountRedesArgs
   discipulados?: boolean | MatrixCountOutputTypeCountDiscipuladosArgs
   reports?: boolean | MatrixCountOutputTypeCountReportsArgs
@@ -1421,6 +1566,13 @@ export type MatrixCountOutputTypeCountWinnerPathsArgs<ExtArgs extends runtime.Ty
 /**
  * MatrixCountOutputType without action
  */
+export type MatrixCountOutputTypeCountCongregacoesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CongregacaoWhereInput
+}
+
+/**
+ * MatrixCountOutputType without action
+ */
 export type MatrixCountOutputTypeCountRedesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.RedeWhereInput
 }
@@ -1458,6 +1610,7 @@ export type MatrixSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   roles?: boolean | Prisma.Matrix$rolesArgs<ExtArgs>
   ministries?: boolean | Prisma.Matrix$ministriesArgs<ExtArgs>
   winnerPaths?: boolean | Prisma.Matrix$winnerPathsArgs<ExtArgs>
+  congregacoes?: boolean | Prisma.Matrix$congregacoesArgs<ExtArgs>
   redes?: boolean | Prisma.Matrix$redesArgs<ExtArgs>
   discipulados?: boolean | Prisma.Matrix$discipuladosArgs<ExtArgs>
   reports?: boolean | Prisma.Matrix$reportsArgs<ExtArgs>
@@ -1494,6 +1647,7 @@ export type MatrixInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   roles?: boolean | Prisma.Matrix$rolesArgs<ExtArgs>
   ministries?: boolean | Prisma.Matrix$ministriesArgs<ExtArgs>
   winnerPaths?: boolean | Prisma.Matrix$winnerPathsArgs<ExtArgs>
+  congregacoes?: boolean | Prisma.Matrix$congregacoesArgs<ExtArgs>
   redes?: boolean | Prisma.Matrix$redesArgs<ExtArgs>
   discipulados?: boolean | Prisma.Matrix$discipuladosArgs<ExtArgs>
   reports?: boolean | Prisma.Matrix$reportsArgs<ExtArgs>
@@ -1512,6 +1666,7 @@ export type $MatrixPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     roles: Prisma.$RolePayload<ExtArgs>[]
     ministries: Prisma.$MinistryPayload<ExtArgs>[]
     winnerPaths: Prisma.$WinnerPathPayload<ExtArgs>[]
+    congregacoes: Prisma.$CongregacaoPayload<ExtArgs>[]
     redes: Prisma.$RedePayload<ExtArgs>[]
     discipulados: Prisma.$DiscipuladoPayload<ExtArgs>[]
     reports: Prisma.$ReportPayload<ExtArgs>[]
@@ -1922,6 +2077,7 @@ export interface Prisma__MatrixClient<T, Null = never, ExtArgs extends runtime.T
   roles<T extends Prisma.Matrix$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ministries<T extends Prisma.Matrix$ministriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$ministriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MinistryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   winnerPaths<T extends Prisma.Matrix$winnerPathsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$winnerPathsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WinnerPathPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  congregacoes<T extends Prisma.Matrix$congregacoesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$congregacoesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CongregacaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   redes<T extends Prisma.Matrix$redesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$redesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   discipulados<T extends Prisma.Matrix$discipuladosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$discipuladosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DiscipuladoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reports<T extends Prisma.Matrix$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Matrix$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2488,6 +2644,30 @@ export type Matrix$winnerPathsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.WinnerPathScalarFieldEnum | Prisma.WinnerPathScalarFieldEnum[]
+}
+
+/**
+ * Matrix.congregacoes
+ */
+export type Matrix$congregacoesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Congregacao
+   */
+  select?: Prisma.CongregacaoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Congregacao
+   */
+  omit?: Prisma.CongregacaoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CongregacaoInclude<ExtArgs> | null
+  where?: Prisma.CongregacaoWhereInput
+  orderBy?: Prisma.CongregacaoOrderByWithRelationInput | Prisma.CongregacaoOrderByWithRelationInput[]
+  cursor?: Prisma.CongregacaoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CongregacaoScalarFieldEnum | Prisma.CongregacaoScalarFieldEnum[]
 }
 
 /**

@@ -8,6 +8,7 @@ export interface LoadedPermission {
     ministryType: $Enums.MinistryType | null;
     ministryPositionId: number | null;
     celulaIds: number[];
+    congregacaoIds: number[];
     redeIds: number[];
     discipuladoIds: number[];
 }
@@ -18,6 +19,8 @@ export interface SimplifiedPermission {
     leader: boolean;
     discipulador: boolean;
     pastor: boolean;
+    pastorCongregacao: boolean;
+    pastorPresidente: boolean;
     ministryType: $Enums.MinistryType | null;
     isAdmin: boolean;
     celulaIds: number[] | null;
@@ -39,6 +42,8 @@ export class PermissionService {
                 discipulados: true,
                 ledCelulas: true,
                 viceLedCelulas: true,
+                congregacoesPastorGoverno: true,
+                congregacoesVicePresidente: true,
                 ministryPosition: true,
                 roles: {
                     include: { role: true }
@@ -59,6 +64,11 @@ export class PermissionService {
 
         // Redes (pastor)
         const redeIds = (dbMember.redes || []).map(r => r.id);
+
+        // Congregacoes (pastor de governo ou vice presidente)
+        const congregacaoIdsPastor = (dbMember.congregacoesPastorGoverno || []).map(c => c.id);
+        const congregacaoIdsVice = (dbMember.congregacoesVicePresidente || []).map(c => c.id);
+        const congregacaoIds = Array.from(new Set([...congregacaoIdsPastor, ...congregacaoIdsVice]));
 
         // Gather celulas that belong to redes or discipulados the member owns
         const celulasFromRede = await this.prisma.celula.findMany({
@@ -85,6 +95,7 @@ export class PermissionService {
             ministryType: dbMember.ministryPosition?.type ?? null,
             ministryPositionId: dbMember.ministryPositionId,
             celulaIds,
+            congregacaoIds,
             redeIds,
             discipuladoIds
         };
@@ -106,7 +117,9 @@ export class PermissionService {
                 ledCelulas: true,
                 viceLedCelulas: true,
                 discipulados: true,
-                redes: true
+                redes: true,
+                congregacoesPastorGoverno: true,
+                congregacoesVicePresidente: true
             }
         });
 
@@ -120,6 +133,8 @@ export class PermissionService {
             leader: ((dbMember.ledCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER,
             discipulador: ((dbMember.discipulados || []).length > 0) || permission.ministryType === $Enums.MinistryType.DISCIPULADOR,
             pastor: ((dbMember.redes || []).length > 0) || permission.ministryType === $Enums.MinistryType.PASTOR,
+            pastorCongregacao: ((dbMember.congregacoesPastorGoverno || []).length > 0) || ((dbMember.congregacoesVicePresidente || []).length > 0),
+            pastorPresidente: permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR,
             ministryType: permission.ministryType,
             isAdmin: permission.isAdmin,
             celulaIds: permission.celulaIds.length ? permission.celulaIds : null
@@ -196,16 +211,16 @@ export class PermissionService {
         if (!permission) return false;
         if (permission.isAdmin) return true;
 
-        // Pastor of the network
+        // Pastor da rede
         if (await this.isPastorForCelula(permission, celulaId)) return true;
 
-        // Discipulador for discipulado that contains the celula
+        // Discipulador do discipulado que contém a célula
         if (await this.isDiscipuladorForCelula(permission, celulaId)) return true;
 
-        // The leader of the celula
+        // O líder da célula
         if (await this.isCelulaLeader(memberId, celulaId)) return true;
 
-        // The vice-leader of the celula
+        // O líder em treinamento da célula
         const celula = await this.prisma.celula.findUnique({ where: { id: celulaId } });
         if (celula && celula.viceLeaderMemberId && celula.viceLeaderMemberId === memberId) {
             return true;

@@ -215,7 +215,7 @@ export class MemberController {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
         
-        if (!permission?.isAdmin && permission?.ministryType !== 'PASTOR' && permission?.ministryType !== 'PRESIDENT_PASTOR' && member.celulaId) {
+        if (!permission?.isAdmin && member.celulaId) {
             if (!this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
                 throw new HttpException('Você não tem permissão para enviar convite para este membro', HttpStatus.UNAUTHORIZED);
             }
@@ -240,7 +240,7 @@ export class MemberController {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
         
-        if (!permission?.isAdmin && permission?.ministryType !== 'PASTOR' && permission?.ministryType !== 'PRESIDENT_PASTOR' && member.celulaId) {
+        if (!permission?.isAdmin && member.celulaId) {
             if (!this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
                 throw new HttpException('Você não tem permissão para reenviar convite para este membro', HttpStatus.UNAUTHORIZED);
             }

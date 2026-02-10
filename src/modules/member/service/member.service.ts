@@ -1017,10 +1017,9 @@ export class MemberService {
         // Carregar permissões do usuário solicitante
         const requestingPermission = await this.permissionService.loadPermissionForMember(requestingMemberId);
 
-        // Admins e pastores podem atribuir qualquer cargo
+        // Admins e pastor presidente podem atribuir qualquer cargo
         if (requestingPermission?.isAdmin ||
-            requestingPermission?.ministryType === 'PRESIDENT_PASTOR' ||
-            requestingPermission?.ministryType === 'PASTOR') {
+            requestingPermission?.ministryType === 'PRESIDENT_PASTOR') {
             return;
         }
 

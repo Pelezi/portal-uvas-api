@@ -66,6 +66,25 @@ export class MatrixValidationHelper {
     }
 
     /**
+     * Validates that a congregacao belongs to the specified matrix
+     * @throws HttpException if congregacao not found or belongs to different matrix
+     */
+    async validateCongregacaoBelongsToMatrix(congregacaoId: number, matrixId: number): Promise<void> {
+        const congregacao = await this.prisma.congregacao.findUnique({
+            where: { id: congregacaoId },
+            select: { matrixId: true }
+        });
+
+        if (!congregacao) {
+            throw new HttpException('Congregação não encontrada', HttpStatus.NOT_FOUND);
+        }
+
+        if (congregacao.matrixId !== matrixId) {
+            throw new HttpException('Acesso negado', HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /**
      * Validates that a discipulado belongs to the specified matrix
      * @throws HttpException if discipulado not found or belongs to different matrix
      */

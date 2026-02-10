@@ -3,6 +3,7 @@ import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { CommonModule } from './common';
 import { AuthModule } from './auth/auth.module';
 import { CelulaModule } from './celula/celula.module';
+import { CongregacaoModule } from './congregacao/congregacao.module';
 import { DiscipuladoModule } from './discipulado/discipulado.module';
 import { RedeModule } from './rede/rede.module';
 import { MemberModule } from './member/member.module';
@@ -17,6 +18,7 @@ import { MatrixValidationMiddleware } from './common/middleware/matrix-validatio
         CommonModule,
         AuthModule,
         MatrixModule,
+        CongregacaoModule,
         CelulaModule,
         DiscipuladoModule,
         RedeModule,

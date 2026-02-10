@@ -1,17 +1,32 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../common';
 import { DiscipuladoCreateInput } from '../model/discipulado.input';
 import { canBeDiscipulador, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
+import { LoadedPermission } from '../../common/security/permission.service';
 
 @Injectable()
 export class DiscipuladoService {
     constructor(private readonly prisma: PrismaService) {}
 
-    public async findAll(matrixId: number) {
+    public async findAll(matrixId: number, permission?: LoadedPermission | null) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
+        const where: any = { matrixId };
+        
+        // Pastores (não-admin) só podem ver discipulados de suas redes
+        // Discipuladores (não-admin e não-pastor) só podem ver seus próprios discipulados
+        if (permission && !permission.isAdmin) {
+            if (permission.redeIds && permission.redeIds.length > 0) {
+                // É pastor - filtrar por redes
+                where.redeId = { in: permission.redeIds };
+            } else if (permission.discipuladoIds && permission.discipuladoIds.length > 0) {
+                // É apenas discipulador - filtrar por seus discipulados
+                where.id = { in: permission.discipuladoIds };
+            }
+        }
+        
         return this.prisma.discipulado.findMany({
-            where: { matrixId },
+            where,
             include: { 
                 rede: true, 
                 discipulador: true 
@@ -22,11 +37,16 @@ export class DiscipuladoService {
         });
     }
 
-    public async create(data: DiscipuladoCreateInput) {
+    public async create(data: DiscipuladoCreateInput, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
         
         // Validate rede belongs to same matrix
         await validator.validateRedeBelongsToMatrix(data.redeId, data.matrixId!);
+        
+        // Apenas admins ou pastores da rede podem criar discipulados
+        if (!permission.isAdmin && !permission.redeIds.includes(data.redeId)) {
+            throw new HttpException('Você não tem permissão para criar discipulados nesta rede', HttpStatus.FORBIDDEN);
+        }
         
         if (data.discipuladorMemberId) {
             // Validate discipulador belongs to same matrix
@@ -55,15 +75,37 @@ export class DiscipuladoService {
         });
     }
 
-    public async update(id: number, data: Partial<DiscipuladoCreateInput>, matrixId: number) {
+    public async update(id: number, data: Partial<DiscipuladoCreateInput>, matrixId: number, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
         
         // Validate the discipulado being updated belongs to the matrix
         await validator.validateDiscipuladoBelongsToMatrix(id, matrixId);
         
+        // Buscar o discipulado para verificar permissões
+        const discipulado = await this.prisma.discipulado.findUnique({
+            where: { id },
+            select: { redeId: true }
+        });
+        
+        if (!discipulado) {
+            throw new BadRequestException('Discipulado não encontrado');
+        }
+        
+        // Apenas admins, pastores da rede ou o próprio discipulador podem editar
+        if (!permission.isAdmin && !permission.redeIds.includes(discipulado.redeId) && !permission.discipuladoIds.includes(id)) {
+            throw new HttpException('Você não tem permissão para editar este discipulado', HttpStatus.FORBIDDEN);
+        }
+        
         // Validate rede belongs to same matrix if being updated
         if (data.redeId !== undefined) {
             await validator.validateRedeBelongsToMatrix(data.redeId, matrixId);
+            
+            // Se estiver mudando de rede, apenas admins ou pastores da nova rede podem fazer isso
+            if (data.redeId !== discipulado.redeId) {
+                if (!permission.isAdmin && !permission.redeIds.includes(data.redeId)) {
+                    throw new HttpException('Você não tem permissão para mover este discipulado para outra rede', HttpStatus.FORBIDDEN);
+                }
+            }
         }
         
         if (data.discipuladorMemberId !== undefined && data.discipuladorMemberId !== null) {
@@ -87,7 +129,22 @@ export class DiscipuladoService {
         return this.prisma.discipulado.update({ where: { id }, data: { redeId: data.redeId, discipuladorMemberId: data.discipuladorMemberId } });
     }
 
-    public async delete(id: number) {
+    public async delete(id: number, permission: LoadedPermission) {
+        // Buscar o discipulado para verificar a rede
+        const discipulado = await this.prisma.discipulado.findUnique({
+            where: { id },
+            select: { redeId: true }
+        });
+        
+        if (!discipulado) {
+            throw new BadRequestException('Discipulado não encontrado');
+        }
+        
+        // Apenas admins ou pastores da rede podem deletar discipulados
+        if (!permission.isAdmin && !permission.redeIds.includes(discipulado.redeId)) {
+            throw new HttpException('Você não tem permissão para deletar este discipulado', HttpStatus.FORBIDDEN);
+        }
+        
         const count = await this.prisma.celula.count({ where: { discipuladoId: id } });
         if (count > 0) {
             throw new BadRequestException('Discipulado possui células vinculadas');

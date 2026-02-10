@@ -19,6 +19,7 @@ model Matrix {
   roles         Role[]
   ministries    Ministry[]
   winnerPaths   WinnerPath[]
+  congregacoes  Congregacao[]
   redes         Rede[]
   discipulados  Discipulado[]
   reports       Report[]
@@ -185,22 +186,24 @@ model Member {
   updatedAt   DateTime    @updatedAt
 
   // Relations
-  attendances      ReportAttendance[]
-  redes            Rede[]
-  discipulados     Discipulado[]
-  ledCelulas       Celula[]      @relation("CelulaLeader")
-  viceLedCelulas   Celula[]      @relation("CelulaViceLeader")
-  celula           Celula?       @relation(fields: [celulaId], references: [id], onDelete: NoAction)
-  ministryPosition Ministry     @relation(fields: [ministryPositionId], references: [id], onDelete: NoAction)
-  winnerPath       WinnerPath?   @relation(fields: [winnerPathId], references: [id], onDelete: NoAction)
-  spouse           Member?       @relation("MemberSpouse", fields: [spouseId], references: [id], onDelete: NoAction)
-  spouseOf         Member?       @relation("MemberSpouse")
-  roles            MemberRole[]
-  refreshTokens    RefreshToken[]
-  createdApiKeys   ApiKey[]
-  matrices         MemberMatrix[]
+  attendances              ReportAttendance[]
+  redes                    Rede[]
+  discipulados             Discipulado[]
+  ledCelulas               Celula[]                @relation("CelulaLeader")
+  viceLedCelulas           Celula[]                @relation("CelulaViceLeader")
+  congregacoesPastorGoverno Congregacao[]          @relation("CongregacaoPastorGoverno")
+  congregacoesVicePresidente Congregacao[]         @relation("CongregacaoVicePresidente")
+  celula                   Celula?                 @relation(fields: [celulaId], references: [id], onDelete: NoAction)
+  ministryPosition         Ministry                @relation(fields: [ministryPositionId], references: [id], onDelete: NoAction)
+  winnerPath               WinnerPath?             @relation(fields: [winnerPathId], references: [id], onDelete: NoAction)
+  spouse                   Member?                 @relation("MemberSpouse", fields: [spouseId], references: [id], onDelete: NoAction)
+  spouseOf                 Member?                 @relation("MemberSpouse")
+  roles                    MemberRole[]
+  refreshTokens            RefreshToken[]
+  createdApiKeys           ApiKey[]
+  matrices                 MemberMatrix[]
   leadingInTrainingCelulas CelulaLeaderInTraining[]
-  passwordResetTokens PasswordResetToken[]
+  passwordResetTokens      PasswordResetToken[]
 
   @@index([celulaId])
   @@index([ministryPositionId])
@@ -253,20 +256,55 @@ enum ReportType {
   CULTO
 }
 
-model Rede {
-  id           Int      @id @default(autoincrement())
-  name         String
-  matrixId     Int
-  pastorMemberId Int?
+model Congregacao {
+  id                      Int      @id @default(autoincrement())
+  name                    String
+  matrixId                Int
+  pastorGovernoMemberId   Int
+  vicePresidenteMemberId  Int?
+  isPrincipal             Boolean  @default(false)
+  
+  // Address fields
+  country      String?       @default("Brasil")
+  zipCode      String?
+  street       String?
+  streetNumber String?
+  neighborhood String?
+  city         String?
+  complement   String?
+  state        String?
+  
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  matrix       Matrix          @relation(fields: [matrixId], references: [id], onDelete: NoAction)
-  discipulados Discipulado[]
-  pastor       Member? @relation(fields: [pastorMemberId], references: [id], onDelete: NoAction)
+  matrix             Matrix   @relation(fields: [matrixId], references: [id], onDelete: NoAction)
+  pastorGoverno      Member   @relation("CongregacaoPastorGoverno", fields: [pastorGovernoMemberId], references: [id], onDelete: NoAction)
+  vicePresidente     Member?  @relation("CongregacaoVicePresidente", fields: [vicePresidenteMemberId], references: [id], onDelete: NoAction)
+  redes              Rede[]
 
   @@unique([name, matrixId])
   @@index([matrixId])
+  @@index([pastorGovernoMemberId])
+  @@index([vicePresidenteMemberId])
+}
+
+model Rede {
+  id             Int      @id @default(autoincrement())
+  name           String
+  matrixId       Int
+  congregacaoId  Int
+  pastorMemberId Int?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  matrix       Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
+  congregacao  Congregacao @relation(fields: [congregacaoId], references: [id], onDelete: NoAction)
+  discipulados Discipulado[]
+  pastor       Member?     @relation(fields: [pastorMemberId], references: [id], onDelete: NoAction)
+
+  @@unique([name, matrixId])
+  @@index([matrixId])
+  @@index([congregacaoId])
 }
 
 model Discipulado {

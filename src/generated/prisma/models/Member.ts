@@ -461,6 +461,8 @@ export type MemberWhereInput = {
   discipulados?: Prisma.DiscipuladoListRelationFilter
   ledCelulas?: Prisma.CelulaListRelationFilter
   viceLedCelulas?: Prisma.CelulaListRelationFilter
+  congregacoesPastorGoverno?: Prisma.CongregacaoListRelationFilter
+  congregacoesVicePresidente?: Prisma.CongregacaoListRelationFilter
   celula?: Prisma.XOR<Prisma.CelulaNullableScalarRelationFilter, Prisma.CelulaWhereInput> | null
   ministryPosition?: Prisma.XOR<Prisma.MinistryScalarRelationFilter, Prisma.MinistryWhereInput>
   winnerPath?: Prisma.XOR<Prisma.WinnerPathNullableScalarRelationFilter, Prisma.WinnerPathWhereInput> | null
@@ -513,6 +515,8 @@ export type MemberOrderByWithRelationInput = {
   discipulados?: Prisma.DiscipuladoOrderByRelationAggregateInput
   ledCelulas?: Prisma.CelulaOrderByRelationAggregateInput
   viceLedCelulas?: Prisma.CelulaOrderByRelationAggregateInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoOrderByRelationAggregateInput
+  congregacoesVicePresidente?: Prisma.CongregacaoOrderByRelationAggregateInput
   celula?: Prisma.CelulaOrderByWithRelationInput
   ministryPosition?: Prisma.MinistryOrderByWithRelationInput
   winnerPath?: Prisma.WinnerPathOrderByWithRelationInput
@@ -568,6 +572,8 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   discipulados?: Prisma.DiscipuladoListRelationFilter
   ledCelulas?: Prisma.CelulaListRelationFilter
   viceLedCelulas?: Prisma.CelulaListRelationFilter
+  congregacoesPastorGoverno?: Prisma.CongregacaoListRelationFilter
+  congregacoesVicePresidente?: Prisma.CongregacaoListRelationFilter
   celula?: Prisma.XOR<Prisma.CelulaNullableScalarRelationFilter, Prisma.CelulaWhereInput> | null
   ministryPosition?: Prisma.XOR<Prisma.MinistryScalarRelationFilter, Prisma.MinistryWhereInput>
   winnerPath?: Prisma.XOR<Prisma.WinnerPathNullableScalarRelationFilter, Prisma.WinnerPathWhereInput> | null
@@ -695,6 +701,8 @@ export type MemberCreateInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -747,6 +755,8 @@ export type MemberUncheckedCreateInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -790,6 +800,8 @@ export type MemberUpdateInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -842,6 +854,8 @@ export type MemberUncheckedUpdateInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -1346,6 +1360,36 @@ export type MemberUpdateOneRequiredWithoutLeadingInTrainingCelulasNestedInput = 
   update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutLeadingInTrainingCelulasInput, Prisma.MemberUpdateWithoutLeadingInTrainingCelulasInput>, Prisma.MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput>
 }
 
+export type MemberCreateNestedOneWithoutCongregacoesPastorGovernoInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesPastorGovernoInput, Prisma.MemberUncheckedCreateWithoutCongregacoesPastorGovernoInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutCongregacoesPastorGovernoInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberCreateNestedOneWithoutCongregacoesVicePresidenteInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesVicePresidenteInput, Prisma.MemberUncheckedCreateWithoutCongregacoesVicePresidenteInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutCongregacoesVicePresidenteInput
+  connect?: Prisma.MemberWhereUniqueInput
+}
+
+export type MemberUpdateOneRequiredWithoutCongregacoesPastorGovernoNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesPastorGovernoInput, Prisma.MemberUncheckedCreateWithoutCongregacoesPastorGovernoInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutCongregacoesPastorGovernoInput
+  upsert?: Prisma.MemberUpsertWithoutCongregacoesPastorGovernoInput
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutCongregacoesPastorGovernoInput, Prisma.MemberUpdateWithoutCongregacoesPastorGovernoInput>, Prisma.MemberUncheckedUpdateWithoutCongregacoesPastorGovernoInput>
+}
+
+export type MemberUpdateOneWithoutCongregacoesVicePresidenteNestedInput = {
+  create?: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesVicePresidenteInput, Prisma.MemberUncheckedCreateWithoutCongregacoesVicePresidenteInput>
+  connectOrCreate?: Prisma.MemberCreateOrConnectWithoutCongregacoesVicePresidenteInput
+  upsert?: Prisma.MemberUpsertWithoutCongregacoesVicePresidenteInput
+  disconnect?: Prisma.MemberWhereInput | boolean
+  delete?: Prisma.MemberWhereInput | boolean
+  connect?: Prisma.MemberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutCongregacoesVicePresidenteInput, Prisma.MemberUpdateWithoutCongregacoesVicePresidenteInput>, Prisma.MemberUncheckedUpdateWithoutCongregacoesVicePresidenteInput>
+}
+
 export type MemberCreateNestedOneWithoutRedesInput = {
   create?: Prisma.XOR<Prisma.MemberCreateWithoutRedesInput, Prisma.MemberUncheckedCreateWithoutRedesInput>
   connectOrCreate?: Prisma.MemberCreateOrConnectWithoutRedesInput
@@ -1480,6 +1524,8 @@ export type MemberCreateWithoutMatricesInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -1531,6 +1577,8 @@ export type MemberUncheckedCreateWithoutMatricesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -1589,6 +1637,8 @@ export type MemberUpdateWithoutMatricesInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -1640,6 +1690,8 @@ export type MemberUncheckedUpdateWithoutMatricesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -1682,6 +1734,8 @@ export type MemberCreateWithoutCelulaInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
   spouse?: Prisma.MemberCreateNestedOneWithoutSpouseOfInput
@@ -1732,6 +1786,8 @@ export type MemberUncheckedCreateWithoutCelulaInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -1784,6 +1840,8 @@ export type MemberCreateWithoutLedCelulasInput = {
   redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -1835,6 +1893,8 @@ export type MemberUncheckedCreateWithoutLedCelulasInput = {
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -1882,6 +1942,8 @@ export type MemberCreateWithoutViceLedCelulasInput = {
   redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -1933,6 +1995,8 @@ export type MemberUncheckedCreateWithoutViceLedCelulasInput = {
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -2046,6 +2110,8 @@ export type MemberUpdateWithoutLedCelulasInput = {
   redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -2097,6 +2163,8 @@ export type MemberUncheckedUpdateWithoutLedCelulasInput = {
   redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -2150,6 +2218,8 @@ export type MemberUpdateWithoutViceLedCelulasInput = {
   redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -2201,6 +2271,8 @@ export type MemberUncheckedUpdateWithoutViceLedCelulasInput = {
   redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -2244,6 +2316,8 @@ export type MemberCreateWithoutMinistryPositionInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
   spouse?: Prisma.MemberCreateNestedOneWithoutSpouseOfInput
@@ -2294,6 +2368,8 @@ export type MemberUncheckedCreateWithoutMinistryPositionInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -2363,6 +2439,8 @@ export type MemberCreateWithoutWinnerPathInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   spouse?: Prisma.MemberCreateNestedOneWithoutSpouseOfInput
@@ -2413,6 +2491,8 @@ export type MemberUncheckedCreateWithoutWinnerPathInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -2482,6 +2562,8 @@ export type MemberCreateWithoutSpouseOfInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -2533,6 +2615,8 @@ export type MemberUncheckedCreateWithoutSpouseOfInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
@@ -2580,6 +2664,8 @@ export type MemberCreateWithoutSpouseInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -2630,6 +2716,8 @@ export type MemberUncheckedCreateWithoutSpouseInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -2689,6 +2777,8 @@ export type MemberUpdateWithoutSpouseOfInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -2740,6 +2830,8 @@ export type MemberUncheckedUpdateWithoutSpouseOfInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -2793,6 +2885,8 @@ export type MemberUpdateWithoutSpouseInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -2843,6 +2937,8 @@ export type MemberUncheckedUpdateWithoutSpouseInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -2886,6 +2982,8 @@ export type MemberCreateWithoutLeadingInTrainingCelulasInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -2937,6 +3035,8 @@ export type MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -2995,6 +3095,8 @@ export type MemberUpdateWithoutLeadingInTrainingCelulasInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -3046,11 +3148,433 @@ export type MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
   matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberCreateWithoutCongregacoesPastorGovernoInput = {
+  email?: string | null
+  password?: string | null
+  phone?: string | null
+  hasDefaultPassword?: boolean | null
+  inviteSent?: boolean
+  hasLoggedIn?: boolean
+  name: string
+  isActive?: boolean
+  maritalStatus?: $Enums.MaritalStatus
+  photoUrl?: string | null
+  gender?: $Enums.Gender | null
+  isBaptized?: boolean
+  baptismDate?: Date | string | null
+  birthDate?: Date | string | null
+  registerDate?: Date | string | null
+  canBeHost?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  hasSystemAccess?: boolean
+  isOwner?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
+  redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
+  discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
+  ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
+  viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
+  celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
+  ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
+  winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
+  spouse?: Prisma.MemberCreateNestedOneWithoutSpouseOfInput
+  spouseOf?: Prisma.MemberCreateNestedOneWithoutSpouseInput
+  roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
+  createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
+  matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutMemberInput
+}
+
+export type MemberUncheckedCreateWithoutCongregacoesPastorGovernoInput = {
+  id?: number
+  email?: string | null
+  password?: string | null
+  phone?: string | null
+  hasDefaultPassword?: boolean | null
+  inviteSent?: boolean
+  hasLoggedIn?: boolean
+  name: string
+  celulaId?: number | null
+  isActive?: boolean
+  maritalStatus?: $Enums.MaritalStatus
+  photoUrl?: string | null
+  gender?: $Enums.Gender | null
+  isBaptized?: boolean
+  baptismDate?: Date | string | null
+  birthDate?: Date | string | null
+  registerDate?: Date | string | null
+  spouseId?: number | null
+  ministryPositionId: number
+  winnerPathId?: number | null
+  canBeHost?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  hasSystemAccess?: boolean
+  isOwner?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
+  redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
+  discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
+  ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
+  viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
+  spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
+  roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
+  createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
+  matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutMemberInput
+}
+
+export type MemberCreateOrConnectWithoutCongregacoesPastorGovernoInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesPastorGovernoInput, Prisma.MemberUncheckedCreateWithoutCongregacoesPastorGovernoInput>
+}
+
+export type MemberCreateWithoutCongregacoesVicePresidenteInput = {
+  email?: string | null
+  password?: string | null
+  phone?: string | null
+  hasDefaultPassword?: boolean | null
+  inviteSent?: boolean
+  hasLoggedIn?: boolean
+  name: string
+  isActive?: boolean
+  maritalStatus?: $Enums.MaritalStatus
+  photoUrl?: string | null
+  gender?: $Enums.Gender | null
+  isBaptized?: boolean
+  baptismDate?: Date | string | null
+  birthDate?: Date | string | null
+  registerDate?: Date | string | null
+  canBeHost?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  hasSystemAccess?: boolean
+  isOwner?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
+  redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
+  discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
+  ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
+  viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
+  ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
+  winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
+  spouse?: Prisma.MemberCreateNestedOneWithoutSpouseOfInput
+  spouseOf?: Prisma.MemberCreateNestedOneWithoutSpouseInput
+  roles?: Prisma.MemberRoleCreateNestedManyWithoutMemberInput
+  refreshTokens?: Prisma.RefreshTokenCreateNestedManyWithoutMemberInput
+  createdApiKeys?: Prisma.ApiKeyCreateNestedManyWithoutCreatedByInput
+  matrices?: Prisma.MemberMatrixCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingCreateNestedManyWithoutMemberInput
+  passwordResetTokens?: Prisma.PasswordResetTokenCreateNestedManyWithoutMemberInput
+}
+
+export type MemberUncheckedCreateWithoutCongregacoesVicePresidenteInput = {
+  id?: number
+  email?: string | null
+  password?: string | null
+  phone?: string | null
+  hasDefaultPassword?: boolean | null
+  inviteSent?: boolean
+  hasLoggedIn?: boolean
+  name: string
+  celulaId?: number | null
+  isActive?: boolean
+  maritalStatus?: $Enums.MaritalStatus
+  photoUrl?: string | null
+  gender?: $Enums.Gender | null
+  isBaptized?: boolean
+  baptismDate?: Date | string | null
+  birthDate?: Date | string | null
+  registerDate?: Date | string | null
+  spouseId?: number | null
+  ministryPositionId: number
+  winnerPathId?: number | null
+  canBeHost?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  hasSystemAccess?: boolean
+  isOwner?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
+  redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
+  discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
+  ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
+  viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
+  roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
+  createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
+  matrices?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMemberInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedCreateNestedManyWithoutMemberInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedCreateNestedManyWithoutMemberInput
+}
+
+export type MemberCreateOrConnectWithoutCongregacoesVicePresidenteInput = {
+  where: Prisma.MemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesVicePresidenteInput, Prisma.MemberUncheckedCreateWithoutCongregacoesVicePresidenteInput>
+}
+
+export type MemberUpsertWithoutCongregacoesPastorGovernoInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutCongregacoesPastorGovernoInput, Prisma.MemberUncheckedUpdateWithoutCongregacoesPastorGovernoInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesPastorGovernoInput, Prisma.MemberUncheckedCreateWithoutCongregacoesPastorGovernoInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutCongregacoesPastorGovernoInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutCongregacoesPastorGovernoInput, Prisma.MemberUncheckedUpdateWithoutCongregacoesPastorGovernoInput>
+}
+
+export type MemberUpdateWithoutCongregacoesPastorGovernoInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  inviteSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasLoggedIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  isBaptized?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
+  redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
+  discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
+  ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
+  viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
+  celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
+  ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
+  winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
+  spouse?: Prisma.MemberUpdateOneWithoutSpouseOfNestedInput
+  spouseOf?: Prisma.MemberUpdateOneWithoutSpouseNestedInput
+  roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
+  createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
+  matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutCongregacoesPastorGovernoInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  inviteSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasLoggedIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  isBaptized?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  spouseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ministryPositionId?: Prisma.IntFieldUpdateOperationsInput | number
+  winnerPathId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
+  redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
+  discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
+  ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
+  viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
+  spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
+  roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
+  createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
+  matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberUpsertWithoutCongregacoesVicePresidenteInput = {
+  update: Prisma.XOR<Prisma.MemberUpdateWithoutCongregacoesVicePresidenteInput, Prisma.MemberUncheckedUpdateWithoutCongregacoesVicePresidenteInput>
+  create: Prisma.XOR<Prisma.MemberCreateWithoutCongregacoesVicePresidenteInput, Prisma.MemberUncheckedCreateWithoutCongregacoesVicePresidenteInput>
+  where?: Prisma.MemberWhereInput
+}
+
+export type MemberUpdateToOneWithWhereWithoutCongregacoesVicePresidenteInput = {
+  where?: Prisma.MemberWhereInput
+  data: Prisma.XOR<Prisma.MemberUpdateWithoutCongregacoesVicePresidenteInput, Prisma.MemberUncheckedUpdateWithoutCongregacoesVicePresidenteInput>
+}
+
+export type MemberUpdateWithoutCongregacoesVicePresidenteInput = {
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  inviteSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasLoggedIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  isBaptized?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
+  redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
+  discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
+  ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
+  viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
+  ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
+  winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
+  spouse?: Prisma.MemberUpdateOneWithoutSpouseOfNestedInput
+  spouseOf?: Prisma.MemberUpdateOneWithoutSpouseNestedInput
+  roles?: Prisma.MemberRoleUpdateManyWithoutMemberNestedInput
+  refreshTokens?: Prisma.RefreshTokenUpdateManyWithoutMemberNestedInput
+  createdApiKeys?: Prisma.ApiKeyUpdateManyWithoutCreatedByNestedInput
+  matrices?: Prisma.MemberMatrixUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUpdateManyWithoutMemberNestedInput
+  passwordResetTokens?: Prisma.PasswordResetTokenUpdateManyWithoutMemberNestedInput
+}
+
+export type MemberUncheckedUpdateWithoutCongregacoesVicePresidenteInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasDefaultPassword?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  inviteSent?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  hasLoggedIn?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  celulaId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  maritalStatus?: Prisma.EnumMaritalStatusFieldUpdateOperationsInput | $Enums.MaritalStatus
+  photoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gender?: Prisma.NullableEnumGenderFieldUpdateOperationsInput | $Enums.Gender | null
+  isBaptized?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  baptismDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  registerDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  spouseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ministryPositionId?: Prisma.IntFieldUpdateOperationsInput | number
+  winnerPathId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  canBeHost?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
+  redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
+  discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
+  ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
+  viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
+  roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
+  refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
+  createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
+  matrices?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMemberNestedInput
+  leadingInTrainingCelulas?: Prisma.CelulaLeaderInTrainingUncheckedUpdateManyWithoutMemberNestedInput
   passwordResetTokens?: Prisma.PasswordResetTokenUncheckedUpdateManyWithoutMemberNestedInput
 }
 
@@ -3087,6 +3611,8 @@ export type MemberCreateWithoutRedesInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -3138,6 +3664,8 @@ export type MemberUncheckedCreateWithoutRedesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -3196,6 +3724,8 @@ export type MemberUpdateWithoutRedesInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -3247,6 +3777,8 @@ export type MemberUncheckedUpdateWithoutRedesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -3289,6 +3821,8 @@ export type MemberCreateWithoutDiscipuladosInput = {
   redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -3340,6 +3874,8 @@ export type MemberUncheckedCreateWithoutDiscipuladosInput = {
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -3398,6 +3934,8 @@ export type MemberUpdateWithoutDiscipuladosInput = {
   redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -3449,6 +3987,8 @@ export type MemberUncheckedUpdateWithoutDiscipuladosInput = {
   redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -3491,6 +4031,8 @@ export type MemberCreateWithoutAttendancesInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -3542,6 +4084,8 @@ export type MemberUncheckedCreateWithoutAttendancesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -3600,6 +4144,8 @@ export type MemberUpdateWithoutAttendancesInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -3651,6 +4197,8 @@ export type MemberUncheckedUpdateWithoutAttendancesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -3694,6 +4242,8 @@ export type MemberCreateWithoutRolesInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -3745,6 +4295,8 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3803,6 +4355,8 @@ export type MemberUpdateWithoutRolesInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -3854,6 +4408,8 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -3896,6 +4452,8 @@ export type MemberCreateWithoutRefreshTokensInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -3947,6 +4505,8 @@ export type MemberUncheckedCreateWithoutRefreshTokensInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   createdApiKeys?: Prisma.ApiKeyUncheckedCreateNestedManyWithoutCreatedByInput
@@ -4005,6 +4565,8 @@ export type MemberUpdateWithoutRefreshTokensInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -4056,6 +4618,8 @@ export type MemberUncheckedUpdateWithoutRefreshTokensInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   createdApiKeys?: Prisma.ApiKeyUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -4098,6 +4662,8 @@ export type MemberCreateWithoutCreatedApiKeysInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -4149,6 +4715,8 @@ export type MemberUncheckedCreateWithoutCreatedApiKeysInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -4207,6 +4775,8 @@ export type MemberUpdateWithoutCreatedApiKeysInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -4258,6 +4828,8 @@ export type MemberUncheckedUpdateWithoutCreatedApiKeysInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -4300,6 +4872,8 @@ export type MemberCreateWithoutPasswordResetTokensInput = {
   discipulados?: Prisma.DiscipuladoCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoCreateNestedManyWithoutVicePresidenteInput
   celula?: Prisma.CelulaCreateNestedOneWithoutMembersInput
   ministryPosition: Prisma.MinistryCreateNestedOneWithoutMembersInput
   winnerPath?: Prisma.WinnerPathCreateNestedOneWithoutMembersInput
@@ -4351,6 +4925,8 @@ export type MemberUncheckedCreateWithoutPasswordResetTokensInput = {
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutDiscipuladorInput
   ledCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutLeaderInput
   viceLedCelulas?: Prisma.CelulaUncheckedCreateNestedManyWithoutViceLeaderInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput
   spouseOf?: Prisma.MemberUncheckedCreateNestedOneWithoutSpouseInput
   roles?: Prisma.MemberRoleUncheckedCreateNestedManyWithoutMemberInput
   refreshTokens?: Prisma.RefreshTokenUncheckedCreateNestedManyWithoutMemberInput
@@ -4409,6 +4985,8 @@ export type MemberUpdateWithoutPasswordResetTokensInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
@@ -4460,6 +5038,8 @@ export type MemberUncheckedUpdateWithoutPasswordResetTokensInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -4537,6 +5117,8 @@ export type MemberUpdateWithoutCelulaInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
   spouse?: Prisma.MemberUpdateOneWithoutSpouseOfNestedInput
@@ -4587,6 +5169,8 @@ export type MemberUncheckedUpdateWithoutCelulaInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -4700,6 +5284,8 @@ export type MemberUpdateWithoutMinistryPositionInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   winnerPath?: Prisma.WinnerPathUpdateOneWithoutMembersNestedInput
   spouse?: Prisma.MemberUpdateOneWithoutSpouseOfNestedInput
@@ -4750,6 +5336,8 @@ export type MemberUncheckedUpdateWithoutMinistryPositionInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -4863,6 +5451,8 @@ export type MemberUpdateWithoutWinnerPathInput = {
   discipulados?: Prisma.DiscipuladoUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUpdateManyWithoutVicePresidenteNestedInput
   celula?: Prisma.CelulaUpdateOneWithoutMembersNestedInput
   ministryPosition?: Prisma.MinistryUpdateOneRequiredWithoutMembersNestedInput
   spouse?: Prisma.MemberUpdateOneWithoutSpouseOfNestedInput
@@ -4913,6 +5503,8 @@ export type MemberUncheckedUpdateWithoutWinnerPathInput = {
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutDiscipuladorNestedInput
   ledCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutLeaderNestedInput
   viceLedCelulas?: Prisma.CelulaUncheckedUpdateManyWithoutViceLeaderNestedInput
+  congregacoesPastorGoverno?: Prisma.CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput
+  congregacoesVicePresidente?: Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput
   spouseOf?: Prisma.MemberUncheckedUpdateOneWithoutSpouseNestedInput
   roles?: Prisma.MemberRoleUncheckedUpdateManyWithoutMemberNestedInput
   refreshTokens?: Prisma.RefreshTokenUncheckedUpdateManyWithoutMemberNestedInput
@@ -4968,6 +5560,8 @@ export type MemberCountOutputType = {
   discipulados: number
   ledCelulas: number
   viceLedCelulas: number
+  congregacoesPastorGoverno: number
+  congregacoesVicePresidente: number
   roles: number
   refreshTokens: number
   createdApiKeys: number
@@ -4982,6 +5576,8 @@ export type MemberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   discipulados?: boolean | MemberCountOutputTypeCountDiscipuladosArgs
   ledCelulas?: boolean | MemberCountOutputTypeCountLedCelulasArgs
   viceLedCelulas?: boolean | MemberCountOutputTypeCountViceLedCelulasArgs
+  congregacoesPastorGoverno?: boolean | MemberCountOutputTypeCountCongregacoesPastorGovernoArgs
+  congregacoesVicePresidente?: boolean | MemberCountOutputTypeCountCongregacoesVicePresidenteArgs
   roles?: boolean | MemberCountOutputTypeCountRolesArgs
   refreshTokens?: boolean | MemberCountOutputTypeCountRefreshTokensArgs
   createdApiKeys?: boolean | MemberCountOutputTypeCountCreatedApiKeysArgs
@@ -5033,6 +5629,20 @@ export type MemberCountOutputTypeCountLedCelulasArgs<ExtArgs extends runtime.Typ
  */
 export type MemberCountOutputTypeCountViceLedCelulasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CelulaWhereInput
+}
+
+/**
+ * MemberCountOutputType without action
+ */
+export type MemberCountOutputTypeCountCongregacoesPastorGovernoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CongregacaoWhereInput
+}
+
+/**
+ * MemberCountOutputType without action
+ */
+export type MemberCountOutputTypeCountCongregacoesVicePresidenteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CongregacaoWhereInput
 }
 
 /**
@@ -5117,6 +5727,8 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   discipulados?: boolean | Prisma.Member$discipuladosArgs<ExtArgs>
   ledCelulas?: boolean | Prisma.Member$ledCelulasArgs<ExtArgs>
   viceLedCelulas?: boolean | Prisma.Member$viceLedCelulasArgs<ExtArgs>
+  congregacoesPastorGoverno?: boolean | Prisma.Member$congregacoesPastorGovernoArgs<ExtArgs>
+  congregacoesVicePresidente?: boolean | Prisma.Member$congregacoesVicePresidenteArgs<ExtArgs>
   celula?: boolean | Prisma.Member$celulaArgs<ExtArgs>
   ministryPosition?: boolean | Prisma.MinistryDefaultArgs<ExtArgs>
   winnerPath?: boolean | Prisma.Member$winnerPathArgs<ExtArgs>
@@ -5254,6 +5866,8 @@ export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   discipulados?: boolean | Prisma.Member$discipuladosArgs<ExtArgs>
   ledCelulas?: boolean | Prisma.Member$ledCelulasArgs<ExtArgs>
   viceLedCelulas?: boolean | Prisma.Member$viceLedCelulasArgs<ExtArgs>
+  congregacoesPastorGoverno?: boolean | Prisma.Member$congregacoesPastorGovernoArgs<ExtArgs>
+  congregacoesVicePresidente?: boolean | Prisma.Member$congregacoesVicePresidenteArgs<ExtArgs>
   celula?: boolean | Prisma.Member$celulaArgs<ExtArgs>
   ministryPosition?: boolean | Prisma.MinistryDefaultArgs<ExtArgs>
   winnerPath?: boolean | Prisma.Member$winnerPathArgs<ExtArgs>
@@ -5288,6 +5902,8 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     discipulados: Prisma.$DiscipuladoPayload<ExtArgs>[]
     ledCelulas: Prisma.$CelulaPayload<ExtArgs>[]
     viceLedCelulas: Prisma.$CelulaPayload<ExtArgs>[]
+    congregacoesPastorGoverno: Prisma.$CongregacaoPayload<ExtArgs>[]
+    congregacoesVicePresidente: Prisma.$CongregacaoPayload<ExtArgs>[]
     celula: Prisma.$CelulaPayload<ExtArgs> | null
     ministryPosition: Prisma.$MinistryPayload<ExtArgs>
     winnerPath: Prisma.$WinnerPathPayload<ExtArgs> | null
@@ -5733,6 +6349,8 @@ export interface Prisma__MemberClient<T, Null = never, ExtArgs extends runtime.T
   discipulados<T extends Prisma.Member$discipuladosArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$discipuladosArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DiscipuladoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ledCelulas<T extends Prisma.Member$ledCelulasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$ledCelulasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CelulaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   viceLedCelulas<T extends Prisma.Member$viceLedCelulasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$viceLedCelulasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CelulaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  congregacoesPastorGoverno<T extends Prisma.Member$congregacoesPastorGovernoArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$congregacoesPastorGovernoArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CongregacaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  congregacoesVicePresidente<T extends Prisma.Member$congregacoesVicePresidenteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$congregacoesVicePresidenteArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CongregacaoPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   celula<T extends Prisma.Member$celulaArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$celulaArgs<ExtArgs>>): Prisma.Prisma__CelulaClient<runtime.Types.Result.GetResult<Prisma.$CelulaPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   ministryPosition<T extends Prisma.MinistryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MinistryDefaultArgs<ExtArgs>>): Prisma.Prisma__MinistryClient<runtime.Types.Result.GetResult<Prisma.$MinistryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   winnerPath<T extends Prisma.Member$winnerPathArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Member$winnerPathArgs<ExtArgs>>): Prisma.Prisma__WinnerPathClient<runtime.Types.Result.GetResult<Prisma.$WinnerPathPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -6319,6 +6937,54 @@ export type Member$viceLedCelulasArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.CelulaScalarFieldEnum | Prisma.CelulaScalarFieldEnum[]
+}
+
+/**
+ * Member.congregacoesPastorGoverno
+ */
+export type Member$congregacoesPastorGovernoArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Congregacao
+   */
+  select?: Prisma.CongregacaoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Congregacao
+   */
+  omit?: Prisma.CongregacaoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CongregacaoInclude<ExtArgs> | null
+  where?: Prisma.CongregacaoWhereInput
+  orderBy?: Prisma.CongregacaoOrderByWithRelationInput | Prisma.CongregacaoOrderByWithRelationInput[]
+  cursor?: Prisma.CongregacaoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CongregacaoScalarFieldEnum | Prisma.CongregacaoScalarFieldEnum[]
+}
+
+/**
+ * Member.congregacoesVicePresidente
+ */
+export type Member$congregacoesVicePresidenteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Congregacao
+   */
+  select?: Prisma.CongregacaoSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Congregacao
+   */
+  omit?: Prisma.CongregacaoOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CongregacaoInclude<ExtArgs> | null
+  where?: Prisma.CongregacaoWhereInput
+  orderBy?: Prisma.CongregacaoOrderByWithRelationInput | Prisma.CongregacaoOrderByWithRelationInput[]
+  cursor?: Prisma.CongregacaoWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CongregacaoScalarFieldEnum | Prisma.CongregacaoScalarFieldEnum[]
 }
 
 /**

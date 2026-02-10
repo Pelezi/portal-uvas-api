@@ -393,6 +393,7 @@ export const ModelName = {
   WinnerPath: 'WinnerPath',
   Member: 'Member',
   CelulaLeaderInTraining: 'CelulaLeaderInTraining',
+  Congregacao: 'Congregacao',
   Rede: 'Rede',
   Discipulado: 'Discipulado',
   Report: 'Report',
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey" | "passwordResetToken"
+    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "congregacao" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey" | "passwordResetToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1083,6 +1084,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CelulaLeaderInTrainingCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CelulaLeaderInTrainingCountAggregateOutputType> | number
+        }
+      }
+    }
+    Congregacao: {
+      payload: Prisma.$CongregacaoPayload<ExtArgs>
+      fields: Prisma.CongregacaoFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CongregacaoFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CongregacaoFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>
+        }
+        findFirst: {
+          args: Prisma.CongregacaoFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CongregacaoFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>
+        }
+        findMany: {
+          args: Prisma.CongregacaoFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>[]
+        }
+        create: {
+          args: Prisma.CongregacaoCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>
+        }
+        createMany: {
+          args: Prisma.CongregacaoCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CongregacaoCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>[]
+        }
+        delete: {
+          args: Prisma.CongregacaoDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>
+        }
+        update: {
+          args: Prisma.CongregacaoUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>
+        }
+        deleteMany: {
+          args: Prisma.CongregacaoDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CongregacaoUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CongregacaoUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>[]
+        }
+        upsert: {
+          args: Prisma.CongregacaoUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CongregacaoPayload>
+        }
+        aggregate: {
+          args: Prisma.CongregacaoAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCongregacao>
+        }
+        groupBy: {
+          args: Prisma.CongregacaoGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CongregacaoGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CongregacaoCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CongregacaoCountAggregateOutputType> | number
         }
       }
     }
@@ -1858,10 +1933,33 @@ export const CelulaLeaderInTrainingScalarFieldEnum = {
 export type CelulaLeaderInTrainingScalarFieldEnum = (typeof CelulaLeaderInTrainingScalarFieldEnum)[keyof typeof CelulaLeaderInTrainingScalarFieldEnum]
 
 
+export const CongregacaoScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  matrixId: 'matrixId',
+  pastorGovernoMemberId: 'pastorGovernoMemberId',
+  vicePresidenteMemberId: 'vicePresidenteMemberId',
+  isPrincipal: 'isPrincipal',
+  country: 'country',
+  zipCode: 'zipCode',
+  street: 'street',
+  streetNumber: 'streetNumber',
+  neighborhood: 'neighborhood',
+  city: 'city',
+  complement: 'complement',
+  state: 'state',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CongregacaoScalarFieldEnum = (typeof CongregacaoScalarFieldEnum)[keyof typeof CongregacaoScalarFieldEnum]
+
+
 export const RedeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   matrixId: 'matrixId',
+  congregacaoId: 'congregacaoId',
   pastorMemberId: 'pastorMemberId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2203,6 +2301,7 @@ export type GlobalOmitConfig = {
   winnerPath?: Prisma.WinnerPathOmit
   member?: Prisma.MemberOmit
   celulaLeaderInTraining?: Prisma.CelulaLeaderInTrainingOmit
+  congregacao?: Prisma.CongregacaoOmit
   rede?: Prisma.RedeOmit
   discipulado?: Prisma.DiscipuladoOmit
   report?: Prisma.ReportOmit
