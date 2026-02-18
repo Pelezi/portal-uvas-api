@@ -10,6 +10,9 @@ export class CongregacaoCreateInput {
     @ApiProperty({ description: 'Member id do vice presidente', required: false })
     public readonly vicePresidenteMemberId?: number;
 
+    @ApiProperty({ description: 'Member id da responsável pela rede kids', required: false })
+    public readonly kidsLeaderMemberId?: number;
+
     @ApiProperty({ description: 'Se esta é a congregação principal da cidade', required: false, default: false })
     public readonly isPrincipal?: boolean;
 
@@ -50,6 +53,9 @@ export class CongregacaoUpdateInput {
 
     @ApiProperty({ description: 'Member id do vice presidente', required: false })
     public readonly vicePresidenteMemberId?: number;
+
+    @ApiProperty({ description: 'Member id da responsável pela rede kids', required: false })
+    public readonly kidsLeaderMemberId?: number;
 
     @ApiProperty({ description: 'Se esta é a congregação principal da cidade', required: false })
     public readonly isPrincipal?: boolean;

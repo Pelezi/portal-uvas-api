@@ -124,6 +124,10 @@ export class MatrixService {
             updateData.name = data.name;
         }
 
+        if (data.whatsappApiKey !== undefined) {
+            updateData.whatsappApiKey = data.whatsappApiKey;
+        }
+
         if (data.domains !== undefined) {
             // Normalize all domains before checking/saving
             const normalizedDomains = data.domains.map(d => this.normalizeDomain(d));

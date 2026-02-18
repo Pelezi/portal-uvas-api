@@ -401,7 +401,8 @@ export const ModelName = {
   MemberRole: 'MemberRole',
   RefreshToken: 'RefreshToken',
   ApiKey: 'ApiKey',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  MemberSocialMedia: 'MemberSocialMedia'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -417,7 +418,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "congregacao" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey" | "passwordResetToken"
+    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "congregacao" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey" | "passwordResetToken" | "memberSocialMedia"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1753,6 +1754,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MemberSocialMedia: {
+      payload: Prisma.$MemberSocialMediaPayload<ExtArgs>
+      fields: Prisma.MemberSocialMediaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MemberSocialMediaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MemberSocialMediaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>
+        }
+        findFirst: {
+          args: Prisma.MemberSocialMediaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MemberSocialMediaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>
+        }
+        findMany: {
+          args: Prisma.MemberSocialMediaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>[]
+        }
+        create: {
+          args: Prisma.MemberSocialMediaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>
+        }
+        createMany: {
+          args: Prisma.MemberSocialMediaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MemberSocialMediaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>[]
+        }
+        delete: {
+          args: Prisma.MemberSocialMediaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>
+        }
+        update: {
+          args: Prisma.MemberSocialMediaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>
+        }
+        deleteMany: {
+          args: Prisma.MemberSocialMediaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MemberSocialMediaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MemberSocialMediaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>[]
+        }
+        upsert: {
+          args: Prisma.MemberSocialMediaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MemberSocialMediaPayload>
+        }
+        aggregate: {
+          args: Prisma.MemberSocialMediaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMemberSocialMedia>
+        }
+        groupBy: {
+          args: Prisma.MemberSocialMediaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MemberSocialMediaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MemberSocialMediaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MemberSocialMediaCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1795,6 +1870,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const MatrixScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  whatsappApiKey: 'whatsappApiKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1939,6 +2015,7 @@ export const CongregacaoScalarFieldEnum = {
   matrixId: 'matrixId',
   pastorGovernoMemberId: 'pastorGovernoMemberId',
   vicePresidenteMemberId: 'vicePresidenteMemberId',
+  kidsLeaderMemberId: 'kidsLeaderMemberId',
   isPrincipal: 'isPrincipal',
   country: 'country',
   zipCode: 'zipCode',
@@ -1961,6 +2038,7 @@ export const RedeScalarFieldEnum = {
   matrixId: 'matrixId',
   congregacaoId: 'congregacaoId',
   pastorMemberId: 'pastorMemberId',
+  isKids: 'isKids',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2047,6 +2125,18 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const MemberSocialMediaScalarFieldEnum = {
+  id: 'id',
+  memberId: 'memberId',
+  type: 'type',
+  username: 'username',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MemberSocialMediaScalarFieldEnum = (typeof MemberSocialMediaScalarFieldEnum)[keyof typeof MemberSocialMediaScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2310,6 +2400,7 @@ export type GlobalOmitConfig = {
   refreshToken?: Prisma.RefreshTokenOmit
   apiKey?: Prisma.ApiKeyOmit
   passwordResetToken?: Prisma.PasswordResetTokenOmit
+  memberSocialMedia?: Prisma.MemberSocialMediaOmit
 }
 
 /* Types for Logging */

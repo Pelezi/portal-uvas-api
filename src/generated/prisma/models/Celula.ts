@@ -767,10 +767,6 @@ export type NullableIntFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type CelulaCreateNestedManyWithoutLeaderInput = {
   create?: Prisma.XOR<Prisma.CelulaCreateWithoutLeaderInput, Prisma.CelulaUncheckedCreateWithoutLeaderInput> | Prisma.CelulaCreateWithoutLeaderInput[] | Prisma.CelulaUncheckedCreateWithoutLeaderInput[]
   connectOrCreate?: Prisma.CelulaCreateOrConnectWithoutLeaderInput | Prisma.CelulaCreateOrConnectWithoutLeaderInput[]

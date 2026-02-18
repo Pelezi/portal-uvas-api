@@ -14,6 +14,9 @@ export class CelulaService {
         let where: Prisma.CelulaWhereInput = { matrixId };
 
         if (filters) {
+            if (filters.name) {
+                where.name = { contains: filters.name, mode: 'insensitive' };
+            }
             if (filters.viceLeaderMemberId) {
                 where.leadersInTraining = { some: { memberId: Number(filters.viceLeaderMemberId) } };
             }
@@ -23,8 +26,15 @@ export class CelulaService {
             if (filters.discipuladoId) {
                 where.discipuladoId = Number(filters.discipuladoId);
             }
-            if (filters.redeId) {
+            if (filters.redeId && filters.congregacaoId) {
+                where.discipulado = { 
+                    redeId: Number(filters.redeId),
+                    rede: { congregacaoId: Number(filters.congregacaoId) }
+                };
+            } else if (filters.redeId) {
                 where.discipulado = { redeId: Number(filters.redeId) };
+            } else if (filters.congregacaoId) {
+                where.discipulado = { rede: { congregacaoId: Number(filters.congregacaoId) } };
             }
             if (filters.celulaIds && filters.celulaIds.length > 0) {
                 where.id = { in: filters.celulaIds };

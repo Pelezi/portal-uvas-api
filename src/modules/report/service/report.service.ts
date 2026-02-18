@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../common';
 import { Prisma } from '../../../generated/prisma/client';
+import { LoadedPermission } from '../../common/security/permission.service';
+import * as ReportData from '../model';
+import { CelulaWhereInput } from '../../../generated/prisma/models';
 
 @Injectable()
 export class ReportService {
@@ -222,8 +225,81 @@ export class ReportService {
         };
     }
 
-    public async reportsByMonthMultipleCelulas(celulaIds: number[], year: number, month: number) {
+    public async reportsByMonthMultipleCelulas(
+        permission: LoadedPermission,
+        year: number,
+        month: number,
+        filters: ReportData.ReportFilterInput,
+        matrixId: number
+    ) {
         const brazilOffsetHours = 3;
+        
+        // Build where clause for celulas based on filters and permissions
+        // MANDATORY: Filter by matrixId to prevent cross-matrix access
+        let celulaWhere: CelulaWhereInput = { matrixId };
+        
+        // Apply filter (priority: célula > discipulado > rede > congregação)
+        if (filters.celulaId) {
+            celulaWhere.id = filters.celulaId;
+        } else if (filters.discipuladoId) {
+            celulaWhere.discipuladoId = filters.discipuladoId;
+        } else if (filters.redeId) {
+            celulaWhere.discipulado = { redeId: filters.redeId };
+        } else if (filters.congregacaoId) {
+            celulaWhere.discipulado = { rede: { congregacaoId: filters.congregacaoId } };
+        }
+        
+        // Apply permissions if not admin
+        if (!permission?.isAdmin && permission?.ministryType !== 'PRESIDENT_PASTOR') {
+            // Build permission-based OR conditions
+            const permissionConditions: any[] = [];
+            
+            // Direct celula access
+            if (permission.celulaIds && permission.celulaIds.length > 0) {
+                permissionConditions.push({ id: { in: permission.celulaIds } });
+            }
+            
+            // Discipulado access
+            if (permission.discipuladoIds && permission.discipuladoIds.length > 0) {
+                permissionConditions.push({ discipuladoId: { in: permission.discipuladoIds } });
+            }
+            
+            // Rede access
+            if (permission.redeIds && permission.redeIds.length > 0) {
+                permissionConditions.push({ discipulado: { redeId: { in: permission.redeIds } } });
+            }
+            
+            // Congregação access
+            if (permission.congregacaoIds && permission.congregacaoIds.length > 0) {
+                permissionConditions.push({ 
+                    discipulado: { 
+                        rede: { 
+                            congregacaoId: { in: permission.congregacaoIds } 
+                        } 
+                    } 
+                });
+            }
+            
+            // Combine filter with permissions
+            if (permissionConditions.length > 0) {
+                if (Object.keys(celulaWhere).length > 0) {
+                    // Both filter and permissions - need AND (filter AND permissions)
+                    celulaWhere = {
+                        AND: [
+                            celulaWhere,
+                            { OR: permissionConditions }
+                        ]
+                    };
+                } else {
+                    // Only permissions - use OR
+                    celulaWhere = { OR: permissionConditions };
+                }
+            } else {
+                // No permissions at all - return empty result
+                celulaWhere = { id: -1 };
+            }
+        }
+        // If admin and no filter, celulaWhere remains {} which means all celulas
         
         // Calcular início e fim do mês em UTC
         const startBrazilUtcMillis = Date.UTC(year, month - 1, 1, 0, 0, 0) + brazilOffsetHours * 60 * 60 * 1000;
@@ -233,7 +309,7 @@ export class ReportService {
 
         // Buscar todas as células com informações do discipulado e dia da semana
         const celulas = await this.prisma.celula.findMany({
-            where: { id: { in: celulaIds } },
+            where: celulaWhere,
             include: {
                 discipulado: {
                     include: {
@@ -243,11 +319,15 @@ export class ReportService {
                 }
             }
         });
+        
+        const celulaIds = celulas.map(c => c.id);
 
         // Buscar todos os relatórios do mês para essas células
+        // MANDATORY: Filter by matrixId to prevent cross-matrix access
         const reports = await this.prisma.report.findMany({
             where: { 
                 celulaId: { in: celulaIds },
+                matrixId,  
                 createdAt: {
                     gte: startUtc,
                     lte: endUtc
@@ -269,8 +349,16 @@ export class ReportService {
         });
 
         // Buscar todos os membros de todas as células
+        // MANDATORY: Filter by matrixId through member-matrix relationship for defense in depth
         const allMembers = await this.prisma.member.findMany({
-            where: { celulaId: { in: celulaIds } },
+            where: { 
+                celulaId: { in: celulaIds },
+                matrices: {
+                    some: {
+                        matrixId
+                    }
+                }
+            },
             orderBy: [{ celulaId: 'asc' }, { name: 'asc' }],
             include: {
                 ministryPosition: true,

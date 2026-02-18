@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Matrix {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int      @id @default(autoincrement())
+  name           String
+  whatsappApiKey String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   domains       MatrixDomain[]
   members       MemberMatrix[]
@@ -193,6 +194,7 @@ model Member {
   viceLedCelulas           Celula[]                @relation("CelulaViceLeader")
   congregacoesPastorGoverno Congregacao[]          @relation("CongregacaoPastorGoverno")
   congregacoesVicePresidente Congregacao[]         @relation("CongregacaoVicePresidente")
+  congregacoesKidsLeader   Congregacao[]           @relation("CongregacaoKidsLeader")
   celula                   Celula?                 @relation(fields: [celulaId], references: [id], onDelete: NoAction)
   ministryPosition         Ministry                @relation(fields: [ministryPositionId], references: [id], onDelete: NoAction)
   winnerPath               WinnerPath?             @relation(fields: [winnerPathId], references: [id], onDelete: NoAction)
@@ -204,6 +206,7 @@ model Member {
   matrices                 MemberMatrix[]
   leadingInTrainingCelulas CelulaLeaderInTraining[]
   passwordResetTokens      PasswordResetToken[]
+  socialMedia              MemberSocialMedia[]
 
   @@index([celulaId])
   @@index([ministryPositionId])
@@ -262,6 +265,7 @@ model Congregacao {
   matrixId                Int
   pastorGovernoMemberId   Int
   vicePresidenteMemberId  Int?
+  kidsLeaderMemberId      Int?
   isPrincipal             Boolean  @default(false)
   
   // Address fields
@@ -280,12 +284,14 @@ model Congregacao {
   matrix             Matrix   @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   pastorGoverno      Member   @relation("CongregacaoPastorGoverno", fields: [pastorGovernoMemberId], references: [id], onDelete: NoAction)
   vicePresidente     Member?  @relation("CongregacaoVicePresidente", fields: [vicePresidenteMemberId], references: [id], onDelete: NoAction)
+  kidsLeader         Member?  @relation("CongregacaoKidsLeader", fields: [kidsLeaderMemberId], references: [id], onDelete: NoAction)
   redes              Rede[]
 
   @@unique([name, matrixId])
   @@index([matrixId])
   @@index([pastorGovernoMemberId])
   @@index([vicePresidenteMemberId])
+  @@index([kidsLeaderMemberId])
 }
 
 model Rede {
@@ -294,6 +300,7 @@ model Rede {
   matrixId       Int
   congregacaoId  Int
   pastorMemberId Int?
+  isKids         Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -302,7 +309,6 @@ model Rede {
   discipulados Discipulado[]
   pastor       Member?     @relation(fields: [pastorMemberId], references: [id], onDelete: NoAction)
 
-  @@unique([name, matrixId])
   @@index([matrixId])
   @@index([congregacaoId])
 }
@@ -413,4 +419,19 @@ model PasswordResetToken {
 
   @@index([memberId])
   @@index([token])
+}
+
+model MemberSocialMedia {
+  id        Int      @id @default(autoincrement())
+  memberId  Int
+  type      String   // Tipo da rede social: INSTAGRAM, FACEBOOK, TWITTER, WHATSAPP, LINKEDIN, TIKTOK, YOUTUBE, etc.
+  username  String   // Username, URL ou identificador
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@index([memberId])
+  @@index([type])
 }

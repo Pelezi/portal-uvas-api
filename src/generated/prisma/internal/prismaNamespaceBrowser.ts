@@ -68,7 +68,8 @@ export const ModelName = {
   MemberRole: 'MemberRole',
   RefreshToken: 'RefreshToken',
   ApiKey: 'ApiKey',
-  PasswordResetToken: 'PasswordResetToken'
+  PasswordResetToken: 'PasswordResetToken',
+  MemberSocialMedia: 'MemberSocialMedia'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -90,6 +91,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 export const MatrixScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  whatsappApiKey: 'whatsappApiKey',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -234,6 +236,7 @@ export const CongregacaoScalarFieldEnum = {
   matrixId: 'matrixId',
   pastorGovernoMemberId: 'pastorGovernoMemberId',
   vicePresidenteMemberId: 'vicePresidenteMemberId',
+  kidsLeaderMemberId: 'kidsLeaderMemberId',
   isPrincipal: 'isPrincipal',
   country: 'country',
   zipCode: 'zipCode',
@@ -256,6 +259,7 @@ export const RedeScalarFieldEnum = {
   matrixId: 'matrixId',
   congregacaoId: 'congregacaoId',
   pastorMemberId: 'pastorMemberId',
+  isKids: 'isKids',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -342,6 +346,18 @@ export const PasswordResetTokenScalarFieldEnum = {
 } as const
 
 export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const MemberSocialMediaScalarFieldEnum = {
+  id: 'id',
+  memberId: 'memberId',
+  type: 'type',
+  username: 'username',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MemberSocialMediaScalarFieldEnum = (typeof MemberSocialMediaScalarFieldEnum)[keyof typeof MemberSocialMediaScalarFieldEnum]
 
 
 export const SortOrder = {

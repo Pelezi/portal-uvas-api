@@ -31,6 +31,7 @@ export type CongregacaoAvgAggregateOutputType = {
   matrixId: number | null
   pastorGovernoMemberId: number | null
   vicePresidenteMemberId: number | null
+  kidsLeaderMemberId: number | null
 }
 
 export type CongregacaoSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type CongregacaoSumAggregateOutputType = {
   matrixId: number | null
   pastorGovernoMemberId: number | null
   vicePresidenteMemberId: number | null
+  kidsLeaderMemberId: number | null
 }
 
 export type CongregacaoMinAggregateOutputType = {
@@ -46,6 +48,7 @@ export type CongregacaoMinAggregateOutputType = {
   matrixId: number | null
   pastorGovernoMemberId: number | null
   vicePresidenteMemberId: number | null
+  kidsLeaderMemberId: number | null
   isPrincipal: boolean | null
   country: string | null
   zipCode: string | null
@@ -65,6 +68,7 @@ export type CongregacaoMaxAggregateOutputType = {
   matrixId: number | null
   pastorGovernoMemberId: number | null
   vicePresidenteMemberId: number | null
+  kidsLeaderMemberId: number | null
   isPrincipal: boolean | null
   country: string | null
   zipCode: string | null
@@ -84,6 +88,7 @@ export type CongregacaoCountAggregateOutputType = {
   matrixId: number
   pastorGovernoMemberId: number
   vicePresidenteMemberId: number
+  kidsLeaderMemberId: number
   isPrincipal: number
   country: number
   zipCode: number
@@ -104,6 +109,7 @@ export type CongregacaoAvgAggregateInputType = {
   matrixId?: true
   pastorGovernoMemberId?: true
   vicePresidenteMemberId?: true
+  kidsLeaderMemberId?: true
 }
 
 export type CongregacaoSumAggregateInputType = {
@@ -111,6 +117,7 @@ export type CongregacaoSumAggregateInputType = {
   matrixId?: true
   pastorGovernoMemberId?: true
   vicePresidenteMemberId?: true
+  kidsLeaderMemberId?: true
 }
 
 export type CongregacaoMinAggregateInputType = {
@@ -119,6 +126,7 @@ export type CongregacaoMinAggregateInputType = {
   matrixId?: true
   pastorGovernoMemberId?: true
   vicePresidenteMemberId?: true
+  kidsLeaderMemberId?: true
   isPrincipal?: true
   country?: true
   zipCode?: true
@@ -138,6 +146,7 @@ export type CongregacaoMaxAggregateInputType = {
   matrixId?: true
   pastorGovernoMemberId?: true
   vicePresidenteMemberId?: true
+  kidsLeaderMemberId?: true
   isPrincipal?: true
   country?: true
   zipCode?: true
@@ -157,6 +166,7 @@ export type CongregacaoCountAggregateInputType = {
   matrixId?: true
   pastorGovernoMemberId?: true
   vicePresidenteMemberId?: true
+  kidsLeaderMemberId?: true
   isPrincipal?: true
   country?: true
   zipCode?: true
@@ -263,6 +273,7 @@ export type CongregacaoGroupByOutputType = {
   matrixId: number
   pastorGovernoMemberId: number
   vicePresidenteMemberId: number | null
+  kidsLeaderMemberId: number | null
   isPrincipal: boolean
   country: string | null
   zipCode: string | null
@@ -305,6 +316,7 @@ export type CongregacaoWhereInput = {
   matrixId?: Prisma.IntFilter<"Congregacao"> | number
   pastorGovernoMemberId?: Prisma.IntFilter<"Congregacao"> | number
   vicePresidenteMemberId?: Prisma.IntNullableFilter<"Congregacao"> | number | null
+  kidsLeaderMemberId?: Prisma.IntNullableFilter<"Congregacao"> | number | null
   isPrincipal?: Prisma.BoolFilter<"Congregacao"> | boolean
   country?: Prisma.StringNullableFilter<"Congregacao"> | string | null
   zipCode?: Prisma.StringNullableFilter<"Congregacao"> | string | null
@@ -319,6 +331,7 @@ export type CongregacaoWhereInput = {
   matrix?: Prisma.XOR<Prisma.MatrixScalarRelationFilter, Prisma.MatrixWhereInput>
   pastorGoverno?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   vicePresidente?: Prisma.XOR<Prisma.MemberNullableScalarRelationFilter, Prisma.MemberWhereInput> | null
+  kidsLeader?: Prisma.XOR<Prisma.MemberNullableScalarRelationFilter, Prisma.MemberWhereInput> | null
   redes?: Prisma.RedeListRelationFilter
 }
 
@@ -328,6 +341,7 @@ export type CongregacaoOrderByWithRelationInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPrincipal?: Prisma.SortOrder
   country?: Prisma.SortOrderInput | Prisma.SortOrder
   zipCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -342,6 +356,7 @@ export type CongregacaoOrderByWithRelationInput = {
   matrix?: Prisma.MatrixOrderByWithRelationInput
   pastorGoverno?: Prisma.MemberOrderByWithRelationInput
   vicePresidente?: Prisma.MemberOrderByWithRelationInput
+  kidsLeader?: Prisma.MemberOrderByWithRelationInput
   redes?: Prisma.RedeOrderByRelationAggregateInput
 }
 
@@ -355,6 +370,7 @@ export type CongregacaoWhereUniqueInput = Prisma.AtLeast<{
   matrixId?: Prisma.IntFilter<"Congregacao"> | number
   pastorGovernoMemberId?: Prisma.IntFilter<"Congregacao"> | number
   vicePresidenteMemberId?: Prisma.IntNullableFilter<"Congregacao"> | number | null
+  kidsLeaderMemberId?: Prisma.IntNullableFilter<"Congregacao"> | number | null
   isPrincipal?: Prisma.BoolFilter<"Congregacao"> | boolean
   country?: Prisma.StringNullableFilter<"Congregacao"> | string | null
   zipCode?: Prisma.StringNullableFilter<"Congregacao"> | string | null
@@ -369,6 +385,7 @@ export type CongregacaoWhereUniqueInput = Prisma.AtLeast<{
   matrix?: Prisma.XOR<Prisma.MatrixScalarRelationFilter, Prisma.MatrixWhereInput>
   pastorGoverno?: Prisma.XOR<Prisma.MemberScalarRelationFilter, Prisma.MemberWhereInput>
   vicePresidente?: Prisma.XOR<Prisma.MemberNullableScalarRelationFilter, Prisma.MemberWhereInput> | null
+  kidsLeader?: Prisma.XOR<Prisma.MemberNullableScalarRelationFilter, Prisma.MemberWhereInput> | null
   redes?: Prisma.RedeListRelationFilter
 }, "id" | "name_matrixId">
 
@@ -378,6 +395,7 @@ export type CongregacaoOrderByWithAggregationInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
   isPrincipal?: Prisma.SortOrder
   country?: Prisma.SortOrderInput | Prisma.SortOrder
   zipCode?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -405,6 +423,7 @@ export type CongregacaoScalarWhereWithAggregatesInput = {
   matrixId?: Prisma.IntWithAggregatesFilter<"Congregacao"> | number
   pastorGovernoMemberId?: Prisma.IntWithAggregatesFilter<"Congregacao"> | number
   vicePresidenteMemberId?: Prisma.IntNullableWithAggregatesFilter<"Congregacao"> | number | null
+  kidsLeaderMemberId?: Prisma.IntNullableWithAggregatesFilter<"Congregacao"> | number | null
   isPrincipal?: Prisma.BoolWithAggregatesFilter<"Congregacao"> | boolean
   country?: Prisma.StringNullableWithAggregatesFilter<"Congregacao"> | string | null
   zipCode?: Prisma.StringNullableWithAggregatesFilter<"Congregacao"> | string | null
@@ -434,6 +453,7 @@ export type CongregacaoCreateInput = {
   matrix: Prisma.MatrixCreateNestedOneWithoutCongregacoesInput
   pastorGoverno: Prisma.MemberCreateNestedOneWithoutCongregacoesPastorGovernoInput
   vicePresidente?: Prisma.MemberCreateNestedOneWithoutCongregacoesVicePresidenteInput
+  kidsLeader?: Prisma.MemberCreateNestedOneWithoutCongregacoesKidsLeaderInput
   redes?: Prisma.RedeCreateNestedManyWithoutCongregacaoInput
 }
 
@@ -443,6 +463,7 @@ export type CongregacaoUncheckedCreateInput = {
   matrixId: number
   pastorGovernoMemberId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -473,6 +494,7 @@ export type CongregacaoUpdateInput = {
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutCongregacoesNestedInput
   pastorGoverno?: Prisma.MemberUpdateOneRequiredWithoutCongregacoesPastorGovernoNestedInput
   vicePresidente?: Prisma.MemberUpdateOneWithoutCongregacoesVicePresidenteNestedInput
+  kidsLeader?: Prisma.MemberUpdateOneWithoutCongregacoesKidsLeaderNestedInput
   redes?: Prisma.RedeUpdateManyWithoutCongregacaoNestedInput
 }
 
@@ -482,6 +504,7 @@ export type CongregacaoUncheckedUpdateInput = {
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -502,6 +525,7 @@ export type CongregacaoCreateManyInput = {
   matrixId: number
   pastorGovernoMemberId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -536,6 +560,7 @@ export type CongregacaoUncheckedUpdateManyInput = {
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -570,6 +595,7 @@ export type CongregacaoCountOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrder
   isPrincipal?: Prisma.SortOrder
   country?: Prisma.SortOrder
   zipCode?: Prisma.SortOrder
@@ -588,6 +614,7 @@ export type CongregacaoAvgOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrder
 }
 
 export type CongregacaoMaxOrderByAggregateInput = {
@@ -596,6 +623,7 @@ export type CongregacaoMaxOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrder
   isPrincipal?: Prisma.SortOrder
   country?: Prisma.SortOrder
   zipCode?: Prisma.SortOrder
@@ -615,6 +643,7 @@ export type CongregacaoMinOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrder
   isPrincipal?: Prisma.SortOrder
   country?: Prisma.SortOrder
   zipCode?: Prisma.SortOrder
@@ -633,6 +662,7 @@ export type CongregacaoSumOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   pastorGovernoMemberId?: Prisma.SortOrder
   vicePresidenteMemberId?: Prisma.SortOrder
+  kidsLeaderMemberId?: Prisma.SortOrder
 }
 
 export type CongregacaoScalarRelationFilter = {
@@ -696,6 +726,13 @@ export type CongregacaoCreateNestedManyWithoutVicePresidenteInput = {
   connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
 }
 
+export type CongregacaoCreateNestedManyWithoutKidsLeaderInput = {
+  create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput> | Prisma.CongregacaoCreateWithoutKidsLeaderInput[] | Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput[]
+  connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput | Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput[]
+  createMany?: Prisma.CongregacaoCreateManyKidsLeaderInputEnvelope
+  connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+}
+
 export type CongregacaoUncheckedCreateNestedManyWithoutPastorGovernoInput = {
   create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutPastorGovernoInput, Prisma.CongregacaoUncheckedCreateWithoutPastorGovernoInput> | Prisma.CongregacaoCreateWithoutPastorGovernoInput[] | Prisma.CongregacaoUncheckedCreateWithoutPastorGovernoInput[]
   connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutPastorGovernoInput | Prisma.CongregacaoCreateOrConnectWithoutPastorGovernoInput[]
@@ -707,6 +744,13 @@ export type CongregacaoUncheckedCreateNestedManyWithoutVicePresidenteInput = {
   create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutVicePresidenteInput, Prisma.CongregacaoUncheckedCreateWithoutVicePresidenteInput> | Prisma.CongregacaoCreateWithoutVicePresidenteInput[] | Prisma.CongregacaoUncheckedCreateWithoutVicePresidenteInput[]
   connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutVicePresidenteInput | Prisma.CongregacaoCreateOrConnectWithoutVicePresidenteInput[]
   createMany?: Prisma.CongregacaoCreateManyVicePresidenteInputEnvelope
+  connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+}
+
+export type CongregacaoUncheckedCreateNestedManyWithoutKidsLeaderInput = {
+  create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput> | Prisma.CongregacaoCreateWithoutKidsLeaderInput[] | Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput[]
+  connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput | Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput[]
+  createMany?: Prisma.CongregacaoCreateManyKidsLeaderInputEnvelope
   connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
 }
 
@@ -738,6 +782,20 @@ export type CongregacaoUpdateManyWithoutVicePresidenteNestedInput = {
   deleteMany?: Prisma.CongregacaoScalarWhereInput | Prisma.CongregacaoScalarWhereInput[]
 }
 
+export type CongregacaoUpdateManyWithoutKidsLeaderNestedInput = {
+  create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput> | Prisma.CongregacaoCreateWithoutKidsLeaderInput[] | Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput[]
+  connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput | Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput[]
+  upsert?: Prisma.CongregacaoUpsertWithWhereUniqueWithoutKidsLeaderInput | Prisma.CongregacaoUpsertWithWhereUniqueWithoutKidsLeaderInput[]
+  createMany?: Prisma.CongregacaoCreateManyKidsLeaderInputEnvelope
+  set?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  disconnect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  delete?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  update?: Prisma.CongregacaoUpdateWithWhereUniqueWithoutKidsLeaderInput | Prisma.CongregacaoUpdateWithWhereUniqueWithoutKidsLeaderInput[]
+  updateMany?: Prisma.CongregacaoUpdateManyWithWhereWithoutKidsLeaderInput | Prisma.CongregacaoUpdateManyWithWhereWithoutKidsLeaderInput[]
+  deleteMany?: Prisma.CongregacaoScalarWhereInput | Prisma.CongregacaoScalarWhereInput[]
+}
+
 export type CongregacaoUncheckedUpdateManyWithoutPastorGovernoNestedInput = {
   create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutPastorGovernoInput, Prisma.CongregacaoUncheckedCreateWithoutPastorGovernoInput> | Prisma.CongregacaoCreateWithoutPastorGovernoInput[] | Prisma.CongregacaoUncheckedCreateWithoutPastorGovernoInput[]
   connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutPastorGovernoInput | Prisma.CongregacaoCreateOrConnectWithoutPastorGovernoInput[]
@@ -763,6 +821,20 @@ export type CongregacaoUncheckedUpdateManyWithoutVicePresidenteNestedInput = {
   connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
   update?: Prisma.CongregacaoUpdateWithWhereUniqueWithoutVicePresidenteInput | Prisma.CongregacaoUpdateWithWhereUniqueWithoutVicePresidenteInput[]
   updateMany?: Prisma.CongregacaoUpdateManyWithWhereWithoutVicePresidenteInput | Prisma.CongregacaoUpdateManyWithWhereWithoutVicePresidenteInput[]
+  deleteMany?: Prisma.CongregacaoScalarWhereInput | Prisma.CongregacaoScalarWhereInput[]
+}
+
+export type CongregacaoUncheckedUpdateManyWithoutKidsLeaderNestedInput = {
+  create?: Prisma.XOR<Prisma.CongregacaoCreateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput> | Prisma.CongregacaoCreateWithoutKidsLeaderInput[] | Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput[]
+  connectOrCreate?: Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput | Prisma.CongregacaoCreateOrConnectWithoutKidsLeaderInput[]
+  upsert?: Prisma.CongregacaoUpsertWithWhereUniqueWithoutKidsLeaderInput | Prisma.CongregacaoUpsertWithWhereUniqueWithoutKidsLeaderInput[]
+  createMany?: Prisma.CongregacaoCreateManyKidsLeaderInputEnvelope
+  set?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  disconnect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  delete?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  connect?: Prisma.CongregacaoWhereUniqueInput | Prisma.CongregacaoWhereUniqueInput[]
+  update?: Prisma.CongregacaoUpdateWithWhereUniqueWithoutKidsLeaderInput | Prisma.CongregacaoUpdateWithWhereUniqueWithoutKidsLeaderInput[]
+  updateMany?: Prisma.CongregacaoUpdateManyWithWhereWithoutKidsLeaderInput | Prisma.CongregacaoUpdateManyWithWhereWithoutKidsLeaderInput[]
   deleteMany?: Prisma.CongregacaoScalarWhereInput | Prisma.CongregacaoScalarWhereInput[]
 }
 
@@ -795,6 +867,7 @@ export type CongregacaoCreateWithoutMatrixInput = {
   updatedAt?: Date | string
   pastorGoverno: Prisma.MemberCreateNestedOneWithoutCongregacoesPastorGovernoInput
   vicePresidente?: Prisma.MemberCreateNestedOneWithoutCongregacoesVicePresidenteInput
+  kidsLeader?: Prisma.MemberCreateNestedOneWithoutCongregacoesKidsLeaderInput
   redes?: Prisma.RedeCreateNestedManyWithoutCongregacaoInput
 }
 
@@ -803,6 +876,7 @@ export type CongregacaoUncheckedCreateWithoutMatrixInput = {
   name: string
   pastorGovernoMemberId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -852,6 +926,7 @@ export type CongregacaoScalarWhereInput = {
   matrixId?: Prisma.IntFilter<"Congregacao"> | number
   pastorGovernoMemberId?: Prisma.IntFilter<"Congregacao"> | number
   vicePresidenteMemberId?: Prisma.IntNullableFilter<"Congregacao"> | number | null
+  kidsLeaderMemberId?: Prisma.IntNullableFilter<"Congregacao"> | number | null
   isPrincipal?: Prisma.BoolFilter<"Congregacao"> | boolean
   country?: Prisma.StringNullableFilter<"Congregacao"> | string | null
   zipCode?: Prisma.StringNullableFilter<"Congregacao"> | string | null
@@ -880,6 +955,7 @@ export type CongregacaoCreateWithoutPastorGovernoInput = {
   updatedAt?: Date | string
   matrix: Prisma.MatrixCreateNestedOneWithoutCongregacoesInput
   vicePresidente?: Prisma.MemberCreateNestedOneWithoutCongregacoesVicePresidenteInput
+  kidsLeader?: Prisma.MemberCreateNestedOneWithoutCongregacoesKidsLeaderInput
   redes?: Prisma.RedeCreateNestedManyWithoutCongregacaoInput
 }
 
@@ -888,6 +964,7 @@ export type CongregacaoUncheckedCreateWithoutPastorGovernoInput = {
   name: string
   matrixId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -927,6 +1004,7 @@ export type CongregacaoCreateWithoutVicePresidenteInput = {
   updatedAt?: Date | string
   matrix: Prisma.MatrixCreateNestedOneWithoutCongregacoesInput
   pastorGoverno: Prisma.MemberCreateNestedOneWithoutCongregacoesPastorGovernoInput
+  kidsLeader?: Prisma.MemberCreateNestedOneWithoutCongregacoesKidsLeaderInput
   redes?: Prisma.RedeCreateNestedManyWithoutCongregacaoInput
 }
 
@@ -935,6 +1013,7 @@ export type CongregacaoUncheckedCreateWithoutVicePresidenteInput = {
   name: string
   matrixId: number
   pastorGovernoMemberId: number
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -956,6 +1035,55 @@ export type CongregacaoCreateOrConnectWithoutVicePresidenteInput = {
 
 export type CongregacaoCreateManyVicePresidenteInputEnvelope = {
   data: Prisma.CongregacaoCreateManyVicePresidenteInput | Prisma.CongregacaoCreateManyVicePresidenteInput[]
+  skipDuplicates?: boolean
+}
+
+export type CongregacaoCreateWithoutKidsLeaderInput = {
+  name: string
+  isPrincipal?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  matrix: Prisma.MatrixCreateNestedOneWithoutCongregacoesInput
+  pastorGoverno: Prisma.MemberCreateNestedOneWithoutCongregacoesPastorGovernoInput
+  vicePresidente?: Prisma.MemberCreateNestedOneWithoutCongregacoesVicePresidenteInput
+  redes?: Prisma.RedeCreateNestedManyWithoutCongregacaoInput
+}
+
+export type CongregacaoUncheckedCreateWithoutKidsLeaderInput = {
+  id?: number
+  name: string
+  matrixId: number
+  pastorGovernoMemberId: number
+  vicePresidenteMemberId?: number | null
+  isPrincipal?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  redes?: Prisma.RedeUncheckedCreateNestedManyWithoutCongregacaoInput
+}
+
+export type CongregacaoCreateOrConnectWithoutKidsLeaderInput = {
+  where: Prisma.CongregacaoWhereUniqueInput
+  create: Prisma.XOR<Prisma.CongregacaoCreateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput>
+}
+
+export type CongregacaoCreateManyKidsLeaderInputEnvelope = {
+  data: Prisma.CongregacaoCreateManyKidsLeaderInput | Prisma.CongregacaoCreateManyKidsLeaderInput[]
   skipDuplicates?: boolean
 }
 
@@ -991,6 +1119,22 @@ export type CongregacaoUpdateManyWithWhereWithoutVicePresidenteInput = {
   data: Prisma.XOR<Prisma.CongregacaoUpdateManyMutationInput, Prisma.CongregacaoUncheckedUpdateManyWithoutVicePresidenteInput>
 }
 
+export type CongregacaoUpsertWithWhereUniqueWithoutKidsLeaderInput = {
+  where: Prisma.CongregacaoWhereUniqueInput
+  update: Prisma.XOR<Prisma.CongregacaoUpdateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedUpdateWithoutKidsLeaderInput>
+  create: Prisma.XOR<Prisma.CongregacaoCreateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedCreateWithoutKidsLeaderInput>
+}
+
+export type CongregacaoUpdateWithWhereUniqueWithoutKidsLeaderInput = {
+  where: Prisma.CongregacaoWhereUniqueInput
+  data: Prisma.XOR<Prisma.CongregacaoUpdateWithoutKidsLeaderInput, Prisma.CongregacaoUncheckedUpdateWithoutKidsLeaderInput>
+}
+
+export type CongregacaoUpdateManyWithWhereWithoutKidsLeaderInput = {
+  where: Prisma.CongregacaoScalarWhereInput
+  data: Prisma.XOR<Prisma.CongregacaoUpdateManyMutationInput, Prisma.CongregacaoUncheckedUpdateManyWithoutKidsLeaderInput>
+}
+
 export type CongregacaoCreateWithoutRedesInput = {
   name: string
   isPrincipal?: boolean
@@ -1007,6 +1151,7 @@ export type CongregacaoCreateWithoutRedesInput = {
   matrix: Prisma.MatrixCreateNestedOneWithoutCongregacoesInput
   pastorGoverno: Prisma.MemberCreateNestedOneWithoutCongregacoesPastorGovernoInput
   vicePresidente?: Prisma.MemberCreateNestedOneWithoutCongregacoesVicePresidenteInput
+  kidsLeader?: Prisma.MemberCreateNestedOneWithoutCongregacoesKidsLeaderInput
 }
 
 export type CongregacaoUncheckedCreateWithoutRedesInput = {
@@ -1015,6 +1160,7 @@ export type CongregacaoUncheckedCreateWithoutRedesInput = {
   matrixId: number
   pastorGovernoMemberId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -1060,6 +1206,7 @@ export type CongregacaoUpdateWithoutRedesInput = {
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutCongregacoesNestedInput
   pastorGoverno?: Prisma.MemberUpdateOneRequiredWithoutCongregacoesPastorGovernoNestedInput
   vicePresidente?: Prisma.MemberUpdateOneWithoutCongregacoesVicePresidenteNestedInput
+  kidsLeader?: Prisma.MemberUpdateOneWithoutCongregacoesKidsLeaderNestedInput
 }
 
 export type CongregacaoUncheckedUpdateWithoutRedesInput = {
@@ -1068,6 +1215,7 @@ export type CongregacaoUncheckedUpdateWithoutRedesInput = {
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1086,6 +1234,7 @@ export type CongregacaoCreateManyMatrixInput = {
   name: string
   pastorGovernoMemberId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -1114,6 +1263,7 @@ export type CongregacaoUpdateWithoutMatrixInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   pastorGoverno?: Prisma.MemberUpdateOneRequiredWithoutCongregacoesPastorGovernoNestedInput
   vicePresidente?: Prisma.MemberUpdateOneWithoutCongregacoesVicePresidenteNestedInput
+  kidsLeader?: Prisma.MemberUpdateOneWithoutCongregacoesKidsLeaderNestedInput
   redes?: Prisma.RedeUpdateManyWithoutCongregacaoNestedInput
 }
 
@@ -1122,6 +1272,7 @@ export type CongregacaoUncheckedUpdateWithoutMatrixInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1141,6 +1292,7 @@ export type CongregacaoUncheckedUpdateManyWithoutMatrixInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1159,6 +1311,7 @@ export type CongregacaoCreateManyPastorGovernoInput = {
   name: string
   matrixId: number
   vicePresidenteMemberId?: number | null
+  kidsLeaderMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -1177,6 +1330,26 @@ export type CongregacaoCreateManyVicePresidenteInput = {
   name: string
   matrixId: number
   pastorGovernoMemberId: number
+  kidsLeaderMemberId?: number | null
+  isPrincipal?: boolean
+  country?: string | null
+  zipCode?: string | null
+  street?: string | null
+  streetNumber?: string | null
+  neighborhood?: string | null
+  city?: string | null
+  complement?: string | null
+  state?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CongregacaoCreateManyKidsLeaderInput = {
+  id?: number
+  name: string
+  matrixId: number
+  pastorGovernoMemberId: number
+  vicePresidenteMemberId?: number | null
   isPrincipal?: boolean
   country?: string | null
   zipCode?: string | null
@@ -1205,6 +1378,7 @@ export type CongregacaoUpdateWithoutPastorGovernoInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutCongregacoesNestedInput
   vicePresidente?: Prisma.MemberUpdateOneWithoutCongregacoesVicePresidenteNestedInput
+  kidsLeader?: Prisma.MemberUpdateOneWithoutCongregacoesKidsLeaderNestedInput
   redes?: Prisma.RedeUpdateManyWithoutCongregacaoNestedInput
 }
 
@@ -1213,6 +1387,7 @@ export type CongregacaoUncheckedUpdateWithoutPastorGovernoInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1232,6 +1407,7 @@ export type CongregacaoUncheckedUpdateManyWithoutPastorGovernoInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1260,6 +1436,7 @@ export type CongregacaoUpdateWithoutVicePresidenteInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutCongregacoesNestedInput
   pastorGoverno?: Prisma.MemberUpdateOneRequiredWithoutCongregacoesPastorGovernoNestedInput
+  kidsLeader?: Prisma.MemberUpdateOneWithoutCongregacoesKidsLeaderNestedInput
   redes?: Prisma.RedeUpdateManyWithoutCongregacaoNestedInput
 }
 
@@ -1268,6 +1445,7 @@ export type CongregacaoUncheckedUpdateWithoutVicePresidenteInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1287,6 +1465,65 @@ export type CongregacaoUncheckedUpdateManyWithoutVicePresidenteInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
+  kidsLeaderMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CongregacaoUpdateWithoutKidsLeaderInput = {
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  matrix?: Prisma.MatrixUpdateOneRequiredWithoutCongregacoesNestedInput
+  pastorGoverno?: Prisma.MemberUpdateOneRequiredWithoutCongregacoesPastorGovernoNestedInput
+  vicePresidente?: Prisma.MemberUpdateOneWithoutCongregacoesVicePresidenteNestedInput
+  redes?: Prisma.RedeUpdateManyWithoutCongregacaoNestedInput
+}
+
+export type CongregacaoUncheckedUpdateWithoutKidsLeaderInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  matrixId?: Prisma.IntFieldUpdateOperationsInput | number
+  pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
+  vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  street?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  streetNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  neighborhood?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  complement?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  redes?: Prisma.RedeUncheckedUpdateManyWithoutCongregacaoNestedInput
+}
+
+export type CongregacaoUncheckedUpdateManyWithoutKidsLeaderInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  matrixId?: Prisma.IntFieldUpdateOperationsInput | number
+  pastorGovernoMemberId?: Prisma.IntFieldUpdateOperationsInput | number
+  vicePresidenteMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isPrincipal?: Prisma.BoolFieldUpdateOperationsInput | boolean
   country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   zipCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1337,6 +1574,7 @@ export type CongregacaoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   matrixId?: boolean
   pastorGovernoMemberId?: boolean
   vicePresidenteMemberId?: boolean
+  kidsLeaderMemberId?: boolean
   isPrincipal?: boolean
   country?: boolean
   zipCode?: boolean
@@ -1351,6 +1589,7 @@ export type CongregacaoSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   pastorGoverno?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   vicePresidente?: boolean | Prisma.Congregacao$vicePresidenteArgs<ExtArgs>
+  kidsLeader?: boolean | Prisma.Congregacao$kidsLeaderArgs<ExtArgs>
   redes?: boolean | Prisma.Congregacao$redesArgs<ExtArgs>
   _count?: boolean | Prisma.CongregacaoCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["congregacao"]>
@@ -1361,6 +1600,7 @@ export type CongregacaoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   matrixId?: boolean
   pastorGovernoMemberId?: boolean
   vicePresidenteMemberId?: boolean
+  kidsLeaderMemberId?: boolean
   isPrincipal?: boolean
   country?: boolean
   zipCode?: boolean
@@ -1375,6 +1615,7 @@ export type CongregacaoSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   pastorGoverno?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   vicePresidente?: boolean | Prisma.Congregacao$vicePresidenteArgs<ExtArgs>
+  kidsLeader?: boolean | Prisma.Congregacao$kidsLeaderArgs<ExtArgs>
 }, ExtArgs["result"]["congregacao"]>
 
 export type CongregacaoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1383,6 +1624,7 @@ export type CongregacaoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   matrixId?: boolean
   pastorGovernoMemberId?: boolean
   vicePresidenteMemberId?: boolean
+  kidsLeaderMemberId?: boolean
   isPrincipal?: boolean
   country?: boolean
   zipCode?: boolean
@@ -1397,6 +1639,7 @@ export type CongregacaoSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   pastorGoverno?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   vicePresidente?: boolean | Prisma.Congregacao$vicePresidenteArgs<ExtArgs>
+  kidsLeader?: boolean | Prisma.Congregacao$kidsLeaderArgs<ExtArgs>
 }, ExtArgs["result"]["congregacao"]>
 
 export type CongregacaoSelectScalar = {
@@ -1405,6 +1648,7 @@ export type CongregacaoSelectScalar = {
   matrixId?: boolean
   pastorGovernoMemberId?: boolean
   vicePresidenteMemberId?: boolean
+  kidsLeaderMemberId?: boolean
   isPrincipal?: boolean
   country?: boolean
   zipCode?: boolean
@@ -1418,11 +1662,12 @@ export type CongregacaoSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CongregacaoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "matrixId" | "pastorGovernoMemberId" | "vicePresidenteMemberId" | "isPrincipal" | "country" | "zipCode" | "street" | "streetNumber" | "neighborhood" | "city" | "complement" | "state" | "createdAt" | "updatedAt", ExtArgs["result"]["congregacao"]>
+export type CongregacaoOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "matrixId" | "pastorGovernoMemberId" | "vicePresidenteMemberId" | "kidsLeaderMemberId" | "isPrincipal" | "country" | "zipCode" | "street" | "streetNumber" | "neighborhood" | "city" | "complement" | "state" | "createdAt" | "updatedAt", ExtArgs["result"]["congregacao"]>
 export type CongregacaoInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   pastorGoverno?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   vicePresidente?: boolean | Prisma.Congregacao$vicePresidenteArgs<ExtArgs>
+  kidsLeader?: boolean | Prisma.Congregacao$kidsLeaderArgs<ExtArgs>
   redes?: boolean | Prisma.Congregacao$redesArgs<ExtArgs>
   _count?: boolean | Prisma.CongregacaoCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1430,11 +1675,13 @@ export type CongregacaoIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   pastorGoverno?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   vicePresidente?: boolean | Prisma.Congregacao$vicePresidenteArgs<ExtArgs>
+  kidsLeader?: boolean | Prisma.Congregacao$kidsLeaderArgs<ExtArgs>
 }
 export type CongregacaoIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   pastorGoverno?: boolean | Prisma.MemberDefaultArgs<ExtArgs>
   vicePresidente?: boolean | Prisma.Congregacao$vicePresidenteArgs<ExtArgs>
+  kidsLeader?: boolean | Prisma.Congregacao$kidsLeaderArgs<ExtArgs>
 }
 
 export type $CongregacaoPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1443,6 +1690,7 @@ export type $CongregacaoPayload<ExtArgs extends runtime.Types.Extensions.Interna
     matrix: Prisma.$MatrixPayload<ExtArgs>
     pastorGoverno: Prisma.$MemberPayload<ExtArgs>
     vicePresidente: Prisma.$MemberPayload<ExtArgs> | null
+    kidsLeader: Prisma.$MemberPayload<ExtArgs> | null
     redes: Prisma.$RedePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1451,6 +1699,7 @@ export type $CongregacaoPayload<ExtArgs extends runtime.Types.Extensions.Interna
     matrixId: number
     pastorGovernoMemberId: number
     vicePresidenteMemberId: number | null
+    kidsLeaderMemberId: number | null
     isPrincipal: boolean
     country: string | null
     zipCode: string | null
@@ -1859,6 +2108,7 @@ export interface Prisma__CongregacaoClient<T, Null = never, ExtArgs extends runt
   matrix<T extends Prisma.MatrixDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MatrixDefaultArgs<ExtArgs>>): Prisma.Prisma__MatrixClient<runtime.Types.Result.GetResult<Prisma.$MatrixPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pastorGoverno<T extends Prisma.MemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.MemberDefaultArgs<ExtArgs>>): Prisma.Prisma__MemberClient<runtime.Types.Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   vicePresidente<T extends Prisma.Congregacao$vicePresidenteArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Congregacao$vicePresidenteArgs<ExtArgs>>): Prisma.Prisma__MemberClient<runtime.Types.Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  kidsLeader<T extends Prisma.Congregacao$kidsLeaderArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Congregacao$kidsLeaderArgs<ExtArgs>>): Prisma.Prisma__MemberClient<runtime.Types.Result.GetResult<Prisma.$MemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   redes<T extends Prisma.Congregacao$redesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Congregacao$redesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RedePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1894,6 +2144,7 @@ export interface CongregacaoFieldRefs {
   readonly matrixId: Prisma.FieldRef<"Congregacao", 'Int'>
   readonly pastorGovernoMemberId: Prisma.FieldRef<"Congregacao", 'Int'>
   readonly vicePresidenteMemberId: Prisma.FieldRef<"Congregacao", 'Int'>
+  readonly kidsLeaderMemberId: Prisma.FieldRef<"Congregacao", 'Int'>
   readonly isPrincipal: Prisma.FieldRef<"Congregacao", 'Boolean'>
   readonly country: Prisma.FieldRef<"Congregacao", 'String'>
   readonly zipCode: Prisma.FieldRef<"Congregacao", 'String'>
@@ -2304,6 +2555,25 @@ export type CongregacaoDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.I
  * Congregacao.vicePresidente
  */
 export type Congregacao$vicePresidenteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Member
+   */
+  select?: Prisma.MemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Member
+   */
+  omit?: Prisma.MemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MemberInclude<ExtArgs> | null
+  where?: Prisma.MemberWhereInput
+}
+
+/**
+ * Congregacao.kidsLeader
+ */
+export type Congregacao$kidsLeaderArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Member
    */

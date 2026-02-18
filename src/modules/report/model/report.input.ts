@@ -8,3 +8,17 @@ export class ReportCreateInput {
     @ApiProperty({ description: 'Report type: CELULA or CULTO', example: 'CELULA', enum: ['CELULA', 'CULTO'], default: 'CELULA', required: false })
     public readonly type?: 'CELULA' | 'CULTO';
 }
+
+export class ReportFilterInput {
+    @ApiProperty({ description: 'Id da célula', example: 1, required: false })
+    public readonly celulaId?: number;
+
+    @ApiProperty({ description: 'Id do discipulado', example: 1, required: false })
+    public readonly discipuladoId?: number;
+
+    @ApiProperty({ description: 'Id da rede', example: 1, required: false })
+    public readonly redeId?: number;
+
+    @ApiProperty({ description: 'Id da congregação', example: 1, required: false })
+    public readonly congregacaoId?: number;
+}

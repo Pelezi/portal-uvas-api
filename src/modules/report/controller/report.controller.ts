@@ -5,8 +5,7 @@ import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { PermissionService } from '../../common/security/permission.service';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
-import { ReportCreateInput } from '../model/report.input';
-import { PrismaService } from '../../common';
+import * as ReportData from '../model';
 
 @Controller('celulas/:celulaId/reports')
 @ApiTags('reports')
@@ -14,19 +13,19 @@ export class ReportController {
     constructor(
         private readonly service: ReportService,
         private readonly permissionService: PermissionService
-    ) {}
+    ) { }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Post()
     @ApiOperation({ summary: 'Criar relatório para a célula' })
-    @ApiBody({ type: ReportCreateInput })
+    @ApiBody({ type: ReportData.ReportCreateInput })
     @ApiResponse({ status: 201, description: 'Relatório criado' })
-    public async create(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string, @Body() body: ReportCreateInput) {
+    public async create(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string, @Body() body: ReportData.ReportCreateInput) {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
-            throw new HttpException('No access to this celula', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
         return this.service.create(celulaId, body.memberIds || [], req.member!.matrixId, body.date, body.type);
@@ -37,11 +36,11 @@ export class ReportController {
     public async list(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string) {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
-            throw new HttpException('No access to this celula', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
-        
+
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
@@ -55,11 +54,11 @@ export class ReportController {
     public async presences(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string) {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
-            throw new HttpException('No access to this celula', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
-        
+
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
@@ -70,8 +69,8 @@ export class ReportController {
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get('dates')
     @ApiOperation({ summary: 'Obter todas as datas com relatórios da célula' })
-    @ApiResponse({ 
-        status: 200, 
+    @ApiResponse({
+        status: 200,
         description: 'Retorna objeto com arrays de datas para CELULA e CULTO',
         schema: {
             type: 'object',
@@ -82,16 +81,16 @@ export class ReportController {
         }
     })
     public async getReportDates(
-        @Req() req: AuthenticatedRequest, 
+        @Req() req: AuthenticatedRequest,
         @Param('celulaId') celulaIdParam: string
     ) {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
-            throw new HttpException('No access to this celula', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
-        
+
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
@@ -105,18 +104,18 @@ export class ReportController {
     @ApiQuery({ name: 'date', required: true, description: 'Data no formato YYYY-MM-DD' })
     @ApiQuery({ name: 'type', required: true, enum: ['CELULA', 'CULTO'] })
     public async checkReport(
-        @Req() req: AuthenticatedRequest, 
+        @Req() req: AuthenticatedRequest,
         @Param('celulaId') celulaIdParam: string,
         @Query('date') date: string,
         @Query('type') type: 'CELULA' | 'CULTO'
     ) {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
-            throw new HttpException('No access to this celula', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
-        
+
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
@@ -129,7 +128,7 @@ export class ReportController {
     @Get('by-month/:year/:month')
     @ApiOperation({ summary: 'Relatórios por mês com presentes e ausentes' })
     public async reportsByMonth(
-        @Req() req: AuthenticatedRequest, 
+        @Req() req: AuthenticatedRequest,
         @Param('celulaId') celulaIdParam: string,
         @Param('year') yearParam: string,
         @Param('month') monthParam: string
@@ -138,11 +137,11 @@ export class ReportController {
         const celulaId = Number(celulaIdParam);
         const year = Number(yearParam);
         const month = Number(monthParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
-            throw new HttpException('No access to this celula', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
-        
+
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
@@ -156,69 +155,33 @@ export class ReportController {
 @ApiTags('reports')
 export class ReportGlobalController {
     constructor(
-        private readonly service: ReportService,
-        private readonly prisma: PrismaService
-    ) {}
+        private readonly service: ReportService
+    ) { }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get('by-filter/:year/:month')
-    @ApiOperation({ summary: 'Relatórios por rede, discipulado ou células' })
-    @ApiQuery({ name: 'redeId', required: false, type: Number })
-    @ApiQuery({ name: 'discipuladoId', required: false, type: Number })
-    @ApiQuery({ name: 'celulaId', required: false, type: Number })
+    @ApiOperation({ summary: 'Relatórios por congregação, rede, discipulado ou células' })
     public async reportsByFilter(
         @Req() req: AuthenticatedRequest,
         @Param('year') yearParam: string,
         @Param('month') monthParam: string,
-        @Query('redeId') redeId?: string,
-        @Query('discipuladoId') discipuladoId?: string,
-        @Query('celulaId') celulaId?: string
+        @Query() filters: ReportData.ReportFilterInput
     ) {
         const permission = req.permission;
         const year = Number(yearParam);
         const month = Number(monthParam);
 
-        let celulaIds: number[] = [];
-
-        // Determinar quais células buscar baseado nos filtros
-        if (celulaId) {
-            // Filtro específico por célula
-            celulaIds = [Number(celulaId)];
-        } else if (discipuladoId) {
-            // Filtro por discipulado - buscar todas as células do discipulado
-            const dId = Number(discipuladoId);
-            const celulas = await this.prisma.celula.findMany({ where: { discipuladoId: dId } });
-            celulaIds = celulas.map(c => c.id);
-        } else if (redeId) {
-            // Filtro por rede - buscar todas as células da rede
-            const rId = Number(redeId);
-            const discipulados = await this.prisma.discipulado.findMany({ where: { redeId: rId } });
-            const discipuladoIds = discipulados.map(d => d.id);
-            const celulas = await this.prisma.celula.findMany({ where: { discipuladoId: { in: discipuladoIds } } });
-            celulaIds = celulas.map(c => c.id);
-        } else {
-            // Nenhum filtro - buscar todas as células permitidas para o usuário
-            if (permission?.isAdmin) {
-                // Admin pode ver todas
-                const celulas = await this.prisma.celula.findMany();
-                celulaIds = celulas.map(c => c.id);
-            } else {
-                // Usar células permitidas pela permissão
-                celulaIds = permission?.celulaIds || [];
-            }
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
 
-        // Filtrar células de acordo com permissões (se não for admin)
-        if (!permission?.isAdmin) {
-            const allowedCelulaIds = permission?.celulaIds || [];
-            celulaIds = celulaIds.filter(id => allowedCelulaIds.includes(id));
-        }
-
-        if (celulaIds.length === 0) {
-            throw new HttpException('No access to any celula', HttpStatus.UNAUTHORIZED);
-        }
-
-        return this.service.reportsByMonthMultipleCelulas(celulaIds, year, month);
+        return this.service.reportsByMonthMultipleCelulas(
+            permission,
+            year,
+            month,
+            filters,
+            req.member.matrixId
+        );
     }
 
 }

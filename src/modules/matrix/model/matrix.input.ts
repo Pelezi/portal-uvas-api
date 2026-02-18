@@ -14,6 +14,9 @@ export class MatrixUpdateInput {
 
     @ApiProperty({ description: 'Matrix domains', example: ['videira.com.br'], type: [String], required: false })
     public readonly domains?: string[];
+
+    @ApiProperty({ description: 'WhatsApp Manager API Key', example: 'sk-abc123xyz', required: false })
+    public readonly whatsappApiKey?: string;
 }
 
 export class MatrixDomainCreateInput {

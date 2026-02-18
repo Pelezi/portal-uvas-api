@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { RedeService } from '../service/rede.service';
-import { RedeCreateInput } from '../model/rede.input';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
+import * as RedeData from '../model';
 
 @UseGuards(RestrictedGuard, PermissionGuard)
 @Controller('redes')
@@ -13,19 +13,32 @@ export class RedeController {
     constructor(private readonly service: RedeService) {}
 
     @Get()
-    public async list(@Req() req: AuthenticatedRequest) {
+    public async list(
+        @Req() req: AuthenticatedRequest,
+        @Query() filters: RedeData.RedeFilterInput
+    ) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
+
         const permission = req.permission;
-        return this.service.findAll(req.member.matrixId, permission);
+        if (!permission) {
+            throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!!!!filters.all && (!filters.redeIds || filters.redeIds.length === 0) && !permission.isAdmin) {
+            // Se all for false e redeIds não for fornecido, usar os redes do próprio usuário
+            filters.redeIds = permission.redeIds;
+        }
+
+        return this.service.findAll(req.member.matrixId, filters);
     }
 
     @Post()
     @ApiOperation({ summary: 'Criar rede' })
-    @ApiBody({ type: RedeCreateInput })
+    @ApiBody({ type: RedeData.RedeCreateInput })
     @ApiResponse({ status: 201, description: 'Rede criada' })
-    public async create(@Req() req: AuthenticatedRequest, @Body() body: RedeCreateInput) {
+    public async create(@Req() req: AuthenticatedRequest, @Body() body: RedeData.RedeCreateInput) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
@@ -35,7 +48,7 @@ export class RedeController {
 
     @Put(':id')
     @ApiOperation({ summary: 'Atualizar rede' })
-    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: RedeCreateInput) {
+    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: RedeData.RedeCreateInput) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);

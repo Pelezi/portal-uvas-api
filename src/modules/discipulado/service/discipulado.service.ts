@@ -1,27 +1,31 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../common';
-import { DiscipuladoCreateInput } from '../model/discipulado.input';
 import { canBeDiscipulador, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
+import * as DiscipuladoData from '../model';
+import { Prisma } from '../../../generated/prisma/client';
 
 @Injectable()
 export class DiscipuladoService {
     constructor(private readonly prisma: PrismaService) {}
 
-    public async findAll(matrixId: number, permission?: LoadedPermission | null) {
+    public async findAll(matrixId: number, filters?: DiscipuladoData.DiscipuladoFilterInput) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
-        const where: any = { matrixId };
-        
-        // Pastores (não-admin) só podem ver discipulados de suas redes
-        // Discipuladores (não-admin e não-pastor) só podem ver seus próprios discipulados
-        if (permission && !permission.isAdmin) {
-            if (permission.redeIds && permission.redeIds.length > 0) {
-                // É pastor - filtrar por redes
-                where.redeId = { in: permission.redeIds };
-            } else if (permission.discipuladoIds && permission.discipuladoIds.length > 0) {
-                // É apenas discipulador - filtrar por seus discipulados
-                where.id = { in: permission.discipuladoIds };
+        const where: Prisma.DiscipuladoWhereInput = { matrixId };
+
+        if (filters) {
+            if (filters.congregacaoId) {
+                where.rede = { congregacaoId: Number(filters.congregacaoId) };
+            }
+            if (filters.redeId) {
+                where.redeId = Number(filters.redeId);
+            }
+            if (filters.discipuladorMemberId) {
+                where.discipuladorMemberId = Number(filters.discipuladorMemberId);
+            }
+            if (filters.discipuladoIds && filters.discipuladoIds.length > 0) {
+                where.id = { in: filters.discipuladoIds.map(Number) };
             }
         }
         
@@ -37,7 +41,7 @@ export class DiscipuladoService {
         });
     }
 
-    public async create(data: DiscipuladoCreateInput, permission: LoadedPermission) {
+    public async create(data: DiscipuladoData.DiscipuladoCreateInput, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
         
         // Validate rede belongs to same matrix
@@ -75,7 +79,7 @@ export class DiscipuladoService {
         });
     }
 
-    public async update(id: number, data: Partial<DiscipuladoCreateInput>, matrixId: number, permission: LoadedPermission) {
+    public async update(id: number, data: Partial<DiscipuladoData.DiscipuladoCreateInput>, matrixId: number, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
         
         // Validate the discipulado being updated belongs to the matrix

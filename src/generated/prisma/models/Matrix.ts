@@ -37,6 +37,7 @@ export type MatrixSumAggregateOutputType = {
 export type MatrixMinAggregateOutputType = {
   id: number | null
   name: string | null
+  whatsappApiKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +45,7 @@ export type MatrixMinAggregateOutputType = {
 export type MatrixMaxAggregateOutputType = {
   id: number | null
   name: string | null
+  whatsappApiKey: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -51,6 +53,7 @@ export type MatrixMaxAggregateOutputType = {
 export type MatrixCountAggregateOutputType = {
   id: number
   name: number
+  whatsappApiKey: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -68,6 +71,7 @@ export type MatrixSumAggregateInputType = {
 export type MatrixMinAggregateInputType = {
   id?: true
   name?: true
+  whatsappApiKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -75,6 +79,7 @@ export type MatrixMinAggregateInputType = {
 export type MatrixMaxAggregateInputType = {
   id?: true
   name?: true
+  whatsappApiKey?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -82,6 +87,7 @@ export type MatrixMaxAggregateInputType = {
 export type MatrixCountAggregateInputType = {
   id?: true
   name?: true
+  whatsappApiKey?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -176,6 +182,7 @@ export type MatrixGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type MatrixGroupByOutputType = {
   id: number
   name: string
+  whatsappApiKey: string | null
   createdAt: Date
   updatedAt: Date
   _count: MatrixCountAggregateOutputType | null
@@ -206,6 +213,7 @@ export type MatrixWhereInput = {
   NOT?: Prisma.MatrixWhereInput | Prisma.MatrixWhereInput[]
   id?: Prisma.IntFilter<"Matrix"> | number
   name?: Prisma.StringFilter<"Matrix"> | string
+  whatsappApiKey?: Prisma.StringNullableFilter<"Matrix"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Matrix"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Matrix"> | Date | string
   domains?: Prisma.MatrixDomainListRelationFilter
@@ -224,6 +232,7 @@ export type MatrixWhereInput = {
 export type MatrixOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  whatsappApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   domains?: Prisma.MatrixDomainOrderByRelationAggregateInput
@@ -245,6 +254,7 @@ export type MatrixWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.MatrixWhereInput[]
   NOT?: Prisma.MatrixWhereInput | Prisma.MatrixWhereInput[]
   name?: Prisma.StringFilter<"Matrix"> | string
+  whatsappApiKey?: Prisma.StringNullableFilter<"Matrix"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Matrix"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Matrix"> | Date | string
   domains?: Prisma.MatrixDomainListRelationFilter
@@ -263,6 +273,7 @@ export type MatrixWhereUniqueInput = Prisma.AtLeast<{
 export type MatrixOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  whatsappApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MatrixCountOrderByAggregateInput
@@ -278,12 +289,14 @@ export type MatrixScalarWhereWithAggregatesInput = {
   NOT?: Prisma.MatrixScalarWhereWithAggregatesInput | Prisma.MatrixScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Matrix"> | number
   name?: Prisma.StringWithAggregatesFilter<"Matrix"> | string
+  whatsappApiKey?: Prisma.StringNullableWithAggregatesFilter<"Matrix"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Matrix"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Matrix"> | Date | string
 }
 
 export type MatrixCreateInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -302,6 +315,7 @@ export type MatrixCreateInput = {
 export type MatrixUncheckedCreateInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -319,6 +333,7 @@ export type MatrixUncheckedCreateInput = {
 
 export type MatrixUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -337,6 +352,7 @@ export type MatrixUpdateInput = {
 export type MatrixUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -355,12 +371,14 @@ export type MatrixUncheckedUpdateInput = {
 export type MatrixCreateManyInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type MatrixUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -368,6 +386,7 @@ export type MatrixUpdateManyMutationInput = {
 export type MatrixUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -375,6 +394,7 @@ export type MatrixUncheckedUpdateManyInput = {
 export type MatrixCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  whatsappApiKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -386,6 +406,7 @@ export type MatrixAvgOrderByAggregateInput = {
 export type MatrixMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  whatsappApiKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -393,6 +414,7 @@ export type MatrixMaxOrderByAggregateInput = {
 export type MatrixMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  whatsappApiKey?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -408,6 +430,10 @@ export type MatrixScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -578,6 +604,7 @@ export type MatrixUpdateOneRequiredWithoutApiKeysNestedInput = {
 
 export type MatrixCreateWithoutDomainsInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.MemberMatrixCreateNestedManyWithoutMatrixInput
@@ -595,6 +622,7 @@ export type MatrixCreateWithoutDomainsInput = {
 export type MatrixUncheckedCreateWithoutDomainsInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   members?: Prisma.MemberMatrixUncheckedCreateNestedManyWithoutMatrixInput
@@ -627,6 +655,7 @@ export type MatrixUpdateToOneWithWhereWithoutDomainsInput = {
 
 export type MatrixUpdateWithoutDomainsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.MemberMatrixUpdateManyWithoutMatrixNestedInput
@@ -644,6 +673,7 @@ export type MatrixUpdateWithoutDomainsInput = {
 export type MatrixUncheckedUpdateWithoutDomainsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   members?: Prisma.MemberMatrixUncheckedUpdateManyWithoutMatrixNestedInput
@@ -660,6 +690,7 @@ export type MatrixUncheckedUpdateWithoutDomainsInput = {
 
 export type MatrixCreateWithoutMembersInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -677,6 +708,7 @@ export type MatrixCreateWithoutMembersInput = {
 export type MatrixUncheckedCreateWithoutMembersInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -709,6 +741,7 @@ export type MatrixUpdateToOneWithWhereWithoutMembersInput = {
 
 export type MatrixUpdateWithoutMembersInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -726,6 +759,7 @@ export type MatrixUpdateWithoutMembersInput = {
 export type MatrixUncheckedUpdateWithoutMembersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -742,6 +776,7 @@ export type MatrixUncheckedUpdateWithoutMembersInput = {
 
 export type MatrixCreateWithoutCelulasInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -759,6 +794,7 @@ export type MatrixCreateWithoutCelulasInput = {
 export type MatrixUncheckedCreateWithoutCelulasInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -791,6 +827,7 @@ export type MatrixUpdateToOneWithWhereWithoutCelulasInput = {
 
 export type MatrixUpdateWithoutCelulasInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -808,6 +845,7 @@ export type MatrixUpdateWithoutCelulasInput = {
 export type MatrixUncheckedUpdateWithoutCelulasInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -824,6 +862,7 @@ export type MatrixUncheckedUpdateWithoutCelulasInput = {
 
 export type MatrixCreateWithoutRolesInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -841,6 +880,7 @@ export type MatrixCreateWithoutRolesInput = {
 export type MatrixUncheckedCreateWithoutRolesInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -873,6 +913,7 @@ export type MatrixUpdateToOneWithWhereWithoutRolesInput = {
 
 export type MatrixUpdateWithoutRolesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -890,6 +931,7 @@ export type MatrixUpdateWithoutRolesInput = {
 export type MatrixUncheckedUpdateWithoutRolesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -906,6 +948,7 @@ export type MatrixUncheckedUpdateWithoutRolesInput = {
 
 export type MatrixCreateWithoutMinistriesInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -923,6 +966,7 @@ export type MatrixCreateWithoutMinistriesInput = {
 export type MatrixUncheckedCreateWithoutMinistriesInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -955,6 +999,7 @@ export type MatrixUpdateToOneWithWhereWithoutMinistriesInput = {
 
 export type MatrixUpdateWithoutMinistriesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -972,6 +1017,7 @@ export type MatrixUpdateWithoutMinistriesInput = {
 export type MatrixUncheckedUpdateWithoutMinistriesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -988,6 +1034,7 @@ export type MatrixUncheckedUpdateWithoutMinistriesInput = {
 
 export type MatrixCreateWithoutWinnerPathsInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -1005,6 +1052,7 @@ export type MatrixCreateWithoutWinnerPathsInput = {
 export type MatrixUncheckedCreateWithoutWinnerPathsInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -1037,6 +1085,7 @@ export type MatrixUpdateToOneWithWhereWithoutWinnerPathsInput = {
 
 export type MatrixUpdateWithoutWinnerPathsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -1054,6 +1103,7 @@ export type MatrixUpdateWithoutWinnerPathsInput = {
 export type MatrixUncheckedUpdateWithoutWinnerPathsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1070,6 +1120,7 @@ export type MatrixUncheckedUpdateWithoutWinnerPathsInput = {
 
 export type MatrixCreateWithoutCongregacoesInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -1087,6 +1138,7 @@ export type MatrixCreateWithoutCongregacoesInput = {
 export type MatrixUncheckedCreateWithoutCongregacoesInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -1119,6 +1171,7 @@ export type MatrixUpdateToOneWithWhereWithoutCongregacoesInput = {
 
 export type MatrixUpdateWithoutCongregacoesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -1136,6 +1189,7 @@ export type MatrixUpdateWithoutCongregacoesInput = {
 export type MatrixUncheckedUpdateWithoutCongregacoesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1152,6 +1206,7 @@ export type MatrixUncheckedUpdateWithoutCongregacoesInput = {
 
 export type MatrixCreateWithoutRedesInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -1169,6 +1224,7 @@ export type MatrixCreateWithoutRedesInput = {
 export type MatrixUncheckedCreateWithoutRedesInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -1201,6 +1257,7 @@ export type MatrixUpdateToOneWithWhereWithoutRedesInput = {
 
 export type MatrixUpdateWithoutRedesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -1218,6 +1275,7 @@ export type MatrixUpdateWithoutRedesInput = {
 export type MatrixUncheckedUpdateWithoutRedesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1234,6 +1292,7 @@ export type MatrixUncheckedUpdateWithoutRedesInput = {
 
 export type MatrixCreateWithoutDiscipuladosInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -1251,6 +1310,7 @@ export type MatrixCreateWithoutDiscipuladosInput = {
 export type MatrixUncheckedCreateWithoutDiscipuladosInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -1283,6 +1343,7 @@ export type MatrixUpdateToOneWithWhereWithoutDiscipuladosInput = {
 
 export type MatrixUpdateWithoutDiscipuladosInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -1300,6 +1361,7 @@ export type MatrixUpdateWithoutDiscipuladosInput = {
 export type MatrixUncheckedUpdateWithoutDiscipuladosInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1316,6 +1378,7 @@ export type MatrixUncheckedUpdateWithoutDiscipuladosInput = {
 
 export type MatrixCreateWithoutReportsInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -1333,6 +1396,7 @@ export type MatrixCreateWithoutReportsInput = {
 export type MatrixUncheckedCreateWithoutReportsInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -1365,6 +1429,7 @@ export type MatrixUpdateToOneWithWhereWithoutReportsInput = {
 
 export type MatrixUpdateWithoutReportsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -1382,6 +1447,7 @@ export type MatrixUpdateWithoutReportsInput = {
 export type MatrixUncheckedUpdateWithoutReportsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1398,6 +1464,7 @@ export type MatrixUncheckedUpdateWithoutReportsInput = {
 
 export type MatrixCreateWithoutApiKeysInput = {
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainCreateNestedManyWithoutMatrixInput
@@ -1415,6 +1482,7 @@ export type MatrixCreateWithoutApiKeysInput = {
 export type MatrixUncheckedCreateWithoutApiKeysInput = {
   id?: number
   name: string
+  whatsappApiKey?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   domains?: Prisma.MatrixDomainUncheckedCreateNestedManyWithoutMatrixInput
@@ -1447,6 +1515,7 @@ export type MatrixUpdateToOneWithWhereWithoutApiKeysInput = {
 
 export type MatrixUpdateWithoutApiKeysInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUpdateManyWithoutMatrixNestedInput
@@ -1464,6 +1533,7 @@ export type MatrixUpdateWithoutApiKeysInput = {
 export type MatrixUncheckedUpdateWithoutApiKeysInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  whatsappApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   domains?: Prisma.MatrixDomainUncheckedUpdateManyWithoutMatrixNestedInput
@@ -1602,6 +1672,7 @@ export type MatrixCountOutputTypeCountApiKeysArgs<ExtArgs extends runtime.Types.
 export type MatrixSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  whatsappApiKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   domains?: boolean | Prisma.Matrix$domainsArgs<ExtArgs>
@@ -1621,6 +1692,7 @@ export type MatrixSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type MatrixSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  whatsappApiKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["matrix"]>
@@ -1628,6 +1700,7 @@ export type MatrixSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type MatrixSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  whatsappApiKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["matrix"]>
@@ -1635,11 +1708,12 @@ export type MatrixSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type MatrixSelectScalar = {
   id?: boolean
   name?: boolean
+  whatsappApiKey?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MatrixOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["matrix"]>
+export type MatrixOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "whatsappApiKey" | "createdAt" | "updatedAt", ExtArgs["result"]["matrix"]>
 export type MatrixInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   domains?: boolean | Prisma.Matrix$domainsArgs<ExtArgs>
   members?: boolean | Prisma.Matrix$membersArgs<ExtArgs>
@@ -1675,6 +1749,7 @@ export type $MatrixPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     name: string
+    whatsappApiKey: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["matrix"]>
@@ -2113,6 +2188,7 @@ export interface Prisma__MatrixClient<T, Null = never, ExtArgs extends runtime.T
 export interface MatrixFieldRefs {
   readonly id: Prisma.FieldRef<"Matrix", 'Int'>
   readonly name: Prisma.FieldRef<"Matrix", 'String'>
+  readonly whatsappApiKey: Prisma.FieldRef<"Matrix", 'String'>
   readonly createdAt: Prisma.FieldRef<"Matrix", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Matrix", 'DateTime'>
 }

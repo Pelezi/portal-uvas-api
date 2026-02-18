@@ -21,20 +21,12 @@ export class MemberController {
     @ApiResponse({ status: 200, description: 'Estatísticas dos membros' })
     public async getStatistics(
         @Req() req: AuthenticatedRequest,
-        @Query('celulaId') celulaId?: string,
-        @Query('discipuladoId') discipuladoId?: string,
-        @Query('redeId') redeId?: string
+        @Query() filters: MemberData.StatisticsFilterInput
     ) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID is required', HttpStatus.BAD_REQUEST);
         }
-        const filters: { celulaId?: number; discipuladoId?: number; redeId?: number; matrixId?: number } = {
-            matrixId: req.member.matrixId
-        };
-        if (celulaId) filters.celulaId = Number(celulaId);
-        if (discipuladoId) filters.discipuladoId = Number(discipuladoId);
-        if (redeId) filters.redeId = Number(redeId);
-        return this.service.getStatistics(filters);
+        return this.service.getStatistics(filters, req.member.matrixId);
     }
 
     @Get(':memberId')
@@ -52,22 +44,12 @@ export class MemberController {
     @ApiOperation({ summary: 'Listar todos os membros com filtros opcionais' })
     @ApiResponse({ status: 200, description: 'Lista de membros' })
     public async listAll(
-        @Req() req: AuthenticatedRequest, 
-        @Query('celulaId') celulaId?: string,
-        @Query('discipuladoId') discipuladoId?: string,
-        @Query('redeId') redeId?: string,
-        @Query('ministryType') ministryType?: string
+        @Req() req: AuthenticatedRequest,
+        @Query() filters:MemberData.MemberFilterInput
     ) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
-        
-        const filters: { celulaId?: number; discipuladoId?: number; redeId?: number; ministryType?: string } = {};
-        if (celulaId) filters.celulaId = Number(celulaId);
-        if (discipuladoId) filters.discipuladoId = Number(discipuladoId);
-        if (redeId) filters.redeId = Number(redeId);
-        if (ministryType) filters.ministryType = ministryType;
-        
         return this.service.findAll(req.member.matrixId, filters);
     }
 
@@ -94,7 +76,7 @@ export class MemberController {
         const permission = req.permission;
         
         // Validar que usuário tem permissão para criar membros (admin ou líder)
-        if (!permission || (!permission.isAdmin && permission.celulaIds.length === 0)) {
+        if (!this.permissionService.canCreateMember(permission)) {
             throw new HttpException('Você não tem permissão para criar membros', HttpStatus.UNAUTHORIZED);
         }
         
@@ -192,6 +174,36 @@ export class MemberController {
             throw new HttpException('Requisição não autenticada', HttpStatus.UNAUTHORIZED);
         }
         return this.service.updateOwnEmail(req.member.id, body.email);
+    }
+
+    @Put('profile/me')
+    @ApiOperation({ summary: 'Atualizar perfil do usuário logado (dados pessoais e endereço)' })
+    @ApiResponse({ status: 200, description: 'Perfil atualizado' })
+    public async updateOwnProfile(
+        @Req() req: AuthenticatedRequest,
+        @Body() body: {
+            name?: string;
+            maritalStatus?: string;
+            spouseId?: number | null;
+            birthDate?: string;
+            phone?: string;
+            photoUrl?: string;
+            country?: string;
+            zipCode?: string;
+            street?: string;
+            streetNumber?: string;
+            neighborhood?: string;
+            city?: string;
+            complement?: string;
+            state?: string;
+            // Social media
+            socialMedia?: Array<{ type: string; username: string }>;
+        }
+    ) {
+        if (!req.member) {
+            throw new HttpException('Requisição não autenticada', HttpStatus.UNAUTHORIZED);
+        }
+        return this.service.updateOwnProfile(req.member.id, body);
     }
 
     @Post('set-password')

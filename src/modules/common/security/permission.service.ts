@@ -24,11 +24,14 @@ export interface SimplifiedPermission {
     ministryType: $Enums.MinistryType | null;
     isAdmin: boolean;
     celulaIds: number[] | null;
+    congregacaoIds: number[] | null;
+    redeIds: number[] | null;
+    discipuladoIds: number[] | null;
 }
 
 @Injectable()
 export class PermissionService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
     /**
      * Loads complete permission data for a member
@@ -70,21 +73,7 @@ export class PermissionService {
         const congregacaoIdsVice = (dbMember.congregacoesVicePresidente || []).map(c => c.id);
         const congregacaoIds = Array.from(new Set([...congregacaoIdsPastor, ...congregacaoIdsVice]));
 
-        // Gather celulas that belong to redes or discipulados the member owns
-        const celulasFromRede = await this.prisma.celula.findMany({
-            where: { discipulado: { rede: { pastorMemberId: dbMember.id } } }
-        }).catch(() => []);
-
-        const celulasFromDiscipulado = await this.prisma.celula.findMany({
-            where: { discipulado: { discipuladorMemberId: dbMember.id } }
-        }).catch(() => []);
-
-        const extraCelulaIds = [
-            ...(celulasFromRede || []).map(c => c.id),
-            ...(celulasFromDiscipulado || []).map(c => c.id)
-        ];
-
-        const celulaIds = Array.from(new Set([...leaderCelulaIds, ...viceCelulaIds, ...extraCelulaIds]));
+        const celulaIds = Array.from(new Set([...leaderCelulaIds, ...viceCelulaIds]));
 
         // Check if member has admin role
         const isAdmin = dbMember.roles?.some(mr => mr.role.isAdmin) ?? false;
@@ -95,9 +84,9 @@ export class PermissionService {
             ministryType: dbMember.ministryPosition?.type ?? null,
             ministryPositionId: dbMember.ministryPositionId,
             celulaIds,
-            congregacaoIds,
+            discipuladoIds,
             redeIds,
-            discipuladoIds
+            congregacaoIds,
         };
     }
 
@@ -106,7 +95,7 @@ export class PermissionService {
      */
     async loadSimplifiedPermissionForMember(memberId: number): Promise<SimplifiedPermission | null> {
         const permission = await this.loadPermissionForMember(memberId);
-        
+
         if (!permission) {
             return null;
         }
@@ -137,17 +126,47 @@ export class PermissionService {
             pastorPresidente: permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR,
             ministryType: permission.ministryType,
             isAdmin: permission.isAdmin,
-            celulaIds: permission.celulaIds.length ? permission.celulaIds : null
+            celulaIds: permission.celulaIds.length ? permission.celulaIds : null,
+            congregacaoIds: permission.congregacaoIds.length ? permission.congregacaoIds : null,
+            redeIds: permission.redeIds.length ? permission.redeIds : null,
+            discipuladoIds: permission.discipuladoIds.length ? permission.discipuladoIds : null
         };
     }
 
     /**
      * Check if member has access to a specific celula
      */
-    hasCelulaAccess(permission: LoadedPermission | null | undefined, celulaId: number): boolean {
+    async hasCelulaAccess(permission: LoadedPermission | null | undefined, celulaId: number): Promise<boolean> {
         if (!permission) return false;
         if (permission.isAdmin) return true;
-        return (permission.celulaIds || []).includes(celulaId);
+
+        const celulaInfo = await this.prisma.celula.findUnique({
+            where: { id: celulaId },
+            include: {
+                discipulado: {
+                    include: {
+                        rede: {
+                            include: {
+                                congregacao: true
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const directPermission = (permission.celulaIds || []).includes(celulaId);
+        const discipuladoPermission = celulaInfo?.discipulado ? permission.discipuladoIds.includes(celulaInfo.discipulado.id) : false;
+        const redePermission = celulaInfo?.discipulado?.rede ? permission.redeIds.includes(celulaInfo.discipulado.rede.id) : false;
+        const congregacaoPermission = celulaInfo?.discipulado?.rede?.congregacao ? permission.congregacaoIds.includes(celulaInfo.discipulado.rede.congregacao.id) : false;
+        const presidentPastorPermission = permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR;
+        const adminPermission = permission.isAdmin;
+
+        if (adminPermission || presidentPastorPermission || directPermission || discipuladoPermission || redePermission || congregacaoPermission) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -167,14 +186,14 @@ export class PermissionService {
         celulaId: number
     ): Promise<boolean> {
         if (!permission) return false;
-        
+
         const celula = await this.prisma.celula.findUnique({
             where: { id: celulaId },
             include: { discipulado: true }
         });
-        
+
         if (!celula || !celula.discipulado) return false;
-        
+
         return celula.discipulado.discipuladorMemberId === permission.id ||
             (permission.discipuladoIds || []).includes(celula.discipulado.id);
     }
@@ -187,14 +206,14 @@ export class PermissionService {
         celulaId: number
     ): Promise<boolean> {
         if (!permission) return false;
-        
+
         const celula = await this.prisma.celula.findUnique({
             where: { id: celulaId },
             include: { discipulado: { include: { rede: true } } }
         });
-        
+
         if (!celula || !celula.discipulado || !celula.discipulado.rede) return false;
-        
+
         return celula.discipulado.rede.pastorMemberId === permission.id ||
             (permission.redeIds || []).includes(celula.discipulado.rede.id);
     }
@@ -240,4 +259,22 @@ export class PermissionService {
             throw new Error('Admin permission required');
         }
     }
+
+    // Check if member has permission to create new members (admin or leader or above)
+    canCreateMember(permission: LoadedPermission | null | undefined): boolean {
+        if (!permission) return false;
+        if (permission.isAdmin) return true;
+
+        // check if user has a ministry position of leader or above
+        if (permission.ministryType === $Enums.MinistryType.LEADER ||
+            permission.ministryType === $Enums.MinistryType.LEADER_IN_TRAINING ||
+            permission.ministryType === $Enums.MinistryType.DISCIPULADOR ||
+            permission.ministryType === $Enums.MinistryType.PASTOR ||
+            permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

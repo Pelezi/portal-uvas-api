@@ -3,14 +3,18 @@ import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CelulaService } from '../service/celula.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
-import { PrismaService } from '../../common';
+import { PermissionService, PrismaService } from '../../common';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 import * as CelulaData from '../model';
 
 @Controller('celulas')
 @ApiTags('celulas')
 export class CelulaController {
-    constructor(private readonly service: CelulaService, private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly service: CelulaService, 
+        private readonly prisma: PrismaService,
+        private readonly permissionService: PermissionService
+    ) {}
 
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get()
@@ -22,8 +26,8 @@ export class CelulaController {
         if (!permission) throw new HttpException('Você não tem permissão', HttpStatus.UNAUTHORIZED);
         if (!req.member?.matrixId) throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         
-        if (!!!filters.onlyOwnCelulas && (!filters.celulaIds || filters.celulaIds.length === 0) && !permission.isAdmin) {
-            // Se onlyOwnCelulas for true e celulaIds não for fornecido, usar as células do próprio usuário
+        if (!!!!filters.all && (!filters.celulaIds || filters.celulaIds.length === 0) && !permission.isAdmin) {
+            // Se all for false e celulaIds não for fornecido, usar as células do próprio usuário
             filters.celulaIds = permission.celulaIds;
         }
 
@@ -70,7 +74,7 @@ export class CelulaController {
         const permission = req.permission;
         const celulaId = Number(id);
         
-        if (!permission?.isAdmin && !permission?.celulaIds.includes(celulaId)) {
+        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -85,7 +89,7 @@ export class CelulaController {
         const permission = req.permission;
         const celulaId = Number(id);
         
-        if (!permission?.isAdmin && !permission?.celulaIds.includes(celulaId)) {
+        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 

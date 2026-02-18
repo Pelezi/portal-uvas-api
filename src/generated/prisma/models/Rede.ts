@@ -46,6 +46,7 @@ export type RedeMinAggregateOutputType = {
   matrixId: number | null
   congregacaoId: number | null
   pastorMemberId: number | null
+  isKids: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +57,7 @@ export type RedeMaxAggregateOutputType = {
   matrixId: number | null
   congregacaoId: number | null
   pastorMemberId: number | null
+  isKids: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +68,7 @@ export type RedeCountAggregateOutputType = {
   matrixId: number
   congregacaoId: number
   pastorMemberId: number
+  isKids: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,6 +95,7 @@ export type RedeMinAggregateInputType = {
   matrixId?: true
   congregacaoId?: true
   pastorMemberId?: true
+  isKids?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +106,7 @@ export type RedeMaxAggregateInputType = {
   matrixId?: true
   congregacaoId?: true
   pastorMemberId?: true
+  isKids?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +117,7 @@ export type RedeCountAggregateInputType = {
   matrixId?: true
   congregacaoId?: true
   pastorMemberId?: true
+  isKids?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -209,6 +215,7 @@ export type RedeGroupByOutputType = {
   matrixId: number
   congregacaoId: number
   pastorMemberId: number | null
+  isKids: boolean
   createdAt: Date
   updatedAt: Date
   _count: RedeCountAggregateOutputType | null
@@ -242,6 +249,7 @@ export type RedeWhereInput = {
   matrixId?: Prisma.IntFilter<"Rede"> | number
   congregacaoId?: Prisma.IntFilter<"Rede"> | number
   pastorMemberId?: Prisma.IntNullableFilter<"Rede"> | number | null
+  isKids?: Prisma.BoolFilter<"Rede"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Rede"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Rede"> | Date | string
   matrix?: Prisma.XOR<Prisma.MatrixScalarRelationFilter, Prisma.MatrixWhereInput>
@@ -256,6 +264,7 @@ export type RedeOrderByWithRelationInput = {
   matrixId?: Prisma.SortOrder
   congregacaoId?: Prisma.SortOrder
   pastorMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isKids?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   matrix?: Prisma.MatrixOrderByWithRelationInput
@@ -266,7 +275,6 @@ export type RedeOrderByWithRelationInput = {
 
 export type RedeWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  name_matrixId?: Prisma.RedeNameMatrixIdCompoundUniqueInput
   AND?: Prisma.RedeWhereInput | Prisma.RedeWhereInput[]
   OR?: Prisma.RedeWhereInput[]
   NOT?: Prisma.RedeWhereInput | Prisma.RedeWhereInput[]
@@ -274,13 +282,14 @@ export type RedeWhereUniqueInput = Prisma.AtLeast<{
   matrixId?: Prisma.IntFilter<"Rede"> | number
   congregacaoId?: Prisma.IntFilter<"Rede"> | number
   pastorMemberId?: Prisma.IntNullableFilter<"Rede"> | number | null
+  isKids?: Prisma.BoolFilter<"Rede"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Rede"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Rede"> | Date | string
   matrix?: Prisma.XOR<Prisma.MatrixScalarRelationFilter, Prisma.MatrixWhereInput>
   congregacao?: Prisma.XOR<Prisma.CongregacaoScalarRelationFilter, Prisma.CongregacaoWhereInput>
   discipulados?: Prisma.DiscipuladoListRelationFilter
   pastor?: Prisma.XOR<Prisma.MemberNullableScalarRelationFilter, Prisma.MemberWhereInput> | null
-}, "id" | "name_matrixId">
+}, "id">
 
 export type RedeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -288,6 +297,7 @@ export type RedeOrderByWithAggregationInput = {
   matrixId?: Prisma.SortOrder
   congregacaoId?: Prisma.SortOrder
   pastorMemberId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isKids?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.RedeCountOrderByAggregateInput
@@ -306,12 +316,14 @@ export type RedeScalarWhereWithAggregatesInput = {
   matrixId?: Prisma.IntWithAggregatesFilter<"Rede"> | number
   congregacaoId?: Prisma.IntWithAggregatesFilter<"Rede"> | number
   pastorMemberId?: Prisma.IntNullableWithAggregatesFilter<"Rede"> | number | null
+  isKids?: Prisma.BoolWithAggregatesFilter<"Rede"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Rede"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Rede"> | Date | string
 }
 
 export type RedeCreateInput = {
   name: string
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   matrix: Prisma.MatrixCreateNestedOneWithoutRedesInput
@@ -326,6 +338,7 @@ export type RedeUncheckedCreateInput = {
   matrixId: number
   congregacaoId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutRedeInput
@@ -333,6 +346,7 @@ export type RedeUncheckedCreateInput = {
 
 export type RedeUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutRedesNestedInput
@@ -347,6 +361,7 @@ export type RedeUncheckedUpdateInput = {
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutRedeNestedInput
@@ -358,12 +373,14 @@ export type RedeCreateManyInput = {
   matrixId: number
   congregacaoId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type RedeUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -374,6 +391,7 @@ export type RedeUncheckedUpdateManyInput = {
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -388,17 +406,13 @@ export type RedeOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type RedeNameMatrixIdCompoundUniqueInput = {
-  name: string
-  matrixId: number
-}
-
 export type RedeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   matrixId?: Prisma.SortOrder
   congregacaoId?: Prisma.SortOrder
   pastorMemberId?: Prisma.SortOrder
+  isKids?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -416,6 +430,7 @@ export type RedeMaxOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   congregacaoId?: Prisma.SortOrder
   pastorMemberId?: Prisma.SortOrder
+  isKids?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +441,7 @@ export type RedeMinOrderByAggregateInput = {
   matrixId?: Prisma.SortOrder
   congregacaoId?: Prisma.SortOrder
   pastorMemberId?: Prisma.SortOrder
+  isKids?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -584,6 +600,7 @@ export type RedeUpdateOneRequiredWithoutDiscipuladosNestedInput = {
 
 export type RedeCreateWithoutMatrixInput = {
   name: string
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   congregacao: Prisma.CongregacaoCreateNestedOneWithoutRedesInput
@@ -596,6 +613,7 @@ export type RedeUncheckedCreateWithoutMatrixInput = {
   name: string
   congregacaoId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutRedeInput
@@ -636,12 +654,14 @@ export type RedeScalarWhereInput = {
   matrixId?: Prisma.IntFilter<"Rede"> | number
   congregacaoId?: Prisma.IntFilter<"Rede"> | number
   pastorMemberId?: Prisma.IntNullableFilter<"Rede"> | number | null
+  isKids?: Prisma.BoolFilter<"Rede"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Rede"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Rede"> | Date | string
 }
 
 export type RedeCreateWithoutPastorInput = {
   name: string
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   matrix: Prisma.MatrixCreateNestedOneWithoutRedesInput
@@ -654,6 +674,7 @@ export type RedeUncheckedCreateWithoutPastorInput = {
   name: string
   matrixId: number
   congregacaoId: number
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutRedeInput
@@ -687,6 +708,7 @@ export type RedeUpdateManyWithWhereWithoutPastorInput = {
 
 export type RedeCreateWithoutCongregacaoInput = {
   name: string
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   matrix: Prisma.MatrixCreateNestedOneWithoutRedesInput
@@ -699,6 +721,7 @@ export type RedeUncheckedCreateWithoutCongregacaoInput = {
   name: string
   matrixId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   discipulados?: Prisma.DiscipuladoUncheckedCreateNestedManyWithoutRedeInput
@@ -732,6 +755,7 @@ export type RedeUpdateManyWithWhereWithoutCongregacaoInput = {
 
 export type RedeCreateWithoutDiscipuladosInput = {
   name: string
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   matrix: Prisma.MatrixCreateNestedOneWithoutRedesInput
@@ -745,6 +769,7 @@ export type RedeUncheckedCreateWithoutDiscipuladosInput = {
   matrixId: number
   congregacaoId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -767,6 +792,7 @@ export type RedeUpdateToOneWithWhereWithoutDiscipuladosInput = {
 
 export type RedeUpdateWithoutDiscipuladosInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutRedesNestedInput
@@ -780,6 +806,7 @@ export type RedeUncheckedUpdateWithoutDiscipuladosInput = {
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -789,12 +816,14 @@ export type RedeCreateManyMatrixInput = {
   name: string
   congregacaoId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type RedeUpdateWithoutMatrixInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   congregacao?: Prisma.CongregacaoUpdateOneRequiredWithoutRedesNestedInput
@@ -807,6 +836,7 @@ export type RedeUncheckedUpdateWithoutMatrixInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutRedeNestedInput
@@ -817,6 +847,7 @@ export type RedeUncheckedUpdateManyWithoutMatrixInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -826,12 +857,14 @@ export type RedeCreateManyPastorInput = {
   name: string
   matrixId: number
   congregacaoId: number
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type RedeUpdateWithoutPastorInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutRedesNestedInput
@@ -844,6 +877,7 @@ export type RedeUncheckedUpdateWithoutPastorInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutRedeNestedInput
@@ -854,6 +888,7 @@ export type RedeUncheckedUpdateManyWithoutPastorInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   congregacaoId?: Prisma.IntFieldUpdateOperationsInput | number
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -863,12 +898,14 @@ export type RedeCreateManyCongregacaoInput = {
   name: string
   matrixId: number
   pastorMemberId?: number | null
+  isKids?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type RedeUpdateWithoutCongregacaoInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matrix?: Prisma.MatrixUpdateOneRequiredWithoutRedesNestedInput
@@ -881,6 +918,7 @@ export type RedeUncheckedUpdateWithoutCongregacaoInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   discipulados?: Prisma.DiscipuladoUncheckedUpdateManyWithoutRedeNestedInput
@@ -891,6 +929,7 @@ export type RedeUncheckedUpdateManyWithoutCongregacaoInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   matrixId?: Prisma.IntFieldUpdateOperationsInput | number
   pastorMemberId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isKids?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -932,6 +971,7 @@ export type RedeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   matrixId?: boolean
   congregacaoId?: boolean
   pastorMemberId?: boolean
+  isKids?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
@@ -947,6 +987,7 @@ export type RedeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   matrixId?: boolean
   congregacaoId?: boolean
   pastorMemberId?: boolean
+  isKids?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
@@ -960,6 +1001,7 @@ export type RedeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   matrixId?: boolean
   congregacaoId?: boolean
   pastorMemberId?: boolean
+  isKids?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
@@ -973,11 +1015,12 @@ export type RedeSelectScalar = {
   matrixId?: boolean
   congregacaoId?: boolean
   pastorMemberId?: boolean
+  isKids?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type RedeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "matrixId" | "congregacaoId" | "pastorMemberId" | "createdAt" | "updatedAt", ExtArgs["result"]["rede"]>
+export type RedeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "matrixId" | "congregacaoId" | "pastorMemberId" | "isKids" | "createdAt" | "updatedAt", ExtArgs["result"]["rede"]>
 export type RedeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matrix?: boolean | Prisma.MatrixDefaultArgs<ExtArgs>
   congregacao?: boolean | Prisma.CongregacaoDefaultArgs<ExtArgs>
@@ -1010,6 +1053,7 @@ export type $RedePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     matrixId: number
     congregacaoId: number
     pastorMemberId: number | null
+    isKids: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["rede"]>
@@ -1444,6 +1488,7 @@ export interface RedeFieldRefs {
   readonly matrixId: Prisma.FieldRef<"Rede", 'Int'>
   readonly congregacaoId: Prisma.FieldRef<"Rede", 'Int'>
   readonly pastorMemberId: Prisma.FieldRef<"Rede", 'Int'>
+  readonly isKids: Prisma.FieldRef<"Rede", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Rede", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Rede", 'DateTime'>
 }

@@ -127,3 +127,8 @@ export type ApiKey = Prisma.ApiKeyModel
  * 
  */
 export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model MemberSocialMedia
+ * 
+ */
+export type MemberSocialMedia = Prisma.MemberSocialMediaModel

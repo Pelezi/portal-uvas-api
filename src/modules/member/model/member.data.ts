@@ -87,6 +87,18 @@ export class MemberInput {
 
     @ApiProperty({ description: 'Role IDs to assign to member', example: [1, 2], required: false, type: [Number] })
     public readonly roleIds?: number[];
+
+    // Social Media
+    @ApiProperty({ 
+        description: 'Social media accounts', 
+        example: [
+            { type: 'INSTAGRAM', username: 'johndoe' },
+            { type: 'WHATSAPP', username: '+5511999999999' },
+            { type: 'TELEGRAM', username: '@johndoe' }
+        ], 
+        required: false 
+    })
+    public readonly socialMedia?: Array<{ type: string; username: string }>;
 }
 
 export class LoginInput {
@@ -148,9 +160,6 @@ export class LoginOutput {
     @ApiProperty({ description: 'Permissões do membro', required: false })
     public readonly permission?: MemberPermissions | null;
 
-    @ApiProperty({ description: 'URL para definir a senha (se aplicável)', example: 'https://frontend-url/auth/set-password?token=...', required: false })
-    public readonly setPasswordUrl?: string;
-
     @ApiProperty({ description: 'Lista de matrizes que o usuário tem acesso', required: false })
     public readonly matrices?: Array<{ id: number; name: string; domains: Array<{ domain: string }> }>;
 
@@ -159,4 +168,41 @@ export class LoginOutput {
 
     @ApiProperty({ description: 'Indica se o usuário deve escolher uma matriz', required: false })
     public readonly requireMatrixSelection?: boolean;
+}
+
+export class MemberFilterInput {
+    @ApiProperty({ description: 'Id da célula (0 para sem célula)', example: 1, required: false })
+    public readonly celulaId?: number;
+
+    @ApiProperty({ description: 'Id do discipulado', example: 1, required: false })
+    public readonly discipuladoId?: number;
+
+    @ApiProperty({ description: 'Id da rede', example: 1, required: false })
+    public readonly redeId?: number;
+
+    @ApiProperty({ description: 'Id da congregação', example: 1, required: false })
+    public readonly congregacaoId?: number;
+
+    @ApiProperty({ description: 'Tipo de ministério', example: 'PRESIDENT_PASTOR', required: false })
+    public readonly ministryType?: string;
+
+    @ApiProperty({ description: 'Gênero', example: 'FEMALE', required: false })
+    public readonly gender?: string;
+
+    @ApiProperty({ description: 'Nome', example: 'Maria', required: false })
+    public readonly name?: string;
+}
+
+export class StatisticsFilterInput {
+    @ApiProperty({ description: 'Id da célula (0 para sem célula)', example: 1, required: false })
+    public readonly celulaId?: number;
+
+    @ApiProperty({ description: 'Id do discipulado', example: 1, required: false })
+    public readonly discipuladoId?: number;
+
+    @ApiProperty({ description: 'Id da rede', example: 1, required: false })
+    public readonly redeId?: number;
+
+    @ApiProperty({ description: 'Id da congregação', example: 1, required: false })
+    public readonly congregacaoId?: number;
 }

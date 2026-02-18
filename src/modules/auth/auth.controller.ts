@@ -85,7 +85,7 @@ export class AuthController {
         const currentMatrix = matrixId ? userMatrices.find(m => m.id === matrixId) : null;
         
         return {
-            member: member,  // Changed from 'user' to 'member' to match login response
+            member: member,
             permission,
             currentMatrix: currentMatrix ? { id: currentMatrix.id, name: currentMatrix.name } : null,
             matrices: userMatrices
@@ -349,6 +349,11 @@ export class AuthController {
                 ? member.matrices[0].matrix.name 
                 : '';
 
+            // Get matrix whatsappApiKey
+            const whatsappApiKey = member.matrices && member.matrices.length > 0 
+                ? member.matrices[0].matrix.whatsappApiKey 
+                : null;
+
             // Send email
             await this.emailService.sendPasswordResetEmail(member.email!, resetLink, member.name, matrixName);
 
@@ -369,10 +374,13 @@ export class AuthController {
 
                         const url = `${whatsappApiUrl}/conversations/passwordReset?${params.toString()}`;
 
+                        const headers: Record<string, string> = { 'accept': '*/*' };
+                        if (whatsappApiKey) {
+                            headers['X-API-KEY'] = whatsappApiKey;
+                        }
+
                         await firstValueFrom(
-                            this.httpService.post(url, null, {
-                                headers: { 'accept': '*/*' }
-                            })
+                            this.httpService.post(url, null, { headers })
                         );
 
                         console.log(`WhatsApp de redefinição de senha enviado com sucesso para ${member.phone}`);
