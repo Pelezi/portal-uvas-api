@@ -12,7 +12,7 @@ export class CelulaService {
         private readonly cloudFrontService: CloudFrontService
     ) { }
 
-    public async findAll(matrixId: number, filters?: CelulaData.CelulaFilterInput) {
+    public async findAll(matrixId: number, requestingMemberId: number, filters?: CelulaData.CelulaFilterInput) {
 
         let where: Prisma.CelulaWhereInput = { matrixId };
 

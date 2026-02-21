@@ -1493,8 +1493,12 @@ export class MemberService {
             }
         });
 
+        if (!currentMember) {
+            throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
+        }
+
         // Handle photo upload and deletion
-        let newPhotoUrl: string | null | undefined = data.photoUrl;
+        let newPhotoUrl: string | null | undefined = currentMember.photoUrl;
         if (photo || deletePhoto) {
             // Get matrix info for photo folder
             const matrixId = currentMember?.matrices?.[0]?.matrixId;
@@ -1505,7 +1509,7 @@ export class MemberService {
             const matrixInfo = await this.matrixService.findById(matrixId);
 
             // Delete old photo if exists
-            if (currentMember?.photoUrl) {
+            if (currentMember.photoUrl) {
                 try {
                     await this.awsService.deleteFile(currentMember.photoUrl);
                     newPhotoUrl = null;
@@ -1538,10 +1542,18 @@ export class MemberService {
             ...(newPhotoUrl !== undefined && { photoUrl: newPhotoUrl })
         };
 
+        // Converter strings vazias em null para datas e garantir formato ISO-8601 completo
+        const cleanedMemberData = {
+            ...updateData,
+            birthDate: cleanDateField(memberData.birthDate),
+            phone: cleanPhoneField(memberData.phone),
+            ...(newPhotoUrl !== undefined && { photoUrl: newPhotoUrl })
+        } as PrismaModels.MemberUncheckedUpdateInput;
+
         // Update member
         await this.prisma.member.update({
             where: { id: memberId },
-            data: updateData,
+            data: cleanedMemberData,
             include: {
                 celula: {
                     include: {

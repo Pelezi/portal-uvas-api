@@ -25,7 +25,8 @@ export class ReportController {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -38,7 +39,8 @@ export class ReportController {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -56,7 +58,8 @@ export class ReportController {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -88,7 +91,8 @@ export class ReportController {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -113,7 +117,8 @@ export class ReportController {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -139,7 +144,8 @@ export class ReportController {
         const year = Number(yearParam);
         const month = Number(monthParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 

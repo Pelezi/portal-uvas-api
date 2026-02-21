@@ -36,7 +36,7 @@ export class CelulaController {
 
         // Retornar todas as células da matriz, independente da permissão
         // O controle de ações será feito no frontend baseado nas permissões
-        return this.service.findAll(req.member.matrixId, filters);
+        return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
@@ -77,7 +77,8 @@ export class CelulaController {
         const permission = req.permission;
         const celulaId = Number(id);
         
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -92,7 +93,8 @@ export class CelulaController {
         const permission = req.permission;
         const celulaId = Number(id);
         
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 

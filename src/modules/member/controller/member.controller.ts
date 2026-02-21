@@ -61,7 +61,8 @@ export class MemberController {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
 
-        if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -87,7 +88,8 @@ export class MemberController {
 
         // Se não for admin e está atribuindo a uma célula, validar acesso à célula
         if (!permission.isAdmin && body.celulaId) {
-            if (!this.permissionService.hasCelulaAccess(permission, body.celulaId)) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, body.celulaId);
+            if (!celulaAccess) {
                 throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
             }
         }
@@ -113,8 +115,11 @@ export class MemberController {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
 
-        if (member.celulaId && !this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
-            throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
+        if (member.celulaId) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, member.celulaId);
+            if (!celulaAccess) {
+                throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
+            }
         }
 
         return this.service.removeFromCelula(memberId);
@@ -141,8 +146,11 @@ export class MemberController {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
 
-        if (member.celulaId && !this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
-            throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
+        if (member.celulaId) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, member.celulaId);
+            if (!celulaAccess) {
+                throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
+            }
         }
 
         if (!req.member) {
@@ -233,8 +241,9 @@ export class MemberController {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
 
-        if (!permission?.isAdmin && member.celulaId) {
-            if (!this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
+        if (member.celulaId) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, member.celulaId);
+            if (!celulaAccess) {
                 throw new HttpException('Você não tem permissão para enviar convite para este membro', HttpStatus.UNAUTHORIZED);
             }
         }
@@ -258,8 +267,9 @@ export class MemberController {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
 
-        if (!permission?.isAdmin && member.celulaId) {
-            if (!this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
+        if (member.celulaId) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, member.celulaId);
+            if (!celulaAccess) {
                 throw new HttpException('Você não tem permissão para reenviar convite para este membro', HttpStatus.UNAUTHORIZED);
             }
         }
