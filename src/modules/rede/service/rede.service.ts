@@ -91,6 +91,12 @@ export class RedeService {
                         `É necessário ser Pastor.`
                     );
                 }
+                // Validar gênero para redes Kids
+                if (data.isKids && pastor.gender !== 'FEMALE') {
+                    throw new BadRequestException(
+                        'Redes Kids devem ter responsável do gênero feminino'
+                    );
+                }
             }
             return this.prisma.rede.create({
                 data: {
@@ -163,7 +169,28 @@ export class RedeService {
                         `É necessário ser Pastor.`
                     );
                 }
+                // Validar gênero para redes Kids
+                const isKidsRede = data.isKids !== undefined ? data.isKids : rede.isKids;
+                if (isKidsRede && pastor.gender !== 'FEMALE') {
+                    throw new BadRequestException(
+                        'Redes Kids devem ter responsável do gênero feminino'
+                    );
+                }
             }
+            
+            // Se estiver marcando como Kids, validar o pastor atual (se não estiver sendo alterado)
+            if (data.isKids && !rede.isKids && rede.pastorMemberId && data.pastorMemberId === undefined) {
+                const currentPastor = await this.prisma.member.findUnique({
+                    where: { id: rede.pastorMemberId }
+                });
+                if (currentPastor && currentPastor.gender !== 'FEMALE') {
+                    throw new BadRequestException(
+                        'Não é possível marcar esta rede como Kids. O responsável atual não é do gênero feminino. ' +
+                        'Remova o responsável ou altere para um membro do gênero feminino.'
+                    );
+                }
+            }
+            
             return this.prisma.rede.update({
                 where: { id },
                 data: {
