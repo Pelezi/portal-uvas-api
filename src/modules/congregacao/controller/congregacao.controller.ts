@@ -1,25 +1,40 @@
-import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { CongregacaoService } from '../service/congregacao.service';
-import { CongregacaoCreateInput, CongregacaoUpdateInput } from '../model/congregacao.input';
+import * as CongregacaoData from '../model';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 
 @UseGuards(RestrictedGuard, PermissionGuard)
 @Controller('congregacoes')
 @ApiTags('congregacoes')
+@ApiBearerAuth()
 export class CongregacaoController {
-    constructor(private readonly service: CongregacaoService) {}
+    constructor(private readonly service: CongregacaoService) { }
 
     @Get()
     @ApiOperation({ summary: 'Listar congregações' })
-    public async list(@Req() req: AuthenticatedRequest) {
+    @ApiResponse({ status: 200, description: 'Congregações listadas' })
+    public async list(
+        @Req() req: AuthenticatedRequest,
+        @Query() filters: CongregacaoData.CongregacaoFilterInput
+    ) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
         const permission = req.permission;
-        return this.service.findAll(req.member.matrixId, permission);
+
+        if (!permission) {
+            throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!!!filters.all && (!filters.congregacaoIds || filters.congregacaoIds.length === 0) && !permission.isAdmin) {
+            // Se all for false e congregacaoIds não for fornecido, usar as congregações do próprio usuário
+            filters.congregacaoIds = permission.congregacaoIds;
+        }
+
+        return this.service.findAll(req.member.matrixId, filters, permission);
     }
 
     @Get(':id')
@@ -33,9 +48,9 @@ export class CongregacaoController {
 
     @Post()
     @ApiOperation({ summary: 'Criar congregação' })
-    @ApiBody({ type: CongregacaoCreateInput })
+    @ApiBody({ type: CongregacaoData.CongregacaoCreateInput })
     @ApiResponse({ status: 201, description: 'Congregação criada' })
-    public async create(@Req() req: AuthenticatedRequest, @Body() body: CongregacaoCreateInput) {
+    public async create(@Req() req: AuthenticatedRequest, @Body() body: CongregacaoData.CongregacaoCreateInput) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
@@ -45,8 +60,8 @@ export class CongregacaoController {
 
     @Put(':id')
     @ApiOperation({ summary: 'Atualizar congregação' })
-    @ApiBody({ type: CongregacaoUpdateInput })
-    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: CongregacaoUpdateInput) {
+    @ApiBody({ type: CongregacaoData.CongregacaoUpdateInput })
+    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: CongregacaoData.CongregacaoUpdateInput) {
         const permission = req.permission;
         if (!permission) {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);

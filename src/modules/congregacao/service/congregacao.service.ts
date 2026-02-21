@@ -1,17 +1,36 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from '../../common';
-import { CongregacaoCreateInput, CongregacaoUpdateInput } from '../model/congregacao.input';
+import { PrismaService, CloudFrontService } from '../../common';
+import * as CongregacaoData from '../model';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
-import { CongregacaoWhereInput } from '../../../generated/prisma/models';
+import { Prisma } from '../../../generated/prisma/client';
 
 @Injectable()
 export class CongregacaoService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cloudFrontService: CloudFrontService
+    ) {}
 
-    public async findAll(matrixId: number, permission?: LoadedPermission | null) {
+    public async findAll(matrixId: number, filters?: CongregacaoData.CongregacaoFilterInput, permission?: LoadedPermission | null) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
-        const where: CongregacaoWhereInput = { matrixId };
+        const where: Prisma.CongregacaoWhereInput = { matrixId };
+        
+        // Apply additional filters
+        if (filters) {
+            if (filters.name) {
+                where.name = { contains: filters.name, mode: 'insensitive' };
+            }
+            if (filters.pastorGovernoMemberId) {
+                where.pastorGovernoMemberId = Number(filters.pastorGovernoMemberId);
+            }
+            if (filters.vicePresidenteMemberId) {
+                where.vicePresidenteMemberId = Number(filters.vicePresidenteMemberId);
+            }
+            if (filters.congregacaoIds && filters.congregacaoIds.length > 0) {
+                where.id = { in: filters.congregacaoIds };
+            }
+        }
         
         // Pastores de congregação (não-admin e não-principal) só podem ver sua própria congregação
         if (permission && !permission.isAdmin && permission.congregacaoIds && permission.congregacaoIds.length > 0) {
@@ -33,7 +52,7 @@ export class CongregacaoService {
             }
         }
         
-        return this.prisma.congregacao.findMany({
+        const congregacoes = await this.prisma.congregacao.findMany({
             where,
             include: {
                 pastorGoverno: true,
@@ -49,6 +68,12 @@ export class CongregacaoService {
                 { name: 'asc' }
             ]
         });
+        congregacoes.forEach(c => {
+            this.cloudFrontService.transformPhotoUrl(c.pastorGoverno);
+            this.cloudFrontService.transformPhotoUrl(c.vicePresidente);
+            c.redes?.forEach(r => this.cloudFrontService.transformPhotoUrl(r.pastor));
+        });
+        return congregacoes;
     }
 
     public async findOne(id: number, matrixId: number, permission?: LoadedPermission | null) {
@@ -80,7 +105,7 @@ export class CongregacaoService {
             }
         }
 
-        return this.prisma.congregacao.findUnique({
+        const congregacao = await this.prisma.congregacao.findUnique({
             where: { id },
             include: {
                 pastorGoverno: true,
@@ -98,9 +123,18 @@ export class CongregacaoService {
                 }
             }
         });
+        if (congregacao) {
+            this.cloudFrontService.transformPhotoUrl(congregacao.pastorGoverno);
+            this.cloudFrontService.transformPhotoUrl(congregacao.vicePresidente);
+            congregacao.redes?.forEach(r => {
+                this.cloudFrontService.transformPhotoUrl(r.pastor);
+                r.discipulados?.forEach(d => this.cloudFrontService.transformPhotoUrl(d.discipulador));
+            });
+        }
+        return congregacao;
     }
 
-    public async create(data: CongregacaoCreateInput, permission: LoadedPermission) {
+    public async create(data: CongregacaoData.CongregacaoCreateInput, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
         
         // Apenas admins podem criar congregações
@@ -123,7 +157,7 @@ export class CongregacaoService {
             });
         }
 
-        return this.prisma.congregacao.create({
+        const congregacao = await this.prisma.congregacao.create({
             data: {
                 name: data.name,
                 matrixId: data.matrixId!,
@@ -144,9 +178,12 @@ export class CongregacaoService {
                 vicePresidente: true
             }
         });
+        this.cloudFrontService.transformPhotoUrl(congregacao.pastorGoverno);
+        this.cloudFrontService.transformPhotoUrl(congregacao.vicePresidente);
+        return congregacao;
     }
 
-    public async update(id: number, data: CongregacaoUpdateInput, matrixId: number, permission: LoadedPermission) {
+    public async update(id: number, data: CongregacaoData.CongregacaoUpdateInput, matrixId: number, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
         
         // Validate the congregacao being updated belongs to the matrix
@@ -194,7 +231,7 @@ export class CongregacaoService {
             });
         }
 
-        return this.prisma.congregacao.update({
+        const congregacaoInfo = await this.prisma.congregacao.update({
             where: { id },
             data: {
                 name: data.name,
@@ -215,6 +252,9 @@ export class CongregacaoService {
                 vicePresidente: true
             }
         });
+        this.cloudFrontService.transformPhotoUrl(congregacaoInfo.pastorGoverno);
+        this.cloudFrontService.transformPhotoUrl(congregacaoInfo.vicePresidente);
+        return congregacaoInfo;
     }
 
     public async delete(id: number, matrixId: number, permission: LoadedPermission) {

@@ -396,6 +396,7 @@ export const ModelName = {
   Congregacao: 'Congregacao',
   Rede: 'Rede',
   Discipulado: 'Discipulado',
+  DiscipuladoDisciple: 'DiscipuladoDisciple',
   Report: 'Report',
   ReportAttendance: 'ReportAttendance',
   MemberRole: 'MemberRole',
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "congregacao" | "rede" | "discipulado" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey" | "passwordResetToken" | "memberSocialMedia"
+    modelProps: "matrix" | "matrixDomain" | "memberMatrix" | "celula" | "role" | "ministry" | "winnerPath" | "member" | "celulaLeaderInTraining" | "congregacao" | "rede" | "discipulado" | "discipuladoDisciple" | "report" | "reportAttendance" | "memberRole" | "refreshToken" | "apiKey" | "passwordResetToken" | "memberSocialMedia"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1310,6 +1311,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DiscipuladoDisciple: {
+      payload: Prisma.$DiscipuladoDisciplePayload<ExtArgs>
+      fields: Prisma.DiscipuladoDiscipleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DiscipuladoDiscipleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DiscipuladoDiscipleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>
+        }
+        findFirst: {
+          args: Prisma.DiscipuladoDiscipleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DiscipuladoDiscipleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>
+        }
+        findMany: {
+          args: Prisma.DiscipuladoDiscipleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>[]
+        }
+        create: {
+          args: Prisma.DiscipuladoDiscipleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>
+        }
+        createMany: {
+          args: Prisma.DiscipuladoDiscipleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DiscipuladoDiscipleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>[]
+        }
+        delete: {
+          args: Prisma.DiscipuladoDiscipleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>
+        }
+        update: {
+          args: Prisma.DiscipuladoDiscipleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>
+        }
+        deleteMany: {
+          args: Prisma.DiscipuladoDiscipleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DiscipuladoDiscipleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DiscipuladoDiscipleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>[]
+        }
+        upsert: {
+          args: Prisma.DiscipuladoDiscipleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DiscipuladoDisciplePayload>
+        }
+        aggregate: {
+          args: Prisma.DiscipuladoDiscipleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDiscipuladoDisciple>
+        }
+        groupBy: {
+          args: Prisma.DiscipuladoDiscipleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DiscipuladoDiscipleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DiscipuladoDiscipleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DiscipuladoDiscipleCountAggregateOutputType> | number
+        }
+      }
+    }
     Report: {
       payload: Prisma.$ReportPayload<ExtArgs>
       fields: Prisma.ReportFieldRefs
@@ -2058,6 +2133,17 @@ export const DiscipuladoScalarFieldEnum = {
 export type DiscipuladoScalarFieldEnum = (typeof DiscipuladoScalarFieldEnum)[keyof typeof DiscipuladoScalarFieldEnum]
 
 
+export const DiscipuladoDiscipleScalarFieldEnum = {
+  id: 'id',
+  discipuladoId: 'discipuladoId',
+  memberId: 'memberId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DiscipuladoDiscipleScalarFieldEnum = (typeof DiscipuladoDiscipleScalarFieldEnum)[keyof typeof DiscipuladoDiscipleScalarFieldEnum]
+
+
 export const ReportScalarFieldEnum = {
   id: 'id',
   matrixId: 'matrixId',
@@ -2394,6 +2480,7 @@ export type GlobalOmitConfig = {
   congregacao?: Prisma.CongregacaoOmit
   rede?: Prisma.RedeOmit
   discipulado?: Prisma.DiscipuladoOmit
+  discipuladoDisciple?: Prisma.DiscipuladoDiscipleOmit
   report?: Prisma.ReportOmit
   reportAttendance?: Prisma.ReportAttendanceOmit
   memberRole?: Prisma.MemberRoleOmit

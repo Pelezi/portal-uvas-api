@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../common';
+import { PrismaService, CloudFrontService } from '../../common';
 import { Prisma } from '../../../generated/prisma/client';
 import { LoadedPermission } from '../../common/security/permission.service';
 import * as ReportData from '../model';
@@ -7,7 +7,10 @@ import { CelulaWhereInput } from '../../../generated/prisma/models';
 
 @Injectable()
 export class ReportService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cloudFrontService: CloudFrontService
+    ) {}
 
     public async create(celulaId: number, memberIds: number[], matrixId: number, date?: string, type?: 'CELULA' | 'CULTO') {
         const brazilOffsetHours = 3;
@@ -63,7 +66,11 @@ export class ReportService {
     }
 
     public async findById(id: number) {
-        return this.prisma.report.findUnique({ where: { id }, include: { attendances: { include: { member: true } } } });
+        const report = await this.prisma.report.findUnique({ where: { id }, include: { attendances: { include: { member: true } } } });
+        if (report?.attendances) {
+            report.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
+        }
+        return report;
     }
 
     public async findByDateAndType(celulaId: number, date: string, type: 'CELULA' | 'CULTO', matrixId: number) {
@@ -87,6 +94,9 @@ export class ReportService {
             include: { attendances: { include: { member: true } } }
         });
 
+        if (report?.attendances) {
+            report.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
+        }
         return report;
     }
 
@@ -136,7 +146,7 @@ export class ReportService {
 
     public async findByCelula(celulaId: number, matrixId: number) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
-        return this.prisma.report.findMany({ 
+        const reports = await this.prisma.report.findMany({ 
             where: { 
                 celulaId,
                 matrixId  // Verify report belongs to correct matrix
@@ -144,6 +154,12 @@ export class ReportService {
             orderBy: { createdAt: 'desc' }, 
             include: { attendances: { include: { member: true } } } 
         });
+        reports.forEach(report => {
+            if (report.attendances) {
+                report.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
+            }
+        });
+        return reports;
     }
 
     public async presences(celulaId: number, matrixId: number) {
@@ -157,10 +173,14 @@ export class ReportService {
             include: { attendances: { include: { member: true } } }
         });
 
-        return reports.map(r => ({
-            date: r.createdAt,
-            members: (r.attendances || []).map(a => a.member)
-        }));
+        return reports.map(r => {
+            const members = (r.attendances || []).map(a => a.member);
+            this.cloudFrontService.transformPhotoUrls(members);
+            return {
+                date: r.createdAt,
+                members
+            };
+        });
     }
 
     public async reportsByMonth(celulaId: number, year: number, month: number, matrixId: number) {
@@ -206,6 +226,14 @@ export class ReportService {
             }
         });
 
+        // Transform photoUrls
+        this.cloudFrontService.transformPhotoUrls(allMembers);
+        reports.forEach(r => {
+            if (r.attendances) {
+                r.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
+            }
+        });
+
         // Transformar os dados para incluir presentes e ausentes
         const reportsData = reports.map(r => {
             const presentIds = new Set((r.attendances || []).map(a => a.memberId));
@@ -240,13 +268,13 @@ export class ReportService {
         
         // Apply filter (priority: célula > discipulado > rede > congregação)
         if (filters.celulaId) {
-            celulaWhere.id = filters.celulaId;
+            celulaWhere.id = Number(filters.celulaId);
         } else if (filters.discipuladoId) {
-            celulaWhere.discipuladoId = filters.discipuladoId;
+            celulaWhere.discipuladoId = Number(filters.discipuladoId);
         } else if (filters.redeId) {
-            celulaWhere.discipulado = { redeId: filters.redeId };
+            celulaWhere.discipulado = { redeId: Number(filters.redeId) };
         } else if (filters.congregacaoId) {
-            celulaWhere.discipulado = { rede: { congregacaoId: filters.congregacaoId } };
+            celulaWhere.discipulado = { rede: { congregacaoId: Number(filters.congregacaoId) } };
         }
         
         // Apply permissions if not admin
@@ -256,17 +284,17 @@ export class ReportService {
             
             // Direct celula access
             if (permission.celulaIds && permission.celulaIds.length > 0) {
-                permissionConditions.push({ id: { in: permission.celulaIds } });
+                permissionConditions.push({ id: { in: permission.celulaIds.map(Number) } });
             }
             
             // Discipulado access
             if (permission.discipuladoIds && permission.discipuladoIds.length > 0) {
-                permissionConditions.push({ discipuladoId: { in: permission.discipuladoIds } });
+                permissionConditions.push({ discipuladoId: { in: permission.discipuladoIds.map(Number) } });
             }
             
             // Rede access
             if (permission.redeIds && permission.redeIds.length > 0) {
-                permissionConditions.push({ discipulado: { redeId: { in: permission.redeIds } } });
+                permissionConditions.push({ discipulado: { redeId: { in: permission.redeIds.map(Number) } } });
             }
             
             // Congregação access
@@ -274,7 +302,7 @@ export class ReportService {
                 permissionConditions.push({ 
                     discipulado: { 
                         rede: { 
-                            congregacaoId: { in: permission.congregacaoIds } 
+                            congregacaoId: { in: permission.congregacaoIds.map(Number) } 
                         } 
                     } 
                 });
@@ -371,6 +399,14 @@ export class ReportService {
                         }
                     }
                 }
+            }
+        });
+
+        // Transform photoUrls for all members and report attendances
+        this.cloudFrontService.transformPhotoUrls(allMembers);
+        reports.forEach(report => {
+            if (report.attendances) {
+                report.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
             }
         });
 
@@ -477,6 +513,9 @@ export class ReportService {
                     };
                 }
             });
+
+            // Transform photoUrls for celula members  
+            this.cloudFrontService.transformPhotoUrls(celulaMembers);
 
             return {
                 celula: {

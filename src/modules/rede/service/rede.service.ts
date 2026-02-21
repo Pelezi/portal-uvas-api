@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from '../../common';
+import { PrismaService, CloudFrontService } from '../../common';
 import { canBePastor, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
@@ -8,7 +8,10 @@ import * as RedeData from '../model';
 
 @Injectable()
 export class RedeService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cloudFrontService: CloudFrontService
+    ) { }
 
     public async findAll(matrixId: number, filters?: RedeData.RedeFilterInput) {
         try {
@@ -17,17 +20,17 @@ export class RedeService {
 
             if (filters) {
                 if (filters.congregacaoId) {
-                    where.congregacaoId = filters.congregacaoId;
+                    where.congregacaoId = Number(filters.congregacaoId);
                 }
                 if (filters.pastorMemberId) {
-                    where.pastorMemberId = filters.pastorMemberId;
+                    where.pastorMemberId = Number(filters.pastorMemberId);
                 }
                 if (filters.redeIds && filters.redeIds.length > 0) {
-                    where.id = { in: filters.redeIds };
+                    where.id = { in: filters.redeIds.map(Number) };
                 }
             }
 
-            return this.prisma.rede.findMany({
+            const redes = await this.prisma.rede.findMany({
                 where,
                 include: {
                     pastor: true,
@@ -37,6 +40,8 @@ export class RedeService {
                     name: 'asc'
                 }
             });
+            redes.forEach(rede => this.cloudFrontService.transformPhotoUrl(rede.pastor));
+            return redes;
         } catch (error) {
             throw new HttpException('Erro ao listar redes: ' + error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
         }

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { RoleService } from '../service/role.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
@@ -9,6 +9,7 @@ import { AuthenticatedRequest } from '../../common/types/authenticated-request.i
 @ApiTags('Config - Roles')
 @Controller('roles')
 @UseGuards(RestrictedGuard, PermissionGuard)
+@ApiBearerAuth()
 export class RoleController {
     constructor(
         private readonly roleService: RoleService,

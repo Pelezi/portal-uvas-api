@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { RedeService } from '../service/rede.service';
@@ -9,10 +9,13 @@ import * as RedeData from '../model';
 @UseGuards(RestrictedGuard, PermissionGuard)
 @Controller('redes')
 @ApiTags('redes')
+@ApiBearerAuth()
 export class RedeController {
     constructor(private readonly service: RedeService) {}
 
     @Get()
+    @ApiOperation({ summary: 'Listar redes' })
+    @ApiResponse({ status: 200, description: 'Redes listadas' })
     public async list(
         @Req() req: AuthenticatedRequest,
         @Query() filters: RedeData.RedeFilterInput
@@ -26,7 +29,7 @@ export class RedeController {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
 
-        if (!!!!filters.all && (!filters.redeIds || filters.redeIds.length === 0) && !permission.isAdmin) {
+        if (!!!filters.all && (!filters.redeIds || filters.redeIds.length === 0) && !permission.isAdmin) {
             // Se all for false e redeIds não for fornecido, usar os redes do próprio usuário
             filters.redeIds = permission.redeIds;
         }

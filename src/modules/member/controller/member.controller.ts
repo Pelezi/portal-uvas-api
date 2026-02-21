@@ -1,20 +1,22 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Delete, Put, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Delete, Put, Query, HttpException, HttpStatus, UseInterceptors } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiConsumes, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { MemberService } from '../service/member.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { PermissionService } from '../../common/security/permission.service';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
+import { FileUploadInterceptor } from '../../common/flow/file-upload.interceptor';
 import * as MemberData from '../model';
 
 @Controller('members')
 @ApiTags('membros')
 @UseGuards(RestrictedGuard, PermissionGuard)
+@ApiBearerAuth()
 export class MemberController {
     constructor(
         private readonly service: MemberService,
         private readonly permissionService: PermissionService
-    ) {}
+    ) { }
 
     @Get('statistics')
     @ApiOperation({ summary: 'Buscar estatísticas dos membros' })
@@ -45,19 +47,20 @@ export class MemberController {
     @ApiResponse({ status: 200, description: 'Lista de membros' })
     public async listAll(
         @Req() req: AuthenticatedRequest,
-        @Query() filters:MemberData.MemberFilterInput
+        @Query() filters: MemberData.MemberFilterInput
     ) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.findAll(req.member.matrixId, filters);
+
+        return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 
     @Get('celulas/:celulaId/members')
     public async list(@Req() req: AuthenticatedRequest, @Param('celulaId') celulaIdParam: string) {
         const permission = req.permission;
         const celulaId = Number(celulaIdParam);
-        
+
         if (!this.permissionService.hasCelulaAccess(permission, celulaId)) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
@@ -67,19 +70,21 @@ export class MemberController {
 
     @Post('')
     @ApiOperation({ summary: 'Criar membro' })
+    @ApiConsumes('multipart/form-data')
     @ApiBody({ type: MemberData.MemberInput })
     @ApiResponse({ status: 201, description: 'Membro criado' })
+    @UseInterceptors(FileUploadInterceptor)
     public async createWithoutCelula(
         @Req() req: AuthenticatedRequest,
         @Body() body: MemberData.MemberInput
     ) {
         const permission = req.permission;
-        
+
         // Validar que usuário tem permissão para criar membros (admin ou líder)
         if (!this.permissionService.canCreateMember(permission)) {
             throw new HttpException('Você não tem permissão para criar membros', HttpStatus.UNAUTHORIZED);
         }
-        
+
         // Se não for admin e está atribuindo a uma célula, validar acesso à célula
         if (!permission.isAdmin && body.celulaId) {
             if (!this.permissionService.hasCelulaAccess(permission, body.celulaId)) {
@@ -90,8 +95,10 @@ export class MemberController {
         if (!req.member) {
             throw new HttpException('Requisição não autenticada', HttpStatus.UNAUTHORIZED);
         }
-        
-        return this.service.create(body, req.member.id, req.member.matrixId);
+
+        const photo = req.uploadedFile;
+
+        return this.service.create(body, req.member.matrixId, req.member.id, photo);
     }
 
     @Delete(':memberId')
@@ -101,11 +108,11 @@ export class MemberController {
         const permission = req.permission;
         const memberId = Number(memberIdParam);
         const member = await this.service.findById(memberId);
-        
+
         if (!member) {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
-        
+
         if (member.celulaId && !this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
@@ -115,20 +122,25 @@ export class MemberController {
 
     @Put(':memberId')
     @ApiOperation({ summary: 'Atualizar membro' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ type: MemberData.MemberInput })
+    @ApiQuery({ name: 'deletePhoto', required: false, description: 'Se "true", deleta a foto do membro' })
     @ApiResponse({ status: 200, description: 'Membro atualizado' })
+    @UseInterceptors(FileUploadInterceptor)
     public async update(
-        @Req() req: AuthenticatedRequest, 
-        @Param('memberId') memberIdParam: string, 
-        @Body() body: MemberData.MemberInput
+        @Req() req: AuthenticatedRequest,
+        @Param('memberId') memberIdParam: string,
+        @Body() body: MemberData.MemberInput,
+        @Query('deletePhoto') deletePhoto?: string
     ) {
         const permission = req.permission;
         const memberId = Number(memberIdParam);
         const member = await this.service.findById(memberId);
-        
+
         if (!member) {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
-        
+
         if (member.celulaId && !this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
@@ -137,7 +149,9 @@ export class MemberController {
             throw new HttpException('Requisição não autenticada', HttpStatus.UNAUTHORIZED);
         }
 
-        return this.service.update(memberId, body, req.member.id, req.member.matrixId);
+        const photo = req.uploadedFile;
+
+        return this.service.update(memberId, body, req.member.matrixId, req.member.id, photo, deletePhoto);
     }
 
     @Get('profile/me')
@@ -178,32 +192,24 @@ export class MemberController {
 
     @Put('profile/me')
     @ApiOperation({ summary: 'Atualizar perfil do usuário logado (dados pessoais e endereço)' })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ type: MemberData.UpdateOwnProfileInput })
+    @ApiQuery({ name: 'deletePhoto', required: false, description: 'Se "true", deleta a foto do membro' })
     @ApiResponse({ status: 200, description: 'Perfil atualizado' })
+    @UseInterceptors(FileUploadInterceptor)
     public async updateOwnProfile(
         @Req() req: AuthenticatedRequest,
-        @Body() body: {
-            name?: string;
-            maritalStatus?: string;
-            spouseId?: number | null;
-            birthDate?: string;
-            phone?: string;
-            photoUrl?: string;
-            country?: string;
-            zipCode?: string;
-            street?: string;
-            streetNumber?: string;
-            neighborhood?: string;
-            city?: string;
-            complement?: string;
-            state?: string;
-            // Social media
-            socialMedia?: Array<{ type: string; username: string }>;
-        }
+        @Body() body: MemberData.UpdateOwnProfileInput,
+        @Query('deletePhoto') deletePhoto?: string
     ) {
         if (!req.member) {
             throw new HttpException('Requisição não autenticada', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.updateOwnProfile(req.member.id, body);
+        
+        const photo = req.uploadedFile;
+        const shouldDeletePhoto = deletePhoto === 'true';
+        
+        return this.service.updateOwnProfile(req.member.id, body, photo, shouldDeletePhoto);
     }
 
     @Post('set-password')
@@ -220,19 +226,19 @@ export class MemberController {
     ) {
         const permission = req.permission;
         const memberId = Number(memberIdParam);
-        
+
         // Verificar permissão (admin ou líder da célula do membro)
         const member = await this.service.findById(memberId);
         if (!member) {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
-        
+
         if (!permission?.isAdmin && member.celulaId) {
             if (!this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
                 throw new HttpException('Você não tem permissão para enviar convite para este membro', HttpStatus.UNAUTHORIZED);
             }
         }
-        
+
         return this.service.sendInvite(memberId, req.member!.matrixId);
     }
 
@@ -245,19 +251,19 @@ export class MemberController {
     ) {
         const permission = req.permission;
         const memberId = Number(memberIdParam);
-        
+
         // Verificar permissão (admin ou líder da célula do membro)
         const member = await this.service.findById(memberId);
         if (!member) {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
-        
+
         if (!permission?.isAdmin && member.celulaId) {
             if (!this.permissionService.hasCelulaAccess(permission, member.celulaId)) {
                 throw new HttpException('Você não tem permissão para reenviar convite para este membro', HttpStatus.UNAUTHORIZED);
             }
         }
-        
+
         return this.service.resendInvite(memberId, req.member!.matrixId);
     }
 
@@ -268,7 +274,7 @@ export class MemberController {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
-        
+
         return this.service.findAllWithRoles(req.member.matrixId);
     }
 

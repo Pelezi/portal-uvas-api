@@ -12,6 +12,9 @@ export class DiscipuladoCreateInput {
 
     @ApiProperty({ description: 'Matrix id', required: false })
     public readonly matrixId?: number;
+
+    @ApiProperty({ description: 'Discípulas (member IDs) para discipulados Kids', required: false, example: [3, 4, 5], type: [Number] })
+    public readonly discipleIds?: number[];
 }
 
 export class DiscipuladoFilterInput {

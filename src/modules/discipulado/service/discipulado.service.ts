@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from '../../common';
+import { PrismaService, CloudFrontService } from '../../common';
 import { canBeDiscipulador, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
@@ -8,7 +8,10 @@ import { Prisma } from '../../../generated/prisma/client';
 
 @Injectable()
 export class DiscipuladoService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cloudFrontService: CloudFrontService
+    ) {}
 
     public async findAll(matrixId: number, filters?: DiscipuladoData.DiscipuladoFilterInput) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
@@ -29,16 +32,26 @@ export class DiscipuladoService {
             }
         }
         
-        return this.prisma.discipulado.findMany({
+        const discipulados = await this.prisma.discipulado.findMany({
             where,
             include: { 
                 rede: true, 
-                discipulador: true 
+                discipulador: true,
+                disciples: {
+                    include: {
+                        member: true
+                    }
+                }
             },
             orderBy: { 
                 discipulador: { name: 'asc' }
             } 
         });
+        discipulados.forEach(d => {
+            this.cloudFrontService.transformPhotoUrl(d.discipulador);
+            d.disciples?.forEach(disc => this.cloudFrontService.transformPhotoUrl(disc.member));
+        });
+        return discipulados;
     }
 
     public async create(data: DiscipuladoData.DiscipuladoCreateInput, permission: LoadedPermission) {
@@ -70,13 +83,33 @@ export class DiscipuladoService {
                 );
             }
         }
-        return this.prisma.discipulado.create({ 
+        
+        // Validate disciples if provided
+        if (data.discipleIds && data.discipleIds.length > 0) {
+            for (const discipleId of data.discipleIds) {
+                await validator.validateMemberBelongsToMatrix(discipleId, data.matrixId!);
+            }
+        }
+        
+        const created = await this.prisma.discipulado.create({ 
             data: { 
                 redeId: data.redeId, 
                 discipuladorMemberId: data.discipuladorMemberId,
-                matrixId: data.matrixId!
-            } 
+                matrixId: data.matrixId!,
+                disciples: data.discipleIds ? {
+                    create: data.discipleIds.map(memberId => ({ memberId }))
+                } : undefined
+            },
+            include: {
+                disciples: {
+                    include: {
+                        member: true
+                    }
+                }
+            }
         });
+        
+        return created;
     }
 
     public async update(id: number, data: Partial<DiscipuladoData.DiscipuladoCreateInput>, matrixId: number, permission: LoadedPermission) {
@@ -130,7 +163,39 @@ export class DiscipuladoService {
                 );
             }
         }
-        return this.prisma.discipulado.update({ where: { id }, data: { redeId: data.redeId, discipuladorMemberId: data.discipuladorMemberId } });
+        
+        // Validate disciples if provided
+        if (data.discipleIds && data.discipleIds.length > 0) {
+            for (const discipleId of data.discipleIds) {
+                await validator.validateMemberBelongsToMatrix(discipleId, matrixId);
+            }
+        }
+        
+        // Prepare update data
+        const updateData: any = {};
+        if (data.redeId !== undefined) updateData.redeId = data.redeId;
+        if (data.discipuladorMemberId !== undefined) updateData.discipuladorMemberId = data.discipuladorMemberId;
+        
+        // Handle disciples update
+        if (data.discipleIds !== undefined) {
+            // Delete existing disciples and create new ones
+            updateData.disciples = {
+                deleteMany: {},
+                create: data.discipleIds.map(memberId => ({ memberId }))
+            };
+        }
+        
+        return this.prisma.discipulado.update({ 
+            where: { id }, 
+            data: updateData,
+            include: {
+                disciples: {
+                    include: {
+                        member: true
+                    }
+                }
+            }
+        });
     }
 
     public async delete(id: number, permission: LoadedPermission) {

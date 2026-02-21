@@ -110,7 +110,7 @@ export class CelulaFilterInput {
     public readonly congregacaoId?: number;
 
     @ApiProperty({ description: 'Todas as células?', example: true, required: false })
-    public readonly all?: boolean = true;
+    public readonly all?: boolean;
 
     @ApiProperty({ description: 'IDs das células para filtrar', example: [1, 2, 3], required: false, type: [Number] })
     public celulaIds?: number[];

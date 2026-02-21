@@ -207,6 +207,7 @@ model Member {
   leadingInTrainingCelulas CelulaLeaderInTraining[]
   passwordResetTokens      PasswordResetToken[]
   socialMedia              MemberSocialMedia[]
+  discipleOf               DiscipuladoDisciple[]
 
   @@index([celulaId])
   @@index([ministryPositionId])
@@ -321,7 +322,8 @@ model Discipulado {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  celulas Celula[]
+  celulas   Celula[]
+  disciples DiscipuladoDisciple[]
 
   matrix       Matrix @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   rede         Rede   @relation(fields: [redeId], references: [id], onDelete: NoAction)
@@ -330,6 +332,21 @@ model Discipulado {
   @@index([matrixId])
   @@index([redeId])
   @@index([discipuladorMemberId])
+}
+
+model DiscipuladoDisciple {
+  id            Int      @id @default(autoincrement())
+  discipuladoId Int
+  memberId      Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  discipulado Discipulado @relation(fields: [discipuladoId], references: [id], onDelete: Cascade)
+  member      Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([discipuladoId, memberId])
+  @@index([discipuladoId])
+  @@index([memberId])
 }
 
 model Report {

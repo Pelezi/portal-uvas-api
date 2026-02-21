@@ -1,5 +1,5 @@
 import { Controller, Post, Body, UseGuards, Req, Param, Get, Query, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
 import { ReportService } from '../service/report.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
@@ -9,6 +9,7 @@ import * as ReportData from '../model';
 
 @Controller('celulas/:celulaId/reports')
 @ApiTags('reports')
+@ApiBearerAuth()
 export class ReportController {
     constructor(
         private readonly service: ReportService,

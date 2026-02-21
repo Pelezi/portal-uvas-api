@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, UseGuards, Req, Put, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { DiscipuladoService } from '../service/discipulado.service';
@@ -9,6 +9,7 @@ import * as DiscipuladoData from '../model';
 @UseGuards(RestrictedGuard, PermissionGuard)
 @Controller('discipulados')
 @ApiTags('discipulados')
+@ApiBearerAuth()
 export class DiscipuladoController {
     constructor(private readonly service: DiscipuladoService) {}
 
@@ -26,7 +27,7 @@ export class DiscipuladoController {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
 
-        if (!!!!filters.all && (!filters.discipuladoIds || filters.discipuladoIds.length === 0) && !permission.isAdmin) {
+        if (!!!filters.all && (!filters.discipuladoIds || filters.discipuladoIds.length === 0) && !permission.isAdmin) {
             // Se all for false e discipuladoIds não for fornecido, usar os discipulados do próprio usuário
             filters.discipuladoIds = permission.discipuladoIds;
         }

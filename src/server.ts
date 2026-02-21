@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import multipart from '@fastify/multipart';
 
 import { ApplicationModule } from './modules/app.module';
 import { CommonModule, LogInterceptor } from './modules/common';
@@ -54,9 +55,19 @@ function createSwagger(app: INestApplication) {
  */
 async function bootstrap(): Promise<void> {
 
+    const fastifyAdapter = new FastifyAdapter();
+    
+    // Register multipart/form-data support for file uploads
+    // @ts-expect-error - Type mismatch between @nestjs/platform-fastify and @fastify/multipart versions
+    fastifyAdapter.register(multipart, {
+        limits: {
+            fileSize: 10 * 1024 * 1024, // 10MB max file size
+        },
+    });
+
     const app = await NestFactory.create<NestFastifyApplication>(
         ApplicationModule,
-        new FastifyAdapter()
+        fastifyAdapter
     );
 
     // Validate security configuration on startup

@@ -63,6 +63,7 @@ export const ModelName = {
   Congregacao: 'Congregacao',
   Rede: 'Rede',
   Discipulado: 'Discipulado',
+  DiscipuladoDisciple: 'DiscipuladoDisciple',
   Report: 'Report',
   ReportAttendance: 'ReportAttendance',
   MemberRole: 'MemberRole',
@@ -277,6 +278,17 @@ export const DiscipuladoScalarFieldEnum = {
 } as const
 
 export type DiscipuladoScalarFieldEnum = (typeof DiscipuladoScalarFieldEnum)[keyof typeof DiscipuladoScalarFieldEnum]
+
+
+export const DiscipuladoDiscipleScalarFieldEnum = {
+  id: 'id',
+  discipuladoId: 'discipuladoId',
+  memberId: 'memberId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DiscipuladoDiscipleScalarFieldEnum = (typeof DiscipuladoDiscipleScalarFieldEnum)[keyof typeof DiscipuladoDiscipleScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {

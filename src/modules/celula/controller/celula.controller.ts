@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, UseGuards, Req, Put, HttpException, Delete, HttpStatus, Query } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CelulaService } from '../service/celula.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
@@ -9,6 +9,7 @@ import * as CelulaData from '../model';
 
 @Controller('celulas')
 @ApiTags('celulas')
+@ApiBearerAuth()
 export class CelulaController {
     constructor(
         private readonly service: CelulaService, 
@@ -18,6 +19,8 @@ export class CelulaController {
 
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get()
+    @ApiOperation({ summary: 'Listar células com filtros e controle de acesso' })
+    @ApiResponse({ status: 200, description: 'Células listadas' })
     public async find(
         @Req() req: AuthenticatedRequest,
         @Query() filters: CelulaData.CelulaFilterInput
@@ -25,8 +28,8 @@ export class CelulaController {
         const permission = req.permission;
         if (!permission) throw new HttpException('Você não tem permissão', HttpStatus.UNAUTHORIZED);
         if (!req.member?.matrixId) throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
-        
-        if (!!!!filters.all && (!filters.celulaIds || filters.celulaIds.length === 0) && !permission.isAdmin) {
+
+        if (!!!filters.all && (!filters.celulaIds || filters.celulaIds.length === 0) && !permission.isAdmin) {
             // Se all for false e celulaIds não for fornecido, usar as células do próprio usuário
             filters.celulaIds = permission.celulaIds;
         }

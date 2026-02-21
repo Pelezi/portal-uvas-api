@@ -84,3 +84,20 @@ export class CongregacaoUpdateInput {
     @ApiProperty({ description: 'País', required: false })
     public readonly country?: string;
 }
+
+export class CongregacaoFilterInput {
+    @ApiProperty({ description: 'Filtro por nome da congregação', required: false, example: 'Central' })
+    public readonly name?: string;
+
+    @ApiProperty({ description: 'Filtro por pastor de governo', required: false, example: 1 })
+    public readonly pastorGovernoMemberId?: number;
+
+    @ApiProperty({ description: 'Filtro por vice presidente', required: false, example: 2 })
+    public readonly vicePresidenteMemberId?: number;
+
+    @ApiProperty({ description: 'Filtro por IDs específicos de congregações', required: false, example: [1, 2, 3], type: [Number] })
+    public congregacaoIds?: number[];
+
+    @ApiProperty({ description: 'Todas as congregações', required: false, example: false })
+    public readonly all?: boolean;
+}

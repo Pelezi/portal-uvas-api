@@ -78,6 +78,11 @@ export type Rede = Prisma.RedeModel
  */
 export type Discipulado = Prisma.DiscipuladoModel
 /**
+ * Model DiscipuladoDisciple
+ * 
+ */
+export type DiscipuladoDisciple = Prisma.DiscipuladoDiscipleModel
+/**
  * Model Report
  * 
  */

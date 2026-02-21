@@ -1,5 +1,5 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from '../../common';
+import { PrismaService, CloudFrontService } from '../../common';
 import * as CelulaData from '../model';
 import { canBeLeader, canBeViceLeader, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { Prisma } from '../../../generated/prisma/client';
@@ -7,7 +7,10 @@ import { createMatrixValidator } from '../../common/helpers/matrix-validation.he
 
 @Injectable()
 export class CelulaService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cloudFrontService: CloudFrontService
+    ) { }
 
     public async findAll(matrixId: number, filters?: CelulaData.CelulaFilterInput) {
 
@@ -27,7 +30,7 @@ export class CelulaService {
                 where.discipuladoId = Number(filters.discipuladoId);
             }
             if (filters.redeId && filters.congregacaoId) {
-                where.discipulado = { 
+                where.discipulado = {
                     redeId: Number(filters.redeId),
                     rede: { congregacaoId: Number(filters.congregacaoId) }
                 };
@@ -42,34 +45,46 @@ export class CelulaService {
         }
 
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
-        return this.prisma.celula.findMany({ 
-            where, 
-            orderBy: { name: 'asc' }, 
-            include: { 
-                leader: true, 
+        const celulas = await this.prisma.celula.findMany({
+            where,
+            orderBy: { name: 'asc' },
+            include: {
+                leader: true,
                 viceLeader: true,
                 leadersInTraining: { include: { member: true } }
-            } 
+            }
         });
+        celulas.forEach(celula => {
+            this.cloudFrontService.transformPhotoUrl(celula.leader);
+            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
+            celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
+        });
+        return celulas;
     }
 
     public async findByPermission(celulaIds: number[]) {
         if (celulaIds.length === 0) return [];
 
-        return this.prisma.celula.findMany({
+        const celulas = await this.prisma.celula.findMany({
             where: { id: { in: celulaIds } },
-            include: { 
-                leader: true, 
+            include: {
+                leader: true,
                 viceLeader: true,
                 leadersInTraining: { include: { member: true } }
             },
             orderBy: { name: 'asc' }
         });
+        celulas.forEach(celula => {
+            this.cloudFrontService.transformPhotoUrl(celula.leader);
+            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
+            celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
+        });
+        return celulas;
     }
 
     public async create(body: CelulaData.CelulaCreateInput, matrixId: number) {
         const validator = createMatrixValidator(this.prisma);
-        
+
         // Validação de weekday
         if (body.weekday === undefined || body.weekday === null) {
             throw new HttpException('Dia da semana é obrigatório', HttpStatus.BAD_REQUEST);
@@ -96,7 +111,7 @@ export class CelulaService {
 
         // Validate discipulado belongs to same matrix
         await validator.validateDiscipuladoBelongsToMatrix(body.discipuladoId, matrixId);
-        
+
         // Validate leader belongs to same matrix
         await validator.validateMemberBelongsToMatrix(body.leaderMemberId, matrixId);
 
@@ -135,7 +150,7 @@ export class CelulaService {
         if (body.viceLeaderMemberId) {
             // Validate vice leader belongs to same matrix
             await validator.validateMemberBelongsToMatrix(body.viceLeaderMemberId, matrixId);
-            
+
             const viceLeader = await this.prisma.member.findUnique({
                 where: { id: body.viceLeaderMemberId },
                 include: { ministryPosition: true }
@@ -153,15 +168,23 @@ export class CelulaService {
             data.viceLeaderMemberId = body.viceLeaderMemberId;
         }
 
-        return this.prisma.celula.create({ data: data, include: { leader: true, viceLeader: true, discipulado: true } });
+        const celula = await this.prisma.celula.create({ data: data, include: { leader: true, viceLeader: true, discipulado: true } });
+        this.cloudFrontService.transformPhotoUrl(celula.leader);
+        this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
+        return celula;
     }
 
     public async findById(id: number) {
-        return this.prisma.celula.findUnique({ where: { id }, include: { leader: true, viceLeader: true, discipulado: true } });
+        const celula = await this.prisma.celula.findUnique({ where: { id }, include: { leader: true, viceLeader: true, discipulado: true } });
+        if (celula) {
+            this.cloudFrontService.transformPhotoUrl(celula.leader);
+            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
+        }
+        return celula;
     }
 
     public async findMembersByCelulaId(celulaId: number) {
-        return this.prisma.member.findMany({
+        const members = await this.prisma.member.findMany({
             where: { celulaId },
             orderBy: { name: 'asc' },
             include: {
@@ -184,6 +207,11 @@ export class CelulaService {
                 }
             }
         });
+        this.cloudFrontService.transformPhotoUrls(members);
+        members.forEach(m => {
+            this.cloudFrontService.transformPhotoUrl(m.celula?.discipulado?.discipulador);
+        });
+        return members;
     }
 
     public async update(id: number, data: {
@@ -203,10 +231,10 @@ export class CelulaService {
         state?: string;
     }, matrixId: number) {
         const validator = createMatrixValidator(this.prisma);
-        
+
         // Validate the celula being updated belongs to the matrix
         await validator.validateCelulaBelongsToMatrix(id, matrixId);
-        
+
         const updateData: Prisma.CelulaUncheckedUpdateInput = {};
         if (data.name !== undefined) updateData.name = data.name;
 
@@ -243,7 +271,7 @@ export class CelulaService {
             if (data.leaderMemberId !== null) {
                 // Validate leader belongs to same matrix
                 await validator.validateMemberBelongsToMatrix(data.leaderMemberId, matrixId);
-                
+
                 const leader = await this.prisma.member.findUnique({
                     where: { id: data.leaderMemberId },
                     include: { ministryPosition: true }
@@ -267,7 +295,7 @@ export class CelulaService {
             if (data.discipuladoId !== null) {
                 // Validate discipulado belongs to same matrix
                 await validator.validateDiscipuladoBelongsToMatrix(data.discipuladoId, matrixId);
-                
+
                 const discipulado = await this.prisma.discipulado.findUnique({
                     where: { id: data.discipuladoId }
                 });
@@ -289,6 +317,16 @@ export class CelulaService {
 
             // Adicionar novos líderes em treinamento
             if (data.leaderInTrainingIds.length > 0) {
+                const celula = await this.prisma.celula.findUnique({
+                    include: {
+                        discipulado: {
+                            include: {
+                                rede: true
+                            }
+                        }
+                    },
+                    where: { id }
+                });
                 // Validar que todos os membros pertencem à célula
                 const members = await this.prisma.member.findMany({
                     where: {
@@ -298,12 +336,11 @@ export class CelulaService {
                     include: { ministryPosition: true }
                 });
 
-                if (members.length !== data.leaderInTrainingIds.length) {
+                if (members.length !== data.leaderInTrainingIds.length && !!!celula?.discipulado?.rede?.isKids) {
                     throw new HttpException('Alguns membros selecionados não pertencem a esta célula', HttpStatus.BAD_REQUEST);
                 }
 
                 // Verificar se algum membro é o líder
-                const celula = await this.prisma.celula.findUnique({ where: { id } });
                 if (!celula) {
                     throw new HttpException('Célula não encontrada', HttpStatus.NOT_FOUND);
                 }
@@ -344,15 +381,21 @@ export class CelulaService {
             }
         }
 
-        return this.prisma.celula.findUnique({ 
-            where: { id }, 
-            include: { 
-                leader: true, 
-                viceLeader: true, 
+        const celula = await this.prisma.celula.findUnique({
+            where: { id },
+            include: {
+                leader: true,
+                viceLeader: true,
                 discipulado: { include: { rede: true } },
                 leadersInTraining: { include: { member: true } }
-            } 
+            }
         });
+        if (celula) {
+            this.cloudFrontService.transformPhotoUrl(celula.leader);
+            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
+            celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
+        }
+        return celula;
     }
 
     /**

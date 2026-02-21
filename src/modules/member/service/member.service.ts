@@ -1,14 +1,21 @@
 import { HttpException, HttpStatus, Injectable, Inject, forwardRef } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
-import { EmailService, PrismaService, PermissionService } from '../../common';
+import { EmailService, PrismaService, PermissionService, CloudFrontService } from '../../common';
 import { SecurityConfigService } from '../../config/service/security-config.service';
 import { AuthService } from '../../auth/auth.service';
 import { MatrixService } from '../../matrix/service/matrix.service';
+import { AwsService } from '../../common/provider/aws.provider';
+
 import * as MemberData from '../model';
+
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
-import { CelulaWhereInput, CongregacaoWhereInput, DiscipuladoWhereInput, MemberUncheckedCreateInput, MemberWhereInput, RedeWhereInput } from '../../../generated/prisma/models';
+import sharp from 'sharp';
+
 import { firstValueFrom } from 'rxjs';
+import { File } from 'fastify-multer/lib/interfaces';
+
+import * as PrismaModels from '../../../generated/prisma/models';
 
 interface SetPasswordPayload extends jwt.JwtPayload {
     userId: number;
@@ -32,11 +39,14 @@ function cleanDateField(dateStr: string | undefined): Date | null | undefined {
 }
 
 // Função auxiliar para limpar telefone (remover caracteres não numéricos)
-function cleanPhoneField(phone: string | undefined): string | null | undefined {
+function cleanPhoneField(phone: string | undefined | null): string | null | undefined {
     if (phone === undefined) return undefined;
-    if (!phone || !phone.trim()) return null;
+    if (!phone) return null;
+    // Garantir que phone é uma string
+    const phoneStr = typeof phone === 'string' ? phone : String(phone);
+    if (!phoneStr.trim()) return null;
     // Remove tudo que não é dígito
-    return phone.replace(/\D/g, '');
+    return phoneStr.replace(/\D/g, '');
 }
 
 @Injectable()
@@ -49,13 +59,14 @@ export class MemberService {
         private readonly permissionService: PermissionService,
         private readonly httpService: HttpService,
         private readonly matrixService: MatrixService,
+        private readonly awsService: AwsService,
+        private readonly cloudFrontService: CloudFrontService,
         @Inject(forwardRef(() => AuthService))
         private readonly authService: AuthService
     ) { }
 
-    public async findAll(matrixId: number, filters?: MemberData.MemberFilterInput) {
-        const where: MemberWhereInput = {
-            isActive: true,
+    public async findAll(matrixId: number, requestingMemberId: number, filters?: MemberData.MemberFilterInput) {
+        const where: PrismaModels.MemberWhereInput = {
             matrices: {
                 some: {
                     matrixId: matrixId
@@ -66,82 +77,86 @@ export class MemberService {
         if (filters) {
             // celulaId = 0 significa "sem célula" (celulaId is null)
             if (filters.celulaId !== undefined) {
-                if (filters.celulaId === 0) {
+                if (filters.celulaId == 0) {
                     where.celulaId = null;
+                    where.ledCelulas = { none: {} };
+                    where.viceLedCelulas = { none: {} };
+                    where.discipulados = { none: {} };
+                    where.redes = { none: {} };
+                    where.congregacoesPastorGoverno = { none: {} };
+                    where.congregacoesVicePresidente = { none: {} };
                 } else {
                     where.celulaId = Number(filters.celulaId);
-                    where.discipulados = undefined;
-                    where.redes = undefined;
                 }
             } else {
 
-                const celulaMemberFilter: CelulaWhereInput = {};
-                const celulaLeaderFilter: CelulaWhereInput = {};
-                const discipuladoLeaderFilter: DiscipuladoWhereInput = {};
-                const redeLeaderFilter: RedeWhereInput = {};
-                const congregacaoLeaderFilter: CongregacaoWhereInput = {};
+                const celulaMemberFilter: PrismaModels.CelulaWhereInput = {};
+                const celulaLeaderFilter: PrismaModels.CelulaWhereInput = {};
+                const discipuladoLeaderFilter: PrismaModels.DiscipuladoWhereInput = {};
+                const redeLeaderFilter: PrismaModels.RedeWhereInput = {};
+                const congregacaoLeaderFilter: PrismaModels.CongregacaoWhereInput = {};
 
                 // Build nested discipulado filter for celula members
-                const discipuladoMemberFilter: any = {};
-                
+                const discipuladoMemberFilter: PrismaModels.DiscipuladoWhereInput = {};
+
                 if (filters.congregacaoId) {
                     const congregacaoId = Number(filters.congregacaoId);
-                    
+
                     // For members in celulas
                     discipuladoMemberFilter.rede = {
                         congregacaoId: congregacaoId
                     };
-                    
+
                     // For celula leaders
                     celulaLeaderFilter.discipulado = {
                         rede: {
                             congregacaoId: congregacaoId
                         }
                     };
-                    
+
                     // For discipulado leaders
                     discipuladoLeaderFilter.rede = {
                         congregacaoId: congregacaoId
                     };
-                    
+
                     // For rede leaders
                     redeLeaderFilter.congregacaoId = congregacaoId;
-                    
+
                     // For congregacao leaders
                     congregacaoLeaderFilter.id = congregacaoId;
                 }
 
                 if (filters.redeId) {
                     const redeId = Number(filters.redeId);
-                    
+
                     // For members in celulas
                     discipuladoMemberFilter.redeId = redeId;
-                    
+
                     // For celula leaders - merge with existing discipulado filter
                     if (celulaLeaderFilter.discipulado) {
-                        (celulaLeaderFilter.discipulado as DiscipuladoWhereInput).redeId = redeId;
+                        (celulaLeaderFilter.discipulado as PrismaModels.DiscipuladoWhereInput).redeId = redeId;
                     } else {
                         celulaLeaderFilter.discipulado = {
                             redeId: redeId
                         };
                     }
-                    
+
                     // For discipulado leaders
                     discipuladoLeaderFilter.redeId = redeId;
-                    
+
                     // For rede leaders
                     redeLeaderFilter.id = redeId;
                 }
 
                 if (filters.discipuladoId) {
                     const discipuladoId = Number(filters.discipuladoId);
-                    
+
                     // For members in celulas
                     celulaMemberFilter.discipuladoId = discipuladoId;
-                    
+
                     // For celula leaders
                     celulaLeaderFilter.discipuladoId = discipuladoId;
-                    
+
                     // For discipulado leaders
                     discipuladoLeaderFilter.id = discipuladoId;
                 }
@@ -191,10 +206,14 @@ export class MemberService {
                         mode: 'insensitive'
                     };
                 }
+
+                if (filters.isActive !== undefined) {
+                    where.isActive = filters.isActive;
+                }
             }
 
             // Filtrar por tipo de ministério (para selecionar pastores, discipuladores, líderes)
-            if (filters?.ministryType) {
+            if (filters.ministryType) {
                 const ministryTypes = filters.ministryType.split(',');
                 where.ministryPosition = {
                     type: { in: ministryTypes as any }
@@ -202,8 +221,36 @@ export class MemberService {
             }
 
             // Filtrar por gênero
-            if (filters?.gender) {
+            if (filters.gender) {
                 where.gender = filters.gender as any;
+            }
+
+            // Filtrar por discípulos de um membro específico
+            if (filters.discipleOfId) {
+                where.discipleOf = {
+                    some: {
+                        discipuladoId: Number(filters.discipleOfId)
+                    }
+                };
+            }
+
+            // Apply hierarchy filter if filters.all is false
+            if (!!!filters.all && requestingMemberId) {
+                const hierarchyConditions = await this.buildHierarchyFilter(requestingMemberId);
+
+                if (hierarchyConditions.length > 0) {
+                    if (where.OR) {
+                        // Both hierarchy and other OR filters exist, combine with AND
+                        where.AND = [
+                            { OR: where.OR },
+                            { OR: hierarchyConditions }
+                        ];
+                        delete where.OR;
+                    } else {
+                        // Only hierarchy filter
+                        where.OR = hierarchyConditions;
+                    }
+                }
             }
         }
 
@@ -236,10 +283,15 @@ export class MemberService {
                 congregacoesVicePresidente: true,
                 roles: {
                     include: { role: true }
-                }
+                },
+                discipleOf: true,
+                ministryPosition: true
             },
             orderBy: { name: 'asc' }
         });
+
+        // replace photoUrl with full CloudFront URL if it exists
+        this.cloudFrontService.transformPhotoUrls(response);
 
         return response;
     }
@@ -266,8 +318,155 @@ export class MemberService {
         });
     }
 
+    /**
+     * Build hierarchy filter to restrict members to those under the requesting user's leadership
+     */
+    private async buildHierarchyFilter(requestingMemberId: number): Promise<PrismaModels.MemberWhereInput[]> {
+        const requestingMember = await this.prisma.member.findUnique({
+            where: { id: requestingMemberId },
+            include: {
+                ledCelulas: true,
+                viceLedCelulas: true,
+                discipulados: {
+                    include: {
+                        celulas: true
+                    }
+                },
+                redes: {
+                    include: {
+                        discipulados: {
+                            include: {
+                                celulas: true
+                            }
+                        }
+                    }
+                },
+                congregacoesPastorGoverno: true,
+                congregacoesVicePresidente: true
+            }
+        });
+
+        if (!requestingMember) {
+            return [];
+        }
+
+        const hierarchyConditions: PrismaModels.MemberWhereInput[] = [];
+
+        // 1. Members and leaders in células led by requesting user
+        const ledCelulaIds = requestingMember.ledCelulas.map(c => c.id);
+        const viceLedCelulaIds = requestingMember.viceLedCelulas.map(c => c.id);
+        const allCelulaIds = [...ledCelulaIds, ...viceLedCelulaIds];
+
+        if (allCelulaIds.length > 0) {
+            // Members in these células
+            hierarchyConditions.push({ celulaId: { in: allCelulaIds } });
+            // Leaders of these células
+            hierarchyConditions.push({ ledCelulas: { some: { id: { in: allCelulaIds } } } });
+            hierarchyConditions.push({ viceLedCelulas: { some: { id: { in: allCelulaIds } } } });
+        }
+
+        // 2. Members and leaders in discipulados led by requesting user
+        if (requestingMember.discipulados.length > 0) {
+            const discipuladoIds = requestingMember.discipulados.map(d => d.id);
+            const celulaIdsFromDiscipulados = requestingMember.discipulados.flatMap(d => d.celulas.map(c => c.id));
+
+            // Members in células of these discipulados
+            if (celulaIdsFromDiscipulados.length > 0) {
+                hierarchyConditions.push({ celulaId: { in: celulaIdsFromDiscipulados } });
+                // Leaders of these células
+                hierarchyConditions.push({ ledCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
+                hierarchyConditions.push({ viceLedCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
+            }
+
+            // The discipuladores themselves
+            hierarchyConditions.push({ discipulados: { some: { id: { in: discipuladoIds } } } });
+        }
+
+        // 3. Members and leaders in redes led by requesting user
+        if (requestingMember.redes.length > 0) {
+            const redeIds = requestingMember.redes.map(r => r.id);
+            const discipuladoIdsFromRedes = requestingMember.redes.flatMap(r => r.discipulados.map(d => d.id));
+            const celulaIdsFromRedes = requestingMember.redes.flatMap(r =>
+                r.discipulados.flatMap(d => d.celulas.map(c => c.id))
+            );
+
+            // Members in células of these redes
+            if (celulaIdsFromRedes.length > 0) {
+                hierarchyConditions.push({ celulaId: { in: celulaIdsFromRedes } });
+                // Leaders of these células
+                hierarchyConditions.push({ ledCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
+                hierarchyConditions.push({ viceLedCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
+            }
+
+            // Discipuladores in these redes
+            if (discipuladoIdsFromRedes.length > 0) {
+                hierarchyConditions.push({ discipulados: { some: { id: { in: discipuladoIdsFromRedes } } } });
+            }
+
+            // Pastores de rede themselves
+            hierarchyConditions.push({ redes: { some: { id: { in: redeIds } } } });
+        }
+
+        // 4. Members and leaders in congregações led by requesting user
+        const congregacaoIds = [
+            ...requestingMember.congregacoesPastorGoverno.map(c => c.id),
+            ...requestingMember.congregacoesVicePresidente.map(c => c.id)
+        ];
+
+        if (congregacaoIds.length > 0) {
+            // All members under this congregação (through rede -> discipulado -> celula)
+            hierarchyConditions.push({
+                celula: {
+                    discipulado: {
+                        rede: {
+                            congregacaoId: { in: congregacaoIds }
+                        }
+                    }
+                }
+            });
+
+            // All leaders at various levels in this congregação
+            hierarchyConditions.push({ congregacoesPastorGoverno: { some: { id: { in: congregacaoIds } } } });
+            hierarchyConditions.push({ congregacoesVicePresidente: { some: { id: { in: congregacaoIds } } } });
+            hierarchyConditions.push({ redes: { some: { congregacaoId: { in: congregacaoIds } } } });
+            hierarchyConditions.push({
+                discipulados: {
+                    some: {
+                        rede: {
+                            congregacaoId: { in: congregacaoIds }
+                        }
+                    }
+                }
+            });
+            hierarchyConditions.push({
+                ledCelulas: {
+                    some: {
+                        discipulado: {
+                            rede: {
+                                congregacaoId: { in: congregacaoIds }
+                            }
+                        }
+                    }
+                }
+            });
+            hierarchyConditions.push({
+                viceLedCelulas: {
+                    some: {
+                        discipulado: {
+                            rede: {
+                                congregacaoId: { in: congregacaoIds }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        return hierarchyConditions;
+    }
+
     public async findById(memberId: number) {
-        return await this.prisma.member.findUnique({
+        const userInfo = await this.prisma.member.findUnique({
             where: { id: memberId },
             include: {
                 celula: true,
@@ -278,9 +477,12 @@ export class MemberService {
             },
             omit: { password: true }
         });
+
+        // replace photoUrl with full CloudFront URL if it exists
+        return this.cloudFrontService.transformPhotoUrl(userInfo);
     }
 
-    public async create(body: MemberData.MemberInput, requestingMemberId?: number, matrixId?: number) {
+    public async create(body: MemberData.MemberInput, matrixId: number, requestingMemberId?: number, photo?: File) {
         // Validar que se hasSystemAccess é true, email é obrigatório
         if (body.hasSystemAccess && (!body.email || !body.email.trim())) {
             throw new HttpException('Email é obrigatório para membros com acesso ao sistema', HttpStatus.BAD_REQUEST);
@@ -345,17 +547,30 @@ export class MemberService {
         if (memberData.hasSystemAccess && !memberData.password) {
             const defaultPassword = '123456';
             memberData.password = await bcrypt.hash(defaultPassword, this.securityConfig.bcryptSaltRounds);
-            (memberData as any).hasDefaultPassword = true;
+            memberData.hasDefaultPassword = true;
+        }
+
+        const matrixInfo = await this.matrixService.findById(matrixId);
+
+        const fileName = photo ? `${matrixInfo.name}/members/${Date.now()}_${photo.originalname}` : null;
+
+        if (photo && fileName) {
+            const fileBuffer = await sharp(photo.buffer)
+                .resize({ height: 1080, width: 1080, fit: "contain" })
+                .toBuffer();
+
+            await this.awsService.uploadFile(fileBuffer, fileName, photo.mimetype);
         }
 
         // Converter strings vazias em null para datas e garantir formato ISO-8601 completo
-        const cleanedData: any = { ...memberData };
-        cleanedData.baptismDate = cleanDateField(memberData.baptismDate);
-        cleanedData.birthDate = cleanDateField(memberData.birthDate);
-        cleanedData.registerDate = cleanDateField(memberData.registerDate);
-        cleanedData.phone = cleanPhoneField(memberData.phone);
-
-        const data: MemberUncheckedCreateInput = cleanedData;
+        const data: PrismaModels.MemberUncheckedCreateInput = {
+            ...memberData,
+            baptismDate: cleanDateField(memberData.baptismDate),
+            birthDate: cleanDateField(memberData.birthDate),
+            registerDate: cleanDateField(memberData.registerDate),
+            phone: cleanPhoneField(memberData.phone),
+            photoUrl: fileName,
+        } as PrismaModels.MemberUncheckedCreateInput;
 
         // Validar que apenas admins podem atribuir roles admin
         if (roleIds && roleIds.length > 0 && requestingMemberId) {
@@ -422,13 +637,17 @@ export class MemberService {
         }
     }
 
-    public async update(memberId: number, data: MemberData.MemberInput, requestingMemberId?: number, matrixId?: number) {
+    public async update(memberId: number, data: MemberData.MemberInput, matrixId: number, requestingMemberId?: number, photo?: File, deletePhoto?: string) {
         try {
             const currentMember = await this.prisma.member.findUnique({ where: { id: memberId } });
 
+            if (!currentMember) {
+                throw new HttpException("Usuário não encontrado", HttpStatus.NOT_FOUND)
+            }
+
             // Validar que se hasSystemAccess é true, email é obrigatório
             if (data.hasSystemAccess) {
-                const finalEmail = data.email !== undefined ? data.email : currentMember?.email;
+                const finalEmail = data.email !== undefined ? data.email : currentMember.email;
 
                 if (!finalEmail || !finalEmail.trim()) {
                     throw new HttpException('Email é obrigatório para membros com acesso ao sistema', HttpStatus.BAD_REQUEST);
@@ -473,10 +692,10 @@ export class MemberService {
             }
 
             // Se está ativando hasSystemAccess e não tinha senha, definir senha padrão
-            const wasAccessEnabled = currentMember?.hasSystemAccess;
+            const wasAccessEnabled = currentMember.hasSystemAccess;
             const isEnablingAccess = data.hasSystemAccess && !wasAccessEnabled;
             let updatedData = { ...data };
-            if (isEnablingAccess && !currentMember?.password) {
+            if (isEnablingAccess && !currentMember.password) {
                 const defaultPassword = '123456';
                 updatedData = { ...updatedData, password: await bcrypt.hash(defaultPassword, this.securityConfig.bcryptSaltRounds), hasDefaultPassword: true };
             }
@@ -486,14 +705,45 @@ export class MemberService {
                 await this.validateAndUpdateSpouse(updatedData.spouseId, memberId);
             }
 
-            const { roleIds, ...memberData } = updatedData;
+            const { roleIds, socialMedia, ...memberData } = updatedData;
+
+            // Handle photo upload and deletion
+            let newPhotoUrl = currentMember.photoUrl;
+            if (photo || deletePhoto == "true") {
+                const matrixInfo = await this.matrixService.findById(matrixId);
+
+                // Delete old photo if exists
+                if (currentMember.photoUrl) {
+                    try {
+                        await this.awsService.deleteFile(currentMember.photoUrl);
+                        newPhotoUrl = null;
+                    } catch (error) {
+                        console.error('Error deleting old photo:', error);
+                        // Continue even if deletion fails
+                    }
+                }
+
+                if (photo) {
+                    const fileName = `${matrixInfo.name}/members/${Date.now()}_${photo.originalname}`;
+                    // Upload new photo
+                    const fileBuffer = await sharp(photo.buffer)
+                        .resize({ height: 1080, width: 1080, fit: "contain" })
+                        .toBuffer();
+
+                    await this.awsService.uploadFile(fileBuffer, fileName, photo.mimetype);
+                    newPhotoUrl = fileName;
+                }
+            }
 
             // Converter strings vazias em null para datas e garantir formato ISO-8601 completo
-            const cleanedMemberData: any = { ...memberData };
-            cleanedMemberData.baptismDate = cleanDateField(memberData.baptismDate);
-            cleanedMemberData.birthDate = cleanDateField(memberData.birthDate);
-            cleanedMemberData.registerDate = cleanDateField(memberData.registerDate);
-            cleanedMemberData.phone = cleanPhoneField(memberData.phone);
+            const cleanedMemberData = {
+                ...memberData,
+                baptismDate: cleanDateField(memberData.baptismDate),
+                birthDate: cleanDateField(memberData.birthDate),
+                registerDate: cleanDateField(memberData.registerDate),
+                phone: cleanPhoneField(memberData.phone),
+                ...(newPhotoUrl !== undefined && { photoUrl: newPhotoUrl })
+            } as PrismaModels.MemberUncheckedUpdateInput;
 
             // Validar que apenas admins podem atribuir/remover roles admin
             if (roleIds !== undefined && requestingMemberId) {
@@ -556,7 +806,7 @@ export class MemberService {
             // Upsert social media if provided
             const phoneUpdated = data.phone !== undefined && cleanPhoneField(data.phone) !== null;
             const hadNoPhoneBefore = !currentMember?.phone;
-            
+
             if (data.socialMedia && data.socialMedia.length > 0) {
                 // Auto-fill WhatsApp only if phone is being added for the first time
                 const autoFillPhone = (phoneUpdated && hadNoPhoneBefore) ? (cleanPhoneField(data.phone) || undefined) : undefined;
@@ -587,7 +837,7 @@ export class MemberService {
     }
 
     public async getStatistics(filters: MemberData.MemberFilterInput, matrixId: number) {
-        const where: MemberWhereInput = { isActive: true };
+        const where: PrismaModels.MemberWhereInput = { isActive: true };
 
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
         if (matrixId) {
@@ -608,11 +858,11 @@ export class MemberService {
                     where.celulaId = Number(filters.celulaId);
                 }
             } else {
-                const celulaMemberFilter: CelulaWhereInput = {};
-                const celulaLeaderFilter: CelulaWhereInput = {};
-                const discipuladoLeaderFilter: DiscipuladoWhereInput = {};
-                const redeLeaderFilter: RedeWhereInput = {};
-                const congregacaoLeaderFilter: CongregacaoWhereInput = {};
+                const celulaMemberFilter: PrismaModels.CelulaWhereInput = {};
+                const celulaLeaderFilter: PrismaModels.CelulaWhereInput = {};
+                const discipuladoLeaderFilter: PrismaModels.DiscipuladoWhereInput = {};
+                const redeLeaderFilter: PrismaModels.RedeWhereInput = {};
+                const congregacaoLeaderFilter: PrismaModels.CongregacaoWhereInput = {};
 
                 // Add matrixId filter to celula if filtering by discipulado, rede or congregacao
                 if (matrixId && (filters.discipuladoId || filters.redeId || filters.congregacaoId)) {
@@ -625,62 +875,62 @@ export class MemberService {
 
                 if (filters.congregacaoId) {
                     const congregacaoId = Number(filters.congregacaoId);
-                    
+
                     // For members in celulas
                     discipuladoMemberFilter.rede = {
                         congregacaoId: congregacaoId
                     };
-                    
+
                     // For celula leaders
                     celulaLeaderFilter.discipulado = {
                         rede: {
                             congregacaoId: congregacaoId
                         }
                     };
-                    
+
                     // For discipulado leaders
                     discipuladoLeaderFilter.rede = {
                         congregacaoId: congregacaoId
                     };
-                    
+
                     // For rede leaders
                     redeLeaderFilter.congregacaoId = congregacaoId;
-                    
+
                     // For congregacao leaders
                     congregacaoLeaderFilter.id = congregacaoId;
                 }
 
                 if (filters.redeId) {
                     const redeId = Number(filters.redeId);
-                    
+
                     // For members in celulas
                     discipuladoMemberFilter.redeId = redeId;
-                    
+
                     // For celula leaders - merge with existing discipulado filter
                     if (celulaLeaderFilter.discipulado) {
-                        (celulaLeaderFilter.discipulado as DiscipuladoWhereInput).redeId = redeId;
+                        (celulaLeaderFilter.discipulado as PrismaModels.DiscipuladoWhereInput).redeId = redeId;
                     } else {
                         celulaLeaderFilter.discipulado = {
                             redeId: redeId
                         };
                     }
-                    
+
                     // For discipulado leaders
                     discipuladoLeaderFilter.redeId = redeId;
-                    
+
                     // For rede leaders
                     redeLeaderFilter.id = redeId;
                 }
 
                 if (filters.discipuladoId) {
                     const discipuladoId = Number(filters.discipuladoId);
-                    
+
                     // For members in celulas
                     celulaMemberFilter.discipuladoId = discipuladoId;
-                    
+
                     // For celula leaders
                     celulaLeaderFilter.discipuladoId = discipuladoId;
-                    
+
                     // For discipulado leaders
                     discipuladoLeaderFilter.id = discipuladoId;
                 }
@@ -1031,10 +1281,13 @@ export class MemberService {
             where: { email: data.email }
         });
 
-        
+
         if (!member) {
             throw new HttpException('Credenciais inválidas', HttpStatus.UNAUTHORIZED);
         }
+
+        // replace photoUrl with cloudfront URL if exists
+        this.cloudFrontService.transformPhotoUrl(member);
 
         const memberWithoutPassword = { ...member, password: undefined };
 
@@ -1227,37 +1480,63 @@ export class MemberService {
     /**
      * Update own profile (authenticated user) - Only personal and address fields
      */
-    public async updateOwnProfile(memberId: number, data: {
-        name?: string;
-        maritalStatus?: string;
-        spouseId?: number | null;
-        birthDate?: string;
-        phone?: string;
-        photoUrl?: string;
-        country?: string;
-        zipCode?: string;
-        street?: string;
-        streetNumber?: string;
-        neighborhood?: string;
-        city?: string;
-        complement?: string;
-        state?: string;
-        // Social media
-        socialMedia?: Array<{ type: string; username: string }>;
-    }) {
+    public async updateOwnProfile(memberId: number, data: MemberData.UpdateOwnProfileInput, photo?: File, deletePhoto?: boolean) {
         // Get current member data to check if phone is being added
         const currentMember = await this.prisma.member.findUnique({
             where: { id: memberId },
-            select: { phone: true }
+            include: {
+                matrices: {
+                    include: {
+                        matrix: true
+                    }
+                }
+            }
         });
+
+        // Handle photo upload and deletion
+        let newPhotoUrl: string | null | undefined = data.photoUrl;
+        if (photo || deletePhoto) {
+            // Get matrix info for photo folder
+            const matrixId = currentMember?.matrices?.[0]?.matrixId;
+            if (!matrixId) {
+                throw new HttpException('Matrix ID não encontrado', HttpStatus.BAD_REQUEST);
+            }
+
+            const matrixInfo = await this.matrixService.findById(matrixId);
+
+            // Delete old photo if exists
+            if (currentMember?.photoUrl) {
+                try {
+                    await this.awsService.deleteFile(currentMember.photoUrl);
+                    newPhotoUrl = null;
+                } catch (error) {
+                    console.error('Error deleting old photo:', error);
+                    // Continue even if deletion fails
+                }
+            }
+
+            if (photo) {
+                const fileName = `${matrixInfo.name}/members/${Date.now()}_${photo.originalname}`;
+                // Upload new photo
+                const fileBuffer = await sharp(photo.buffer)
+                    .resize({ height: 1080, width: 1080, fit: "contain" })
+                    .toBuffer();
+
+                await this.awsService.uploadFile(fileBuffer, fileName, photo.mimetype);
+                newPhotoUrl = fileName;
+            }
+        }
 
         // Extract social media data
         const { socialMedia, ...memberData } = data;
 
-        // Remove undefined values
-        const updateData = Object.fromEntries(
-            Object.entries(memberData).filter(([_, v]) => v !== undefined)
-        );
+        // Remove undefined values and add photo URL if changed
+        const updateData = {
+            ...Object.fromEntries(
+                Object.entries(memberData).filter(([_, v]) => v !== undefined)
+            ),
+            ...(newPhotoUrl !== undefined && { photoUrl: newPhotoUrl })
+        };
 
         // Update member
         await this.prisma.member.update({
@@ -1305,7 +1584,7 @@ export class MemberService {
         }
 
         // Fetch updated member with social media
-        return await this.prisma.member.findUnique({
+        const updatedMember = await this.prisma.member.findUnique({
             where: { id: memberId },
             include: {
                 celula: {
@@ -1334,6 +1613,9 @@ export class MemberService {
             },
             omit: { password: true }
         });
+
+        // replace photoUrl with full CloudFront URL if it exists
+        return this.cloudFrontService.transformPhotoUrl(updatedMember);
     }
 
     /**
@@ -1374,7 +1656,8 @@ export class MemberService {
             throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         }
 
-        return member;
+        // replace photoUrl with full CloudFront URL if it exists
+        return this.cloudFrontService.transformPhotoUrl(member);
     }
 
     /**

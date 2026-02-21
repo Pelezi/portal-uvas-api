@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards, Req, HttpException, HttpStatus } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { MinistryService } from '../service/ministry.service';
 import { $Enums } from '../../../generated/prisma/client';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
@@ -10,6 +10,7 @@ import { AuthenticatedRequest } from '../../common/types/authenticated-request.i
 @ApiTags('Config - Ministries')
 @Controller('ministries')
 @UseGuards(RestrictedGuard, PermissionGuard)
+@ApiBearerAuth()
 export class MinistryController {
     constructor(
         private readonly ministryService: MinistryService,
