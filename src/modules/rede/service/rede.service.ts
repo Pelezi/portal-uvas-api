@@ -13,20 +13,58 @@ export class RedeService {
         private readonly cloudFrontService: CloudFrontService
     ) { }
 
-    public async findAll(matrixId: number, filters?: RedeData.RedeFilterInput) {
+    public async findAll(matrixId: number, requestingMemberId: number, filters?: RedeData.RedeFilterInput) {
         try {
             // MANDATORY: Filter by matrixId to prevent cross-matrix access
             const where: RedeWhereInput = { matrixId };
 
+            const requestingMemberInfo = await this.prisma.member.findUnique({
+                where: { id: requestingMemberId },
+                include: {
+                    ministryPosition: true,
+                    ledCelulas: { include: { discipulado: true } },
+                    discipulados: true
+                }
+            });
+
+            const isLeaderOrHigher = requestingMemberInfo?.ministryPosition?.type === 'LEADER' 
+                || requestingMemberInfo?.ministryPosition?.type === 'DISCIPULADOR' 
+                || requestingMemberInfo?.ministryPosition?.type === 'PASTOR';
+
             if (filters) {
+                // Build OR conditions for permission-based filtering
+                if (!filters.all && isLeaderOrHigher) {
+                    // Leaders, discipuladores, and pastors can see redes from células they lead and discipulados they manage
+                    const redeIdsFromCelulas = requestingMemberInfo.ledCelulas.map(c => c.discipulado.redeId);
+                    const redeIdsFromDiscipulados = requestingMemberInfo.discipulados.map(d => d.redeId);
+                    const redeIdsFromUser = [...new Set([...redeIdsFromCelulas, ...redeIdsFromDiscipulados])];
+                    
+                    if (redeIdsFromUser.length > 0) {
+                        where.OR = [
+                            { id: { in: redeIdsFromUser } },
+                        ];
+                    }
+                }
+                
+                // Add redeIds filter to OR conditions
+                if (filters.redeIds && filters.redeIds.length > 0) {
+                    where.OR = [
+                        ...(where.OR || []),
+                        { id: { in: filters.redeIds.map(Number) } },
+                    ];
+                }
+                
+                // If not showing all and no permission conditions were added, return empty result
+                if (!filters.all && (!where.OR || where.OR.length === 0)) {
+                    where.id = { equals: -1 }; // No redes accessible
+                }
+                
+                // Apply additional filters that narrow down the results (AND conditions with OR above)
                 if (filters.congregacaoId) {
                     where.congregacaoId = Number(filters.congregacaoId);
                 }
                 if (filters.pastorMemberId) {
                     where.pastorMemberId = Number(filters.pastorMemberId);
-                }
-                if (filters.redeIds && filters.redeIds.length > 0) {
-                    where.id = { in: filters.redeIds.map(Number) };
                 }
             }
 
@@ -34,13 +72,21 @@ export class RedeService {
                 where,
                 include: {
                     pastor: true,
-                    congregacao: true
+                    congregacao: true,
+                    discipulados: { include: { 
+                        discipulador: { omit: { password: true } },
+                        celulas: true
+                    } }
+
                 },
                 orderBy: {
                     name: 'asc'
                 }
             });
-            redes.forEach(rede => this.cloudFrontService.transformPhotoUrl(rede.pastor));
+            redes.forEach(rede => {
+                this.cloudFrontService.transformPhotoUrl(rede.pastor)
+                rede.discipulados?.forEach(d => this.cloudFrontService.transformPhotoUrl(d.discipulador));
+            });
             return redes;
         } catch (error) {
             throw new HttpException('Erro ao listar redes: ' + error.message, error.status || HttpStatus.INTERNAL_SERVER_ERROR);

@@ -85,6 +85,7 @@ export class MemberService {
         if (filters) {
             // celulaId = 0 significa "sem célula" (celulaId is null)
             if (filters.celulaId !== undefined) {
+                const celulaId = Number(filters.celulaId);
                 if (filters.celulaId == 0) {
                     where.celulaId = null;
                     where.ledCelulas = { none: {} };
@@ -94,7 +95,12 @@ export class MemberService {
                     where.congregacoesPastorGoverno = { none: {} };
                     where.congregacoesVicePresidente = { none: {} };
                 } else {
-                    where.celulaId = Number(filters.celulaId);
+                    // Include members AND leaders of the celula
+                    where.OR = [
+                        { celulaId: celulaId },
+                        { ledCelulas: { some: { id: celulaId } } },
+                        { leadingInTrainingCelulas: { some: { celulaId: celulaId } } }
+                    ];
                 }
             } else {
 
@@ -918,10 +924,16 @@ export class MemberService {
 
             // Aplicar filtros
             if (filters.celulaId !== undefined) {
+                const celulaId = Number(filters.celulaId);
                 if (filters.celulaId === 0) {
                     where.celulaId = null;
                 } else {
-                    where.celulaId = Number(filters.celulaId);
+                    // Include members AND leaders of the celula
+                    where.OR = [
+                        { celulaId: celulaId },
+                        { ledCelulas: { some: { id: celulaId } } },
+                        { leadingInTrainingCelulas: { some: { celulaId: celulaId } } }
+                    ];
                 }
             } else {
                 const celulaMemberFilter: PrismaModels.CelulaWhereInput = {};

@@ -32,7 +32,7 @@ export class DiscipuladoController {
             filters.discipuladoIds = permission.discipuladoIds;
         }
 
-        return this.service.findAll(req.member.matrixId, filters);
+        return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 
     @Post()

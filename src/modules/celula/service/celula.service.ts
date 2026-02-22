@@ -216,8 +216,12 @@ export class CelulaService {
             where,
             orderBy: { name: 'asc' },
             include: {
-                leader: true,
-                leadersInTraining: { include: { member: true } }
+                leader: { omit: { password: true} },
+                leadersInTraining: { include: { member: { omit: { password: true } } } },
+                discipulado: { include: { 
+                    rede: { include: { congregacao: true} },
+                    discipulador: true
+                } }
             }
         });
         celulas.forEach(celula => {
@@ -233,8 +237,8 @@ export class CelulaService {
         const celulas = await this.prisma.celula.findMany({
             where: { id: { in: celulaIds } },
             include: {
-                leader: true,
-                leadersInTraining: { include: { member: true } }
+                leader: { omit: { password: true} },
+                leadersInTraining: { include: { member: { omit: { password: true } } } }
             },
             orderBy: { name: 'asc' }
         });
@@ -310,7 +314,7 @@ export class CelulaService {
             state: body.state,
         };
 
-        const celula = await this.prisma.celula.create({ data: data, include: { leader: true, discipulado: true } });
+        const celula = await this.prisma.celula.create({ data: data, include: { leader: { omit: { password: true } }, discipulado: true } });
         this.cloudFrontService.transformPhotoUrl(celula.leader);
         return celula;
     }
@@ -319,7 +323,7 @@ export class CelulaService {
         const celula = await this.prisma.celula.findUnique({ 
             where: { id }, 
             include: { 
-                leader: true, 
+                leader: { omit: { password: true } }, 
                 discipulado: true 
             } 
         });
@@ -346,7 +350,7 @@ export class CelulaService {
                         discipulado: {
                             include: {
                                 rede: true,
-                                discipulador: true
+                                discipulador: { omit: { password: true } }
                             }
                         }
                     }
@@ -515,9 +519,9 @@ export class CelulaService {
         const celula = await this.prisma.celula.findUnique({
             where: { id },
             include: {
-                leader: true,
+                leader: { omit: { password: true } },
                 discipulado: { include: { rede: true } },
-                leadersInTraining: { include: { member: true } }
+                leadersInTraining: { include: { member: { omit: { password: true } } } }
             }
         });
         if (celula) {
@@ -589,7 +593,7 @@ export class CelulaService {
                 };
                 const newCelula = await tx.celula.create({
                     data: createData,
-                    include: { leader: true }
+                    include: { leader: { omit: { password: true } } }
                 });
 
                 // ensure members belong to the original celula

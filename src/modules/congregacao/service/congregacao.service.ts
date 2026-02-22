@@ -20,12 +20,55 @@ export class CongregacaoService {
         private readonly cloudFrontService: CloudFrontService
     ) {}
 
-    public async findAll(matrixId: number, filters?: CongregacaoData.CongregacaoFilterInput, permission?: LoadedPermission | null) {
+    public async findAll(matrixId: number, requestingMemberId: number, filters?: CongregacaoData.CongregacaoFilterInput, permission?: LoadedPermission | null) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
         const where: Prisma.CongregacaoWhereInput = { matrixId };
         
+        const requestingMemberInfo = await this.prisma.member.findUnique({
+            where: { id: requestingMemberId },
+            include: {
+                ministryPosition: true,
+                ledCelulas: { include: { discipulado: { include: { rede: true } } } },
+                discipulados: { include: { rede: true } },
+                redes: true
+            }
+        });
+
+        const isLeaderOrHigher = requestingMemberInfo?.ministryPosition?.type === 'LEADER' 
+            || requestingMemberInfo?.ministryPosition?.type === 'DISCIPULADOR' 
+            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR';
+        
         // Apply additional filters
         if (filters) {
+            // Build OR conditions for permission-based filtering
+            if (!filters.all && isLeaderOrHigher) {
+                // Leaders, discipuladores, and pastors can see congregações from células they lead, discipulados they manage and redes they manage
+                const congregacaoIdsFromCelulas = requestingMemberInfo.ledCelulas.map(c => c.discipulado.rede.congregacaoId);
+                const congregacaoIdsFromDiscipulados = requestingMemberInfo.discipulados.map(d => d.rede.congregacaoId);
+                const congregacaoIdsFromRedes = requestingMemberInfo.redes.map(r => r.congregacaoId);
+                const congregacaoIdsFromUser = [...new Set([...congregacaoIdsFromCelulas, ...congregacaoIdsFromDiscipulados, ...congregacaoIdsFromRedes])];
+                
+                if (congregacaoIdsFromUser.length > 0) {
+                    where.OR = [
+                        { id: { in: congregacaoIdsFromUser } },
+                    ];
+                }
+            }
+            
+            // Add congregacaoIds filter to OR conditions
+            if (filters.congregacaoIds && filters.congregacaoIds.length > 0) {
+                where.OR = [
+                    ...(where.OR || []),
+                    { id: { in: filters.congregacaoIds } },
+                ];
+            }
+            
+            // If not showing all and no permission conditions were added, return empty result
+            if (!filters.all && (!where.OR || where.OR.length === 0)) {
+                where.id = { equals: -1 }; // No congregações accessible
+            }
+            
+            // Apply additional filters that narrow down the results (AND conditions with OR above)
             if (filters.name) {
                 where.name = { contains: filters.name, mode: 'insensitive' };
             }
@@ -34,9 +77,6 @@ export class CongregacaoService {
             }
             if (filters.vicePresidenteMemberId) {
                 where.vicePresidenteMemberId = Number(filters.vicePresidenteMemberId);
-            }
-            if (filters.congregacaoIds && filters.congregacaoIds.length > 0) {
-                where.id = { in: filters.congregacaoIds };
             }
         }
         

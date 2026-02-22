@@ -34,7 +34,7 @@ export class CongregacaoController {
             filters.congregacaoIds = permission.congregacaoIds;
         }
 
-        return this.service.findAll(req.member.matrixId, filters, permission);
+        return this.service.findAll(req.member.matrixId, req.member.id, filters, permission);
     }
 
     @Get(':id')
