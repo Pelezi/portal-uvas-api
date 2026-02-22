@@ -11,9 +11,6 @@ export class CelulaCreateInput {
     @ApiProperty({ description: 'Discipulado id that this celula belongs to', example: 2, required: false })
     public readonly discipuladoId?: number;
 
-    @ApiProperty({ description: 'id de líder em treinamento (vice líder)', example: 8, required: false })
-    public readonly viceLeaderMemberId?: number;
-
     @ApiProperty({ description: 'Dia da semana da reunião (0=Domingo, 1=Segunda, ..., 6=Sábado)', example: 3 })
     public readonly weekday: number;
 
@@ -95,7 +92,7 @@ export class CelulaFilterInput {
     public readonly name?: string;
     
     @ApiProperty({ description: 'ID do líder em treinamento para filtrar as células', example: 8, required: false })
-    public readonly viceLeaderMemberId?: number;
+    public readonly leaderInTrainingMemberId?: number;
     
     @ApiProperty({ description: 'ID do líder para filtrar as células', example: 5, required: false })
     public readonly leaderMemberId?: number;
@@ -110,7 +107,7 @@ export class CelulaFilterInput {
     public readonly congregacaoId?: number;
 
     @ApiProperty({ description: 'Todas as células?', example: true, required: false })
-    public readonly all?: boolean;
+    public all?: boolean;
 
     @ApiProperty({ description: 'IDs das células para filtrar', example: [1, 2, 3], required: false, type: [Number] })
     public celulaIds?: number[];

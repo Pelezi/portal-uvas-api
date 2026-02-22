@@ -31,7 +31,7 @@ export function canBeLeader(ministryType?: $Enums.MinistryType | null): boolean 
     );
 }
 
-export function canBeViceLeader(ministryType?: $Enums.MinistryType | null): boolean {
+export function canBeLeaderInTraining(ministryType?: $Enums.MinistryType | null): boolean {
     if (!ministryType) return false;
     return (
         ministryType === $Enums.MinistryType.PRESIDENT_PASTOR ||
@@ -59,12 +59,12 @@ export function getMinistryTypeLabel(type?: $Enums.MinistryType | null): string 
 /**
  * Get minimum required ministry type for a specific role
  */
-export function getMinimumMinistryTypeFor(role: 'pastor' | 'discipulador' | 'leader' | 'viceLeader'): $Enums.MinistryType {
+export function getMinimumMinistryTypeFor(role: 'pastor' | 'discipulador' | 'leader' | 'leaderInTraining'): $Enums.MinistryType {
     const requirements = {
         pastor: $Enums.MinistryType.PASTOR,
         discipulador: $Enums.MinistryType.DISCIPULADOR,
         leader: $Enums.MinistryType.LEADER,
-        viceLeader: $Enums.MinistryType.LEADER_IN_TRAINING,
+        leaderInTraining: $Enums.MinistryType.LEADER_IN_TRAINING,
     };
     return requirements[role];
 }

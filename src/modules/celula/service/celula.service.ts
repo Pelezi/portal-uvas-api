@@ -1,9 +1,17 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService, CloudFrontService } from '../../common';
 import * as CelulaData from '../model';
-import { canBeLeader, canBeViceLeader, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
+import { canBeLeader, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { Prisma } from '../../../generated/prisma/client';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
+
+// Função auxiliar para limpar campos string que podem vir como number
+function cleanStringField(value: string | number | undefined | null): string | null | undefined {
+    if (value === undefined) return undefined;
+    if (value === null || value === '') return null;
+    // Converter número para string se necessário
+    return typeof value === 'number' ? String(value) : value;
+}
 
 @Injectable()
 export class CelulaService {
@@ -20,8 +28,8 @@ export class CelulaService {
             if (filters.name) {
                 where.name = { contains: filters.name, mode: 'insensitive' };
             }
-            if (filters.viceLeaderMemberId) {
-                where.leadersInTraining = { some: { memberId: Number(filters.viceLeaderMemberId) } };
+            if (filters.leaderInTrainingMemberId) {
+                where.leadersInTraining = { some: { memberId: Number(filters.leaderInTrainingMemberId) } };
             }
             if (filters.leaderMemberId) {
                 where.leaderMemberId = Number(filters.leaderMemberId);
@@ -41,6 +49,165 @@ export class CelulaService {
             }
             if (filters.celulaIds && filters.celulaIds.length > 0) {
                 where.id = { in: filters.celulaIds };
+            } else if (!!!filters.all) {
+                let celulaIds: number[] = [];
+                // Se all for false e celulaIds não for fornecido, usar as células do próprio usuário
+                const member = await this.prisma.member.findUnique({ 
+                    include: { 
+                        ledCelulas: true,
+                        leadingInTrainingCelulas: {
+                            include: {
+                                celula: true
+                            }
+                        },
+                        discipulados: {
+                            include: {
+                                celulas: true
+                            }
+                        },
+                        redes: {
+                            include: {
+                                discipulados: {
+                                    include: {
+                                        celulas: true
+                                    }
+                                }
+                            }
+                        },
+                        congregacoesVicePresidente: {
+                            include: {
+                                redes: {
+                                    include: {
+                                        discipulados: {
+                                            include: {
+                                                celulas: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        congregacoesPastorGoverno: {
+                            include: {
+                                redes: {
+                                    include: {
+                                        discipulados: {
+                                            include: {
+                                                celulas: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        congregacoesKidsLeader: {
+                            include: {
+                                redes: {
+                                    include: {
+                                        discipulados: {
+                                            include: {
+                                                celulas: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                     },
+                    where: { id: requestingMemberId } 
+                });
+                if (!member) {
+                    throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
+                }
+                if (member.ledCelulas && member.ledCelulas.length > 0) {
+                    // if user is leader, add their led celulas to celulasIds, if it doesn't already exist
+                    member.ledCelulas.forEach(c => {
+                        if (!celulaIds.includes(c.id)) {
+                            celulaIds.push(c.id);
+                        }
+                    });
+                }
+                if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+                    // if user is vice leader, add their vice led celulas to celulasIds, if it doesn't already exist
+                    member.leadingInTrainingCelulas.forEach(c => {
+                        if (!celulaIds.includes(c.celula.id)) {
+                            celulaIds.push(c.celula.id);
+                        }
+                    });
+                }
+                if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+                    // if user is a leader in training, add those celulas to celulasIds, if it doesn't already exist
+                    member.leadingInTrainingCelulas.forEach(lit => {
+                        if (!celulaIds.includes(lit.celula.id)) {
+                            celulaIds.push(lit.celula.id);
+                        }
+                    });
+                }
+                if (member.discipulados && member.discipulados.length > 0) {
+                    member.discipulados.forEach(d => {
+                        d.celulas.forEach(c => {
+                            if (!celulaIds.includes(c.id)) {
+                                celulaIds.push(c.id);
+                            }
+                        });
+                    });
+                }
+                if (member.redes && member.redes.length > 0) {
+                    member.redes.forEach(r => {
+                        r.discipulados.forEach(d => {
+                            d.celulas.forEach(c => {
+                                if (!celulaIds.includes(c.id)) {
+                                    celulaIds.push(c.id);
+                                }
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesVicePresidente && member.congregacoesVicePresidente.length > 0) {
+                    member.congregacoesVicePresidente.forEach(c => {
+                        c.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                d.celulas.forEach(cel => {
+                                    if (!celulaIds.includes(cel.id)) {
+                                        celulaIds.push(cel.id);
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesPastorGoverno && member.congregacoesPastorGoverno.length > 0) {
+                    member.congregacoesPastorGoverno.forEach(c => {
+                        c.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                d.celulas.forEach(cel => {
+                                    if (!celulaIds.includes(cel.id)) {
+                                        celulaIds.push(cel.id);
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesKidsLeader && member.congregacoesKidsLeader.length > 0) {
+                    member.congregacoesKidsLeader.forEach(c => {
+                        c.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                d.celulas.forEach(cel => {
+                                    if (!celulaIds.includes(cel.id)) {
+                                        celulaIds.push(cel.id);
+                                    }
+                                });
+                            });
+                        });
+                    });
+                }
+                if (celulaIds.length > 0) {
+                    where.id = { in: celulaIds };
+                } else {
+                    // Se não houver células associadas, garantir que a consulta retorne vazia
+                    where.id = -1; // ID inválido para garantir que nenhuma célula seja retornada
+                }
             }
         }
 
@@ -50,13 +217,11 @@ export class CelulaService {
             orderBy: { name: 'asc' },
             include: {
                 leader: true,
-                viceLeader: true,
                 leadersInTraining: { include: { member: true } }
             }
         });
         celulas.forEach(celula => {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
-            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
             celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
         });
         return celulas;
@@ -69,14 +234,12 @@ export class CelulaService {
             where: { id: { in: celulaIds } },
             include: {
                 leader: true,
-                viceLeader: true,
                 leadersInTraining: { include: { member: true } }
             },
             orderBy: { name: 'asc' }
         });
         celulas.forEach(celula => {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
-            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
             celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
         });
         return celulas;
@@ -138,47 +301,30 @@ export class CelulaService {
             discipuladoId: body.discipuladoId,
             matrixId,
             country: body.country,
-            zipCode: body.zipCode,
+            zipCode: cleanStringField(body.zipCode),
             street: body.street,
-            streetNumber: body.streetNumber,
+            streetNumber: cleanStringField(body.streetNumber),
             neighborhood: body.neighborhood,
             city: body.city,
             complement: body.complement,
             state: body.state,
         };
 
-        if (body.viceLeaderMemberId) {
-            // Validate vice leader belongs to same matrix
-            await validator.validateMemberBelongsToMatrix(body.viceLeaderMemberId, matrixId);
-
-            const viceLeader = await this.prisma.member.findUnique({
-                where: { id: body.viceLeaderMemberId },
-                include: { ministryPosition: true }
-            });
-            if (!viceLeader) {
-                throw new HttpException('Líder em treinamento não encontrado', HttpStatus.BAD_REQUEST);
-            }
-            if (!canBeViceLeader(viceLeader.ministryPosition?.type)) {
-                throw new HttpException(
-                    `Membro não pode ser líder em treinamento. Nível ministerial atual: ${getMinistryTypeLabel(viceLeader.ministryPosition?.type)}. ` +
-                    `É necessário ser pelo menos Líder em Treinamento.`,
-                    HttpStatus.BAD_REQUEST
-                );
-            }
-            data.viceLeaderMemberId = body.viceLeaderMemberId;
-        }
-
-        const celula = await this.prisma.celula.create({ data: data, include: { leader: true, viceLeader: true, discipulado: true } });
+        const celula = await this.prisma.celula.create({ data: data, include: { leader: true, discipulado: true } });
         this.cloudFrontService.transformPhotoUrl(celula.leader);
-        this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
         return celula;
     }
 
     public async findById(id: number) {
-        const celula = await this.prisma.celula.findUnique({ where: { id }, include: { leader: true, viceLeader: true, discipulado: true } });
+        const celula = await this.prisma.celula.findUnique({ 
+            where: { id }, 
+            include: { 
+                leader: true, 
+                discipulado: true 
+            } 
+        });
         if (celula) {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
-            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
         }
         return celula;
     }
@@ -214,22 +360,7 @@ export class CelulaService {
         return members;
     }
 
-    public async update(id: number, data: {
-        name?: string;
-        leaderMemberId?: number;
-        discipuladoId?: number;
-        leaderInTrainingIds?: number[];
-        weekday?: number;
-        time?: string;
-        country?: string;
-        zipCode?: string;
-        street?: string;
-        streetNumber?: string;
-        neighborhood?: string;
-        city?: string;
-        complement?: string;
-        state?: string;
-    }, matrixId: number) {
+    public async update(id: number, data: CelulaData.CelulaUpdateInput, matrixId: number) {
         const validator = createMatrixValidator(this.prisma);
 
         // Validate the celula being updated belongs to the matrix
@@ -259,9 +390,9 @@ export class CelulaService {
 
         // Address fields
         if (data.country !== undefined) updateData.country = data.country;
-        if (data.zipCode !== undefined) updateData.zipCode = data.zipCode;
+        if (data.zipCode !== undefined) updateData.zipCode = cleanStringField(data.zipCode);
         if (data.street !== undefined) updateData.street = data.street;
-        if (data.streetNumber !== undefined) updateData.streetNumber = data.streetNumber;
+        if (data.streetNumber !== undefined) updateData.streetNumber = cleanStringField(data.streetNumber);
         if (data.neighborhood !== undefined) updateData.neighborhood = data.neighborhood;
         if (data.city !== undefined) updateData.city = data.city;
         if (data.complement !== undefined) updateData.complement = data.complement;
@@ -385,14 +516,12 @@ export class CelulaService {
             where: { id },
             include: {
                 leader: true,
-                viceLeader: true,
                 discipulado: { include: { rede: true } },
                 leadersInTraining: { include: { member: true } }
             }
         });
         if (celula) {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
-            this.cloudFrontService.transformPhotoUrl(celula.viceLeader);
             celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
         }
         return celula;

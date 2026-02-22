@@ -5,6 +5,14 @@ import { createMatrixValidator } from '../../common/helpers/matrix-validation.he
 import { LoadedPermission } from '../../common/security/permission.service';
 import { Prisma } from '../../../generated/prisma/client';
 
+// Função auxiliar para limpar campos string que podem vir como number
+function cleanStringField(value: string | number | undefined | null): string | null | undefined {
+    if (value === undefined) return undefined;
+    if (value === null || value === '') return null;
+    // Converter número para string se necessário
+    return typeof value === 'number' ? String(value) : value;
+}
+
 @Injectable()
 export class CongregacaoService {
     constructor(
@@ -165,9 +173,9 @@ export class CongregacaoService {
                 vicePresidenteMemberId: data.vicePresidenteMemberId,
                 isPrincipal: data.isPrincipal ?? false,
                 country: data.country,
-                zipCode: data.zipCode,
+                zipCode: cleanStringField(data.zipCode),
                 street: data.street,
-                streetNumber: data.streetNumber,
+                streetNumber: cleanStringField(data.streetNumber),
                 neighborhood: data.neighborhood,
                 city: data.city,
                 complement: data.complement,
@@ -239,9 +247,9 @@ export class CongregacaoService {
                 vicePresidenteMemberId: data.vicePresidenteMemberId,
                 isPrincipal: data.isPrincipal,
                 country: data.country,
-                zipCode: data.zipCode,
+                zipCode: cleanStringField(data.zipCode),
                 street: data.street,
-                streetNumber: data.streetNumber,
+                streetNumber: cleanStringField(data.streetNumber),
                 neighborhood: data.neighborhood,
                 city: data.city,
                 complement: data.complement,

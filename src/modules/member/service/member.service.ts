@@ -49,6 +49,14 @@ function cleanPhoneField(phone: string | undefined | null): string | null | unde
     return phoneStr.replace(/\D/g, '');
 }
 
+// Função auxiliar para limpar campos string que podem vir como number
+function cleanStringField(value: string | number | undefined | null): string | null | undefined {
+    if (value === undefined) return undefined;
+    if (value === null || value === '') return null;
+    // Converter número para string se necessário
+    return typeof value === 'number' ? String(value) : value;
+}
+
 @Injectable()
 export class MemberService {
 
@@ -80,7 +88,7 @@ export class MemberService {
                 if (filters.celulaId == 0) {
                     where.celulaId = null;
                     where.ledCelulas = { none: {} };
-                    where.viceLedCelulas = { none: {} };
+                    where.leadingInTrainingCelulas = { none: {} };
                     where.discipulados = { none: {} };
                     where.redes = { none: {} };
                     where.congregacoesPastorGoverno = { none: {} };
@@ -162,7 +170,7 @@ export class MemberService {
                 }
 
                 // Build OR conditions to include both members and leaders
-                const orConditions: any[] = [];
+                const orConditions: PrismaModels.MemberWhereInput[] = [];
 
                 // Members in celulas
                 if (Object.keys(discipuladoMemberFilter).length > 0) {
@@ -175,7 +183,7 @@ export class MemberService {
                 // Leaders of celulas
                 if (Object.keys(celulaLeaderFilter).length > 0) {
                     orConditions.push({ ledCelulas: { some: celulaLeaderFilter } });
-                    orConditions.push({ viceLedCelulas: { some: celulaLeaderFilter } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: {celula: celulaLeaderFilter} } });
                 }
 
                 // Leaders of discipulados
@@ -268,7 +276,11 @@ export class MemberService {
                     }
                 },
                 ledCelulas: true,
-                viceLedCelulas: true,
+                leadingInTrainingCelulas:  {
+                    include: {
+                        celula: true
+                    }
+                },
                 discipulados: {
                     include: {
                         rede: {
@@ -326,7 +338,11 @@ export class MemberService {
             where: { id: requestingMemberId },
             include: {
                 ledCelulas: true,
-                viceLedCelulas: true,
+                leadingInTrainingCelulas: {
+                    include: {
+                        celula: true
+                    }
+                },
                 discipulados: {
                     include: {
                         celulas: true
@@ -354,15 +370,15 @@ export class MemberService {
 
         // 1. Members and leaders in células led by requesting user
         const ledCelulaIds = requestingMember.ledCelulas.map(c => c.id);
-        const viceLedCelulaIds = requestingMember.viceLedCelulas.map(c => c.id);
-        const allCelulaIds = [...ledCelulaIds, ...viceLedCelulaIds];
+        const leadingInTrainingCelulaIds = requestingMember.leadingInTrainingCelulas.map(c => c.id);
+        const allCelulaIds = [...ledCelulaIds, ...leadingInTrainingCelulaIds];
 
         if (allCelulaIds.length > 0) {
             // Members in these células
             hierarchyConditions.push({ celulaId: { in: allCelulaIds } });
             // Leaders of these células
             hierarchyConditions.push({ ledCelulas: { some: { id: { in: allCelulaIds } } } });
-            hierarchyConditions.push({ viceLedCelulas: { some: { id: { in: allCelulaIds } } } });
+            hierarchyConditions.push({ leadingInTrainingCelulas: { some: { id: { in: allCelulaIds } } } });
         }
 
         // 2. Members and leaders in discipulados led by requesting user
@@ -375,7 +391,7 @@ export class MemberService {
                 hierarchyConditions.push({ celulaId: { in: celulaIdsFromDiscipulados } });
                 // Leaders of these células
                 hierarchyConditions.push({ ledCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
-                hierarchyConditions.push({ viceLedCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
+                hierarchyConditions.push({ leadingInTrainingCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
             }
 
             // The discipuladores themselves
@@ -395,7 +411,7 @@ export class MemberService {
                 hierarchyConditions.push({ celulaId: { in: celulaIdsFromRedes } });
                 // Leaders of these células
                 hierarchyConditions.push({ ledCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
-                hierarchyConditions.push({ viceLedCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
+                hierarchyConditions.push({ leadingInTrainingCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
             }
 
             // Discipuladores in these redes
@@ -450,11 +466,13 @@ export class MemberService {
                 }
             });
             hierarchyConditions.push({
-                viceLedCelulas: {
+                leadingInTrainingCelulas: {
                     some: {
-                        discipulado: {
-                            rede: {
-                                congregacaoId: { in: congregacaoIds }
+                        celula: {
+                            discipulado: {
+                                rede: {
+                                    congregacaoId: { in: congregacaoIds }
+                                }
                             }
                         }
                     }
@@ -569,6 +587,8 @@ export class MemberService {
             birthDate: cleanDateField(memberData.birthDate),
             registerDate: cleanDateField(memberData.registerDate),
             phone: cleanPhoneField(memberData.phone),
+            streetNumber: cleanStringField(memberData.streetNumber),
+            zipCode: cleanStringField(memberData.zipCode),
             photoUrl: fileName,
         } as PrismaModels.MemberUncheckedCreateInput;
 
@@ -742,6 +762,8 @@ export class MemberService {
                 birthDate: cleanDateField(memberData.birthDate),
                 registerDate: cleanDateField(memberData.registerDate),
                 phone: cleanPhoneField(memberData.phone),
+                streetNumber: cleanStringField(memberData.streetNumber),
+                zipCode: cleanStringField(memberData.zipCode),
                 ...(newPhotoUrl !== undefined && { photoUrl: newPhotoUrl })
             } as PrismaModels.MemberUncheckedUpdateInput;
 
@@ -936,7 +958,7 @@ export class MemberService {
                 }
 
                 // Build OR conditions to include both members and leaders
-                const orConditions: any[] = [];
+                const orConditions: PrismaModels.MemberWhereInput[] = [];
 
                 // Members in celulas
                 if (Object.keys(discipuladoMemberFilter).length > 0) {
@@ -949,7 +971,7 @@ export class MemberService {
                 // Leaders of celulas
                 if (Object.keys(celulaLeaderFilter).length > 0) {
                     orConditions.push({ ledCelulas: { some: celulaLeaderFilter } });
-                    orConditions.push({ viceLedCelulas: { some: celulaLeaderFilter } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: {celula: celulaLeaderFilter} } });
                 }
 
                 // Leaders of discipulados
@@ -1250,7 +1272,11 @@ export class MemberService {
 
         const member = await this.prisma.member.findUnique({
             include: {
-                viceLedCelulas: true,
+                leadingInTrainingCelulas: {
+                    include: {
+                        celula: true
+                    }
+                },
                 ledCelulas: true,
                 discipulados: {
                     include: {
@@ -1547,6 +1573,8 @@ export class MemberService {
             ...updateData,
             birthDate: cleanDateField(memberData.birthDate),
             phone: cleanPhoneField(memberData.phone),
+            streetNumber: cleanStringField(memberData.streetNumber),
+            zipCode: cleanStringField(memberData.zipCode),
             ...(newPhotoUrl !== undefined && { photoUrl: newPhotoUrl })
         } as PrismaModels.MemberUncheckedUpdateInput;
 
@@ -1764,7 +1792,11 @@ export class MemberService {
             },
             include: {
                 ledCelulas: true,
-                viceLedCelulas: true,
+                leadingInTrainingCelulas: {
+                    include: {
+                        celula: true
+                    }
+                },
                 discipulados: true,
                 redes: true,
                 roles: {
@@ -1779,7 +1811,7 @@ export class MemberService {
             return {
                 member: u,
                 isAdmin,
-                celulaIds: Array.from(new Set([...(u.ledCelulas || []).map(c => c.id), ...(u.viceLedCelulas || []).map(c => c.id)])),
+                celulaIds: Array.from(new Set([...(u.ledCelulas || []).map(c => c.id), ...(u.leadingInTrainingCelulas || []).map(c => c.id)])),
                 roles: u.roles.map(mr => mr.role)
             };
         });

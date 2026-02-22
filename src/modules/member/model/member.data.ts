@@ -123,7 +123,7 @@ export class MemberData {
 
 export class MemberPermissions {
     @ApiProperty({ description: 'Indicativo se é Líder em treinmaneto', example: false })
-    public readonly viceLeader: boolean;
+    public readonly leaderInTraining: boolean;
 
     @ApiProperty({ description: 'Indicativo se é Líder', example: false })
     public readonly leader: boolean;

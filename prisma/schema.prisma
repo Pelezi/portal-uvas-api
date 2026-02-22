@@ -57,7 +57,6 @@ model Celula {
   name               String
   matrixId           Int
   leaderMemberId     Int
-  viceLeaderMemberId Int?
   discipuladoId      Int
   weekday            Int?
   time               String?
@@ -82,13 +81,11 @@ model Celula {
   matrix      Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   discipulado Discipulado @relation(fields: [discipuladoId], references: [id])
   leader      Member      @relation("CelulaLeader", fields: [leaderMemberId], references: [id], onDelete: NoAction)
-  viceLeader  Member?      @relation("CelulaViceLeader", fields: [viceLeaderMemberId], references: [id], onDelete: NoAction)
 
   @@unique([name, matrixId])
   @@index([matrixId])
   @@index([discipuladoId])
   @@index([leaderMemberId])
-  @@index([viceLeaderMemberId])
 }
 
 model Role {
@@ -191,7 +188,6 @@ model Member {
   redes                    Rede[]
   discipulados             Discipulado[]
   ledCelulas               Celula[]                @relation("CelulaLeader")
-  viceLedCelulas           Celula[]                @relation("CelulaViceLeader")
   congregacoesPastorGoverno Congregacao[]          @relation("CongregacaoPastorGoverno")
   congregacoesVicePresidente Congregacao[]         @relation("CongregacaoVicePresidente")
   congregacoesKidsLeader   Congregacao[]           @relation("CongregacaoKidsLeader")

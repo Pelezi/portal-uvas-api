@@ -15,7 +15,7 @@ export interface LoadedPermission {
 
 export interface SimplifiedPermission {
     id: number;
-    viceLeader: boolean;
+    leaderInTraining: boolean;
     leader: boolean;
     discipulador: boolean;
     pastor: boolean;
@@ -44,7 +44,7 @@ export class PermissionService {
                 redes: true,
                 discipulados: true,
                 ledCelulas: true,
-                viceLedCelulas: true,
+                leadingInTrainingCelulas: true,
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
                 ministryPosition: true,
@@ -60,7 +60,7 @@ export class PermissionService {
 
         // Compute celula ids where member has explicit roles (leader/vice/discipulador/pastor)
         const leaderCelulaIds = (dbMember.ledCelulas || []).map(c => c.id);
-        const viceCelulaIds = (dbMember.viceLedCelulas || []).map(c => c.id);
+        const viceCelulaIds = (dbMember.leadingInTrainingCelulas || []).map(c => c.celulaId);
 
         // Discipulados owned
         const discipuladoIds = (dbMember.discipulados || []).map(d => d.id);
@@ -104,7 +104,7 @@ export class PermissionService {
             where: { id: memberId },
             include: {
                 ledCelulas: true,
-                viceLedCelulas: true,
+                leadingInTrainingCelulas: true,
                 discipulados: true,
                 redes: true,
                 congregacoesPastorGoverno: true,
@@ -118,7 +118,7 @@ export class PermissionService {
 
         return {
             id: dbMember.id,
-            viceLeader: ((dbMember.viceLedCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER_IN_TRAINING,
+            leaderInTraining: ((dbMember.leadingInTrainingCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER_IN_TRAINING,
             leader: ((dbMember.ledCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER,
             discipulador: ((dbMember.discipulados || []).length > 0) || permission.ministryType === $Enums.MinistryType.DISCIPULADOR,
             pastor: ((dbMember.redes || []).length > 0) || permission.ministryType === $Enums.MinistryType.PASTOR,
@@ -240,8 +240,11 @@ export class PermissionService {
         if (await this.isCelulaLeader(memberId, celulaId)) return true;
 
         // O líder em treinamento da célula
-        const celula = await this.prisma.celula.findUnique({ where: { id: celulaId } });
-        if (celula && celula.viceLeaderMemberId && celula.viceLeaderMemberId === memberId) {
+        const celula = await this.prisma.celula.findUnique({ 
+            include: { leadersInTraining: true },
+            where: { id: celulaId} 
+        });
+        if (celula && celula.leadersInTraining && celula.leadersInTraining.some(l => l.memberId === memberId)) {
             return true;
         }
 

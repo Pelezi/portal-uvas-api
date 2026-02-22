@@ -1978,7 +1978,6 @@ export const CelulaScalarFieldEnum = {
   name: 'name',
   matrixId: 'matrixId',
   leaderMemberId: 'leaderMemberId',
-  viceLeaderMemberId: 'viceLeaderMemberId',
   discipuladoId: 'discipuladoId',
   weekday: 'weekday',
   time: 'time',

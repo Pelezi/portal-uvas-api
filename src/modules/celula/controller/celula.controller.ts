@@ -114,7 +114,7 @@ export class CelulaController {
             throw new HttpException('Você não tem permissão para atualizar esta célula', HttpStatus.UNAUTHORIZED);
         }
 
-        return this.service.update(celulaId, body as any, req.member!.matrixId);
+        return this.service.update(celulaId, body, req.member!.matrixId);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
@@ -163,7 +163,14 @@ export class CelulaController {
         // Buscar célula para verificar hierarquia
         const celula = await this.prisma.celula.findUnique({
             where: { id: celulaId },
-            include: { discipulado: { include: { rede: true } } }
+            include: { 
+                discipulado: { 
+                    include: { 
+                        rede: true 
+                    } 
+                },
+                leadersInTraining: true, 
+            }
         });
         
         if (!celula) {
@@ -174,11 +181,11 @@ export class CelulaController {
         // Pode multiplicar: admin, líder, vice-líder, discipulador ou pastor
         if (!permission.isAdmin) {
             const isLeader = celula.leaderMemberId === permission.id;
-            const isViceLeader = celula.viceLeaderMemberId === permission.id;
+            const isLeaderInTraining = celula.leadersInTraining.some(l => l.memberId === permission.id);
             const isDiscipulador = celula.discipuladoId && permission.discipuladoIds.includes(celula.discipuladoId);
             const isPastor = celula.discipulado?.redeId && permission.redeIds.includes(celula.discipulado.redeId);
             
-            if (!isLeader && !isViceLeader && !isDiscipulador && !isPastor) {
+            if (!isLeader && !isLeaderInTraining && !isDiscipulador && !isPastor) {
                 throw new HttpException(
                     'Apenas a liderança da célula (líder ou vice), discipulador, pastor ou admins podem multiplicar esta célula',
                     HttpStatus.UNAUTHORIZED
