@@ -183,7 +183,7 @@ export class MemberService {
                 // Leaders of celulas
                 if (Object.keys(celulaLeaderFilter).length > 0) {
                     orConditions.push({ ledCelulas: { some: celulaLeaderFilter } });
-                    orConditions.push({ leadingInTrainingCelulas: { some: {celula: celulaLeaderFilter} } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: { celula: celulaLeaderFilter } } });
                 }
 
                 // Leaders of discipulados
@@ -216,7 +216,7 @@ export class MemberService {
                 }
 
                 if (filters.isActive !== undefined) {
-                    where.isActive = filters.isActive;
+                    where.isActive = String(filters.isActive).toLowerCase() === 'true';
                 }
             }
 
@@ -276,7 +276,7 @@ export class MemberService {
                     }
                 },
                 ledCelulas: true,
-                leadingInTrainingCelulas:  {
+                leadingInTrainingCelulas: {
                     include: {
                         celula: true
                     }
@@ -370,7 +370,7 @@ export class MemberService {
 
         // 1. Members and leaders in células led by requesting user
         const ledCelulaIds = requestingMember.ledCelulas.map(c => c.id);
-        const leadingInTrainingCelulaIds = requestingMember.leadingInTrainingCelulas.map(c => c.id);
+        const leadingInTrainingCelulaIds = requestingMember.leadingInTrainingCelulas.map(c => c.celula.id);
         const allCelulaIds = [...ledCelulaIds, ...leadingInTrainingCelulaIds];
 
         if (allCelulaIds.length > 0) {
@@ -797,6 +797,50 @@ export class MemberService {
                 }
             }
 
+            // Se está desligando o membro (isActive = false), remover celulaId e posições de liderança
+            if (memberData.isActive === false && currentMember.isActive === true) {
+
+                // valida se o usuário é líder, discipulador ou pastor de governo, e se for, não permite o desligamento sem antes remover as posições de liderança
+                const isLeader = await this.prisma.celula.findFirst({
+                    where: { leaderMemberId: memberId }
+                });
+                const isDiscipulador = await this.prisma.discipulado.findFirst({
+                    where: { discipuladorMemberId: memberId }
+                });
+                const isPastorRede = await this.prisma.rede.findFirst({
+                    where: { pastorMemberId: memberId }
+                });
+                const isPastorGoverno = await this.prisma.congregacao.findFirst({
+                    where: { pastorGovernoMemberId: memberId }
+                });
+
+                if (isLeader || isDiscipulador || isPastorRede || isPastorGoverno) {
+                    throw new HttpException('Membro possui posições de liderança. Remova o membro das posições de liderança antes de desativar.', HttpStatus.BAD_REQUEST);
+                }
+
+                // Remover célula
+                cleanedMemberData.celulaId = null;
+
+                // As operações de desligamento de liderança serão feitas por meio de updates na respectiva tabela
+
+                // Remover como líder em treinamento
+                await this.prisma.celulaLeaderInTraining.deleteMany({
+                    where: { memberId: memberId }
+                });
+
+                // Remover como vice-presidente de congregação
+                await this.prisma.congregacao.updateMany({
+                    where: { vicePresidenteMemberId: memberId },
+                    data: { vicePresidenteMemberId: null }
+                });
+
+                // Remover como responsável pela rede kids na congregação
+                await this.prisma.congregacao.updateMany({
+                    where: { kidsLeaderMemberId: memberId },
+                    data: { kidsLeaderMemberId: null }
+                });
+            }
+
             await this.prisma.member.update({
                 where: { id: memberId },
                 data: cleanedMemberData
@@ -971,7 +1015,7 @@ export class MemberService {
                 // Leaders of celulas
                 if (Object.keys(celulaLeaderFilter).length > 0) {
                     orConditions.push({ ledCelulas: { some: celulaLeaderFilter } });
-                    orConditions.push({ leadingInTrainingCelulas: { some: {celula: celulaLeaderFilter} } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: { celula: celulaLeaderFilter } } });
                 }
 
                 // Leaders of discipulados

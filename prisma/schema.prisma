@@ -296,7 +296,7 @@ model Rede {
   name           String
   matrixId       Int
   congregacaoId  Int
-  pastorMemberId Int?
+  pastorMemberId Int
   isKids         Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
@@ -304,7 +304,7 @@ model Rede {
   matrix       Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   congregacao  Congregacao @relation(fields: [congregacaoId], references: [id], onDelete: NoAction)
   discipulados Discipulado[]
-  pastor       Member?     @relation(fields: [pastorMemberId], references: [id], onDelete: NoAction)
+  pastor       Member      @relation(fields: [pastorMemberId], references: [id], onDelete: NoAction)
 
   @@index([matrixId])
   @@index([congregacaoId])

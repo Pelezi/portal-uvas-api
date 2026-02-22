@@ -1410,12 +1410,10 @@ export type MemberCreateNestedOneWithoutRedesInput = {
   connect?: Prisma.MemberWhereUniqueInput
 }
 
-export type MemberUpdateOneWithoutRedesNestedInput = {
+export type MemberUpdateOneRequiredWithoutRedesNestedInput = {
   create?: Prisma.XOR<Prisma.MemberCreateWithoutRedesInput, Prisma.MemberUncheckedCreateWithoutRedesInput>
   connectOrCreate?: Prisma.MemberCreateOrConnectWithoutRedesInput
   upsert?: Prisma.MemberUpsertWithoutRedesInput
-  disconnect?: Prisma.MemberWhereInput | boolean
-  delete?: Prisma.MemberWhereInput | boolean
   connect?: Prisma.MemberWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.MemberUpdateToOneWithWhereWithoutRedesInput, Prisma.MemberUpdateWithoutRedesInput>, Prisma.MemberUncheckedUpdateWithoutRedesInput>
 }
