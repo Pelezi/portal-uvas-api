@@ -78,7 +78,8 @@ model Celula {
   hasNextHost        Boolean   @default(false)
   type               CelulaType?
   level              CelulaLevel?
-  
+  parallelCelulaId   Int?
+
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -86,16 +87,19 @@ model Celula {
   reports Report[]
   leadersInTraining CelulaLeaderInTraining[]
 
-  matrix      Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
-  discipulado Discipulado @relation(fields: [discipuladoId], references: [id])
-  leader      Member      @relation("CelulaLeader", fields: [leaderMemberId], references: [id], onDelete: NoAction)
-  host        Member?     @relation("CelulaHost", fields: [hostMemberId], references: [id], onDelete: NoAction)
+  matrix         Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
+  discipulado    Discipulado @relation(fields: [discipuladoId], references: [id])
+  leader         Member      @relation("CelulaLeader", fields: [leaderMemberId], references: [id], onDelete: NoAction)
+  host           Member?     @relation("CelulaHost", fields: [hostMemberId], references: [id], onDelete: NoAction)
+  parallelCelula Celula?     @relation("ParallelCelulas", fields: [parallelCelulaId], references: [id], onDelete: NoAction)
+  parallelOf     Celula[]    @relation("ParallelCelulas")
 
   @@unique([name, matrixId])
   @@index([matrixId])
   @@index([discipuladoId])
   @@index([leaderMemberId])
   @@index([hostMemberId])
+  @@index([parallelCelulaId])
 }
 
 model Role {

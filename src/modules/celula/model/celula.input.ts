@@ -55,6 +55,9 @@ export class CelulaCreateInput {
 
     @ApiProperty({ description: 'Estado da célula', example: 'PE', required: false })
     public readonly state?: string;
+
+    @ApiProperty({ description: 'ID da célula paralela', example: 2, required: false })
+    public readonly parallelCelulaId?: number;
 }
 
 export class CelulaUpdateInput {
@@ -96,6 +99,9 @@ export class CelulaUpdateInput {
     public readonly complement?: string;
     @ApiProperty({ description: 'Estado da célula', example: 'PE', required: false })
     public readonly state?: string;
+
+    @ApiProperty({ description: 'ID da célula paralela', example: 2, required: false })
+    public readonly parallelCelulaId?: number;
 }
 
 export class CelulaMultiplyInput {

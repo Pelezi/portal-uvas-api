@@ -58,7 +58,8 @@ export const CelulaType = {
   YOUNG: 'YOUNG',
   ADULT: 'ADULT',
   TEENAGER: 'TEENAGER',
-  CHILDISH: 'CHILDISH'
+  CHILDISH: 'CHILDISH',
+  KIDS: 'KIDS'
 } as const
 
 export type CelulaType = (typeof CelulaType)[keyof typeof CelulaType]

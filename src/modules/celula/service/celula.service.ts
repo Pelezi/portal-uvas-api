@@ -165,13 +165,15 @@ export class CelulaService {
                         rede: { include: { congregacao: true } },
                         discipulador: true
                     }
-                }
+                },
+                parallelCelula: { include: { leader: { omit: { password: true } } } }
             }
         });
         celulas.forEach(celula => {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
             this.cloudFrontService.transformPhotoUrl(celula.host);
             celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
+            if (celula.parallelCelula) this.cloudFrontService.transformPhotoUrl((celula.parallelCelula as any).leader);
         });
         return celulas;
     }
@@ -262,9 +264,10 @@ export class CelulaService {
             city: body.city,
             complement: body.complement,
             state: body.state,
+            parallelCelulaId: body.parallelCelulaId ?? null,
         };
 
-        const celula = await this.prisma.celula.create({ data: data, include: { leader: { omit: { password: true } }, host: { omit: { password: true } }, discipulado: true } });
+        const celula = await this.prisma.celula.create({ data: data, include: { leader: { omit: { password: true } }, host: { omit: { password: true } }, discipulado: true, parallelCelula: { include: { leader: { omit: { password: true } } } } } });
         this.cloudFrontService.transformPhotoUrl(celula.leader);
         this.cloudFrontService.transformPhotoUrl(celula.host);
         return celula;
@@ -365,6 +368,7 @@ export class CelulaService {
         if (data.hasNextHost !== undefined) updateData.hasNextHost = data.hasNextHost;
         if (data.type !== undefined) updateData.type = data.type as any;
         if (data.level !== undefined) updateData.level = data.level as any;
+        if (data.parallelCelulaId !== undefined) updateData.parallelCelulaId = data.parallelCelulaId ?? null;
 
         if (data.leaderMemberId !== undefined) {
             if (data.leaderMemberId !== null) {

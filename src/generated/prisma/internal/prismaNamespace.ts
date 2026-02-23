@@ -1995,6 +1995,7 @@ export const CelulaScalarFieldEnum = {
   hasNextHost: 'hasNextHost',
   type: 'type',
   level: 'level',
+  parallelCelulaId: 'parallelCelulaId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
