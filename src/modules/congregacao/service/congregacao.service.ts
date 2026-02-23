@@ -18,57 +18,14 @@ export class CongregacaoService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly cloudFrontService: CloudFrontService
-    ) {}
+    ) { }
 
-    public async findAll(matrixId: number, requestingMemberId: number, filters?: CongregacaoData.CongregacaoFilterInput, permission?: LoadedPermission | null) {
+    public async findAll(matrixId: number, requestingMemberId: number, filters?: CongregacaoData.CongregacaoFilterInput) {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
         const where: Prisma.CongregacaoWhereInput = { matrixId };
-        
-        const requestingMemberInfo = await this.prisma.member.findUnique({
-            where: { id: requestingMemberId },
-            include: {
-                ministryPosition: true,
-                ledCelulas: { include: { discipulado: { include: { rede: true } } } },
-                discipulados: { include: { rede: true } },
-                redes: true
-            }
-        });
 
-        const isLeaderOrHigher = requestingMemberInfo?.ministryPosition?.type === 'LEADER' 
-            || requestingMemberInfo?.ministryPosition?.type === 'DISCIPULADOR' 
-            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR'
-            || requestingMemberInfo?.ministryPosition?.type === 'PRESIDENT_PASTOR';
-        
         // Apply additional filters
         if (filters) {
-            // Build OR conditions for permission-based filtering
-            if (!filters.all && isLeaderOrHigher) {
-                // Leaders, discipuladores, and pastors can see congregações from células they lead, discipulados they manage and redes they manage
-                const congregacaoIdsFromCelulas = requestingMemberInfo.ledCelulas.map(c => c.discipulado.rede.congregacaoId);
-                const congregacaoIdsFromDiscipulados = requestingMemberInfo.discipulados.map(d => d.rede.congregacaoId);
-                const congregacaoIdsFromRedes = requestingMemberInfo.redes.map(r => r.congregacaoId);
-                const congregacaoIdsFromUser = [...new Set([...congregacaoIdsFromCelulas, ...congregacaoIdsFromDiscipulados, ...congregacaoIdsFromRedes])];
-                
-                if (congregacaoIdsFromUser.length > 0) {
-                    where.OR = [
-                        { id: { in: congregacaoIdsFromUser } },
-                    ];
-                }
-            }
-            
-            // Add congregacaoIds filter to OR conditions
-            if (filters.congregacaoIds && filters.congregacaoIds.length > 0) {
-                where.OR = [
-                    ...(where.OR || []),
-                    { id: { in: filters.congregacaoIds } },
-                ];
-            }
-            
-            // If not showing all and no permission conditions were added, return empty result
-            if (!filters.all && (!where.OR || where.OR.length === 0)) {
-                where.id = { equals: -1 }; // No congregações accessible
-            }
-            
             // Apply additional filters that narrow down the results (AND conditions with OR above)
             if (filters.name) {
                 where.name = { contains: filters.name, mode: 'insensitive' };
@@ -79,28 +36,91 @@ export class CongregacaoService {
             if (filters.vicePresidenteMemberId) {
                 where.vicePresidenteMemberId = Number(filters.vicePresidenteMemberId);
             }
-        }
-        
-        // Pastores de congregação (não-admin e não-principal) só podem ver sua própria congregação
-        if (permission && !permission.isAdmin && permission.congregacaoIds && permission.congregacaoIds.length > 0) {
-            // Check if user is pastor of principal congregation
-            const principalCongregacao = await this.prisma.congregacao.findFirst({
-                where: {
-                    matrixId,
-                    isPrincipal: true,
-                    OR: [
-                        { pastorGovernoMemberId: permission.id },
-                        { vicePresidenteMemberId: permission.id }
-                    ]
-                }
-            });
+            if (filters.congregacaoIds && filters.congregacaoIds.length > 0) {
+                where.id = { in: filters.congregacaoIds.map(id => Number(id)) };
+            } else if (!!!filters.all) {
+                let congregacaoIds: number[] = [];
 
-            // If not pastor of principal, filter to only their congregacoes
-            if (!principalCongregacao) {
-                where.id = { in: permission.congregacaoIds };
+                const member = await this.prisma.member.findUnique({
+                    where: { id: requestingMemberId },
+                    select: {
+                        ledCelulas: { select: { discipulado: { select: { rede: { select: { congregacaoId: true } } } } } },
+                        leadingInTrainingCelulas: { select: { celula: { select: { discipulado: { select: { rede: { select: { congregacaoId: true } } } } } } } },
+                        discipulados: { select: { rede: { select: { congregacaoId: true } } } },
+                        redes: { select: { congregacaoId: true } },
+                        congregacoesVicePresidente: { select: { id: true } },
+                        congregacoesPastorGoverno: { select: { id: true } },
+                        congregacoesKidsLeader: { select: { id: true } }
+                    },
+                });
+                if (!member) {
+                    throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
+                }
+                if (member.ledCelulas && member.ledCelulas.length > 0) {
+                    member.ledCelulas.forEach(c => {
+                        if (c.discipulado && c.discipulado.rede && c.discipulado.rede.congregacaoId) {
+                            if (!congregacaoIds.includes(c.discipulado.rede.congregacaoId)) {
+                                congregacaoIds.push(c.discipulado.rede.congregacaoId);
+                            }
+                        }
+                    });
+                }
+                if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+                    member.leadingInTrainingCelulas.forEach(c => {
+                        if (c.celula && c.celula.discipulado && c.celula.discipulado.rede && c.celula.discipulado.rede.congregacaoId) {
+                            if (!congregacaoIds.includes(c.celula.discipulado.rede.congregacaoId)) {
+                                congregacaoIds.push(c.celula.discipulado.rede.congregacaoId);
+                            }
+                        }
+                    });
+                }
+                if (member.discipulados && member.discipulados.length > 0) {
+                    member.discipulados.forEach(d => {
+                        if (d.rede && d.rede.congregacaoId) {
+                            if (!congregacaoIds.includes(d.rede.congregacaoId)) {
+                                congregacaoIds.push(d.rede.congregacaoId);
+                            }
+                        }
+                    });
+                }
+                if (member.redes && member.redes.length > 0) {
+                    member.redes.forEach(r => {
+                        if (r.congregacaoId) {
+                            if (!congregacaoIds.includes(r.congregacaoId)) {
+                                congregacaoIds.push(r.congregacaoId);
+                            }
+                        }
+                    });
+                }
+                if (member.congregacoesVicePresidente && member.congregacoesVicePresidente.length > 0) {
+                    member.congregacoesVicePresidente.forEach(c => {
+                        if (!congregacaoIds.includes(c.id)) {
+                            congregacaoIds.push(c.id);
+                        }
+                    });
+                }
+                if (member.congregacoesPastorGoverno && member.congregacoesPastorGoverno.length > 0) {
+                    member.congregacoesPastorGoverno.forEach(c => {
+                        if (!congregacaoIds.includes(c.id)) {
+                            congregacaoIds.push(c.id);
+                        }
+                    });
+                }
+                if (member.congregacoesKidsLeader && member.congregacoesKidsLeader.length > 0) {
+                    member.congregacoesKidsLeader.forEach(c => {
+                        if (!congregacaoIds.includes(c.id)) {
+                            congregacaoIds.push(c.id);
+                        }
+                    });
+                }
+                if (congregacaoIds.length > 0) {
+                    where.id = { in: congregacaoIds };
+                } else {
+                    where.id = -1;
+                }
             }
         }
-        
+
         const congregacoes = await this.prisma.congregacao.findMany({
             where,
             include: {
@@ -189,7 +209,7 @@ export class CongregacaoService {
 
     public async create(data: CongregacaoData.CongregacaoCreateInput, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
-        
+
         // Apenas admins podem criar congregações
         if (!permission.isAdmin) {
             throw new HttpException('Apenas administradores podem criar congregações', HttpStatus.FORBIDDEN);
@@ -245,10 +265,10 @@ export class CongregacaoService {
 
     public async update(id: number, data: CongregacaoData.CongregacaoUpdateInput, matrixId: number, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
-        
+
         // Validate the congregacao being updated belongs to the matrix
         await validator.validateCongregacaoBelongsToMatrix(id, matrixId);
-        
+
         const congregacao = await this.prisma.congregacao.findUnique({ where: { id } });
         if (!congregacao) {
             throw new BadRequestException('Congregação não encontrada');

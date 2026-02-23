@@ -27,11 +27,6 @@ export class DiscipuladoController {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
 
-        if (!!!filters.all && (!filters.discipuladoIds || filters.discipuladoIds.length === 0) && !permission.isAdmin) {
-            // Se all for false e discipuladoIds não for fornecido, usar os discipulados do próprio usuário
-            filters.discipuladoIds = permission.discipuladoIds;
-        }
-
         return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 

@@ -29,11 +29,6 @@ export class RedeController {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
 
-        if (!!!filters.all && (!filters.redeIds || filters.redeIds.length === 0) && !permission.isAdmin) {
-            // Se all for false e redeIds não for fornecido, usar os redes do próprio usuário
-            filters.redeIds = permission.redeIds;
-        }
-
         return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 

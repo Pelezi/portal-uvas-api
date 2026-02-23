@@ -48,73 +48,21 @@ export class CelulaService {
                 where.discipulado = { rede: { congregacaoId: Number(filters.congregacaoId) } };
             }
             if (filters.celulaIds && filters.celulaIds.length > 0) {
-                where.id = { in: filters.celulaIds };
+                where.id = { in: filters.celulaIds.map(Number) };
             } else if (!!!filters.all) {
                 let celulaIds: number[] = [];
                 // Se all for false e celulaIds não for fornecido, usar as células do próprio usuário
-                const member = await this.prisma.member.findUnique({ 
-                    include: { 
-                        ledCelulas: true,
-                        leadingInTrainingCelulas: {
-                            include: {
-                                celula: true
-                            }
-                        },
-                        discipulados: {
-                            include: {
-                                celulas: true
-                            }
-                        },
-                        redes: {
-                            include: {
-                                discipulados: {
-                                    include: {
-                                        celulas: true
-                                    }
-                                }
-                            }
-                        },
-                        congregacoesVicePresidente: {
-                            include: {
-                                redes: {
-                                    include: {
-                                        discipulados: {
-                                            include: {
-                                                celulas: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        congregacoesPastorGoverno: {
-                            include: {
-                                redes: {
-                                    include: {
-                                        discipulados: {
-                                            include: {
-                                                celulas: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        congregacoesKidsLeader: {
-                            include: {
-                                redes: {
-                                    include: {
-                                        discipulados: {
-                                            include: {
-                                                celulas: true
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                     },
-                    where: { id: requestingMemberId } 
+                const member = await this.prisma.member.findUnique({
+                    include: {
+                        ledCelulas: { select: { id: true } },
+                        leadingInTrainingCelulas: { select: { celulaId: true } },
+                        discipulados: { include: { celulas: { select: { id: true } } } },
+                        redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } },
+                        congregacoesVicePresidente: { include: { redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } } } },
+                        congregacoesPastorGoverno: { include: { redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } } } },
+                        congregacoesKidsLeader: { include: { redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } } } },
+                    },
+                    where: { id: requestingMemberId }
                 });
                 if (!member) {
                     throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
@@ -130,8 +78,8 @@ export class CelulaService {
                 if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
                     // if user is vice leader, add their vice led celulas to celulasIds, if it doesn't already exist
                     member.leadingInTrainingCelulas.forEach(c => {
-                        if (!celulaIds.includes(c.celula.id)) {
-                            celulaIds.push(c.celula.id);
+                        if (!celulaIds.includes(c.celulaId)) {
+                            celulaIds.push(c.celulaId);
                         }
                     });
                 }
@@ -184,13 +132,15 @@ export class CelulaService {
                 if (member.congregacoesKidsLeader && member.congregacoesKidsLeader.length > 0) {
                     member.congregacoesKidsLeader.forEach(c => {
                         c.redes.forEach(r => {
-                            r.discipulados.forEach(d => {
-                                d.celulas.forEach(cel => {
-                                    if (!celulaIds.includes(cel.id)) {
-                                        celulaIds.push(cel.id);
-                                    }
+                            if (r.isKids) {
+                                r.discipulados.forEach(d => {
+                                    d.celulas.forEach(cel => {
+                                        if (!celulaIds.includes(cel.id)) {
+                                            celulaIds.push(cel.id);
+                                        }
+                                    });
                                 });
-                            });
+                            }
                         });
                     });
                 }
@@ -203,17 +153,18 @@ export class CelulaService {
             }
         }
 
-        // MANDATORY: Filter by matrixId to prevent cross-matrix access
         const celulas = await this.prisma.celula.findMany({
             where,
             orderBy: { name: 'asc' },
             include: {
-                leader: { omit: { password: true} },
+                leader: { omit: { password: true } },
                 leadersInTraining: { include: { member: { omit: { password: true } } } },
-                discipulado: { include: { 
-                    rede: { include: { congregacao: true} },
-                    discipulador: true
-                } }
+                discipulado: {
+                    include: {
+                        rede: { include: { congregacao: true } },
+                        discipulador: true
+                    }
+                }
             }
         });
         celulas.forEach(celula => {
@@ -229,7 +180,7 @@ export class CelulaService {
         const celulas = await this.prisma.celula.findMany({
             where: { id: { in: celulaIds } },
             include: {
-                leader: { omit: { password: true} },
+                leader: { omit: { password: true } },
                 leadersInTraining: { include: { member: { omit: { password: true } } } }
             },
             orderBy: { name: 'asc' }
@@ -312,12 +263,12 @@ export class CelulaService {
     }
 
     public async findById(id: number) {
-        const celula = await this.prisma.celula.findUnique({ 
-            where: { id }, 
-            include: { 
-                leader: { omit: { password: true } }, 
-                discipulado: true 
-            } 
+        const celula = await this.prisma.celula.findUnique({
+            where: { id },
+            include: {
+                leader: { omit: { password: true } },
+                discipulado: true
+            }
         });
         if (celula) {
             this.cloudFrontService.transformPhotoUrl(celula.leader);

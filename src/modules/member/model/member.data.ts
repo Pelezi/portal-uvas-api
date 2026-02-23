@@ -218,6 +218,9 @@ export class StatisticsFilterInput {
 
     @ApiProperty({ description: 'Id da congregação', example: 1, required: false })
     public readonly congregacaoId?: number;
+
+    @ApiProperty({ description: 'Filtrar apenas por minha liderança/hierarquia', example: false, required: false })
+    public readonly myLeadership?: boolean;
 }
 
 export class UpdateOwnProfileInput {

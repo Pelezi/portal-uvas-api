@@ -29,12 +29,7 @@ export class CongregacaoController {
             throw new HttpException('Permissão não encontrada', HttpStatus.UNAUTHORIZED);
         }
 
-        if (!!!filters.all && (!filters.congregacaoIds || filters.congregacaoIds.length === 0) && !permission.isAdmin) {
-            // Se all for false e congregacaoIds não for fornecido, usar as congregações do próprio usuário
-            filters.congregacaoIds = permission.congregacaoIds;
-        }
-
-        return this.service.findAll(req.member.matrixId, req.member.id, filters, permission);
+        return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 
     @Get(':id')

@@ -874,7 +874,7 @@ export class MemberService {
         });
     }
 
-    public async getStatistics(filters: MemberData.MemberFilterInput, matrixId: number) {
+    public async getStatistics(filters: MemberData.StatisticsFilterInput, matrixId: number, permission?: any) {
         const where: PrismaModels.MemberWhereInput = { isActive: true };
 
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
@@ -886,9 +886,66 @@ export class MemberService {
             };
         }
 
-        if (filters) {
+        // Se myLeadership for true e não houver filtros específicos, aplicar filtros baseados em permissões
+        const hasExplicitFilters = filters && (
+            filters.celulaId !== undefined || 
+            filters.discipuladoId !== undefined || 
+            filters.redeId !== undefined || 
+            filters.congregacaoId !== undefined
+        );
 
-            // Aplicar filtros
+        if (filters?.myLeadership && !hasExplicitFilters && permission) {
+            // Aplicar filtros baseados em hierarquia do usuário
+            const orConditions: PrismaModels.MemberWhereInput[] = [];
+
+            // Se for líder de célula, incluir membros das suas células
+            if (permission.celulaIds && permission.celulaIds.length > 0) {
+                permission.celulaIds.forEach((celulaId: number) => {
+                    orConditions.push({ celulaId: celulaId });
+                    orConditions.push({ ledCelulas: { some: { id: celulaId } } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: { celulaId: celulaId } } });
+                });
+            }
+
+            // Se for líder de discipulado, incluir membros do seu discipulado
+            if (permission.discipuladoIds && permission.discipuladoIds.length > 0) {
+                permission.discipuladoIds.forEach((discipuladoId: number) => {
+                    orConditions.push({ celula: { discipuladoId: discipuladoId } });
+                    orConditions.push({ ledCelulas: { some: { discipuladoId: discipuladoId } } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: { celula: { discipuladoId: discipuladoId } } } });
+                    orConditions.push({ discipulados: { some: { id: discipuladoId } } });
+                });
+            }
+
+            // Se for líder de rede, incluir membros da sua rede
+            if (permission.redeIds && permission.redeIds.length > 0) {
+                permission.redeIds.forEach((redeId: number) => {
+                    orConditions.push({ celula: { discipulado: { redeId: redeId } } });
+                    orConditions.push({ ledCelulas: { some: { discipulado: { redeId: redeId } } } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: { celula: { discipulado: { redeId: redeId } } } } });
+                    orConditions.push({ discipulados: { some: { redeId: redeId } } });
+                    orConditions.push({ redes: { some: { id: redeId } } });
+                });
+            }
+
+            // Se for líder de congregação, incluir membros da sua congregação
+            if (permission.congregacaoIds && permission.congregacaoIds.length > 0) {
+                permission.congregacaoIds.forEach((congregacaoId: number) => {
+                    orConditions.push({ celula: { discipulado: { rede: { congregacaoId: congregacaoId } } } });
+                    orConditions.push({ ledCelulas: { some: { discipulado: { rede: { congregacaoId: congregacaoId } } } } });
+                    orConditions.push({ leadingInTrainingCelulas: { some: { celula: { discipulado: { rede: { congregacaoId: congregacaoId } } } } } });
+                    orConditions.push({ discipulados: { some: { rede: { congregacaoId: congregacaoId } } } });
+                    orConditions.push({ redes: { some: { congregacaoId: congregacaoId } } });
+                    orConditions.push({ congregacoesPastorGoverno: { some: { id: congregacaoId } } });
+                    orConditions.push({ congregacoesVicePresidente: { some: { id: congregacaoId } } });
+                });
+            }
+
+            if (orConditions.length > 0) {
+                where.OR = orConditions;
+            }
+        } else if (filters) {
+            // Aplicar filtros explícitos
             if (filters.celulaId !== undefined) {
                 const celulaId = Number(filters.celulaId);
                 if (filters.celulaId === 0) {

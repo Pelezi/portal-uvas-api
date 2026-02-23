@@ -17,45 +17,7 @@ export class DiscipuladoService {
         // MANDATORY: Filter by matrixId to prevent cross-matrix access
         const where: Prisma.DiscipuladoWhereInput = { matrixId };
 
-        const requestingMemberInfo = await this.prisma.member.findUnique({
-            where: { id: requestingMemberId },
-            include: {
-                ministryPosition: true,
-                ledCelulas: true,
-            }
-        });
-
-        const isLeaderOrHigher = requestingMemberInfo?.ministryPosition?.type === 'LEADER' 
-            || requestingMemberInfo?.ministryPosition?.type === 'DISCIPULADOR' 
-            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR'
-            || requestingMemberInfo?.ministryPosition?.type === 'PRESIDENT_PASTOR';
-        
         if (filters) {
-            // Build OR conditions for permission-based filtering
-            if (!filters.all && isLeaderOrHigher) {
-                // Leaders, discipuladores, and pastors can see discipulados from the células they lead
-                const celulaDiscipuladoIds = requestingMemberInfo.ledCelulas.map(c => c.discipuladoId);
-                
-                if (celulaDiscipuladoIds.length > 0) {
-                    where.OR = [
-                        { id: { in: celulaDiscipuladoIds } },
-                    ];
-                }
-            }
-            
-            // Add discipuladoIds to OR conditions (e.g., discipulados where user is a disciple in Kids rede)
-            if (filters.discipuladoIds && filters.discipuladoIds.length > 0) {
-                where.OR = [
-                    ...(where.OR || []),
-                    { id: { in: filters.discipuladoIds.map(Number) } },
-                ];
-            }
-            
-            // If not showing all and no permission conditions were added, return empty result
-            if (!filters.all && (!where.OR || where.OR.length === 0)) {
-                where.id = { equals: -1 }; // No discipulados accessible
-            }
-            
             // Apply additional filters that narrow down the results (AND conditions with OR above)
             if (filters.congregacaoId) {
                 where.rede = { congregacaoId: Number(filters.congregacaoId) };
@@ -65,6 +27,98 @@ export class DiscipuladoService {
             }
             if (filters.discipuladorMemberId) {
                 where.discipuladorMemberId = Number(filters.discipuladorMemberId);
+            }
+            if (filters.discipuladoIds && filters.discipuladoIds.length > 0) {
+                where.id = { in: filters.discipuladoIds.map(Number) };
+            } else if (!!!filters.all) {
+                let discipuladoIds: number[] = [];
+                // Se all for false e discipuladoIds não for fornecido, usar os discipulados do próprio usuário
+                const member = await this.prisma.member.findUnique({
+                    where: { id: requestingMemberId },
+                    include: {
+                        ledCelulas: { select: { discipuladoId: true } },
+                        leadingInTrainingCelulas: { include: { celula: { select: { discipuladoId: true } } } },
+                        discipulados: { select: { id: true } },
+                        redes: { include: { discipulados: { select: { id: true } } } },
+                        congregacoesVicePresidente: { include: { redes: { include: { discipulados: { select: { id: true } } } } } },
+                        congregacoesPastorGoverno: { include: { redes: { include: { discipulados: { select: { id: true } } } } } },
+                        congregacoesKidsLeader: { include: { redes: { include: { discipulados: { select: { id: true } } } } } },
+                    }
+                });
+                if (!member) {
+                    throw new HttpException('Membro não encontrado', HttpStatus.UNAUTHORIZED);
+                }
+                if (member.ledCelulas && member.ledCelulas.length > 0) {
+                    // se o member é líder, adicionar os discipulados das células que lidera
+                    member.ledCelulas.forEach(c => {
+                        if (c.discipuladoId && !discipuladoIds.includes(c.discipuladoId)) {
+                            discipuladoIds.push(c.discipuladoId);
+                        }
+                    });
+                }
+                if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+                    member.leadingInTrainingCelulas.forEach(c => {
+                        if (c.celula.discipuladoId && !discipuladoIds.includes(c.celula.discipuladoId)) {
+                            discipuladoIds.push(c.celula.discipuladoId);
+                        }
+                    });
+                }
+                if (member.discipulados && member.discipulados.length > 0) {
+                    member.discipulados.forEach(d => {
+                        if (d.id && !discipuladoIds.includes(d.id)) {
+                            discipuladoIds.push(d.id);
+                        }
+                    });
+                }
+                if (member.redes && member.redes.length > 0) {
+                    member.redes.forEach(r => {
+                        r.discipulados.forEach(d => {
+                            if (d.id && !discipuladoIds.includes(d.id)) {
+                                discipuladoIds.push(d.id);
+                            }
+                        });
+                    });
+                }
+                if (member.congregacoesVicePresidente && member.congregacoesVicePresidente.length > 0) {
+                    member.congregacoesVicePresidente.forEach(c => {
+                        c.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                if (d.id && !discipuladoIds.includes(d.id)) {
+                                    discipuladoIds.push(d.id);
+                                }
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesPastorGoverno && member.congregacoesPastorGoverno.length > 0) {
+                    member.congregacoesPastorGoverno.forEach(c => {
+                        c.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                if (d.id && !discipuladoIds.includes(d.id)) {
+                                    discipuladoIds.push(d.id);
+                                }
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesKidsLeader && member.congregacoesKidsLeader.length > 0) {
+                    member.congregacoesKidsLeader.forEach(c => {
+                        c.redes.forEach(r => {
+                            if (r.isKids) {
+                                r.discipulados.forEach(d => {
+                                    if (d.id && !discipuladoIds.includes(d.id)) {
+                                        discipuladoIds.push(d.id);
+                                    }
+                                });
+                            }
+                        });
+                    });
+                }
+                if (discipuladoIds.length > 0) {
+                    where.id = { in: discipuladoIds };
+                } else {
+                    where.id = { equals: -1 }; 
+                }
             }
         }
 

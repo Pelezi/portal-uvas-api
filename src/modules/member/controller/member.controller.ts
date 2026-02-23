@@ -28,7 +28,7 @@ export class MemberController {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID is required', HttpStatus.BAD_REQUEST);
         }
-        return this.service.getStatistics(filters, req.member.matrixId);
+        return this.service.getStatistics(filters, req.member.matrixId, req.permission);
     }
 
     @Get(':memberId')
