@@ -281,28 +281,15 @@ export class MemberService {
                         }
                     }
                 },
-                ledCelulas: true,
-                leadingInTrainingCelulas: {
-                    include: {
-                        celula: true
-                    }
-                },
-                discipulados: {
-                    include: {
-                        rede: {
-                            select: {
-                                name: true
-                            }
-                        }
-                    }
-                },
-                redes: true,
+                ledCelulas: { include: { discipulado: { include: { rede: { include: { congregacao: true } } } } } },
+                leadingInTrainingCelulas: { include: { celula: true } },
+                discipulados: { include: { rede: { include: { congregacao: true } } } },
+                redes: { include: { congregacao: true } },
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
-                roles: {
-                    include: { role: true }
-                },
-                discipleOf: true,
+                congregacoesKidsLeader: true,
+                roles: { include: { role: true } },
+                discipleOf: { include: { discipulado: { include: { discipulador: true, rede: true } } } },
                 ministryPosition: true
             },
             orderBy: { name: 'asc' }
@@ -364,7 +351,8 @@ export class MemberService {
                     }
                 },
                 congregacoesPastorGoverno: true,
-                congregacoesVicePresidente: true
+                congregacoesVicePresidente: true,
+                congregacoesKidsLeader: true
             }
         });
 
@@ -384,7 +372,7 @@ export class MemberService {
             hierarchyConditions.push({ celulaId: { in: allCelulaIds } });
             // Leaders of these células
             hierarchyConditions.push({ ledCelulas: { some: { id: { in: allCelulaIds } } } });
-            hierarchyConditions.push({ leadingInTrainingCelulas: { some: { id: { in: allCelulaIds } } } });
+            hierarchyConditions.push({ leadingInTrainingCelulas: { some: { celulaId: { in: allCelulaIds } } } });
         }
 
         // 2. Members and leaders in discipulados led by requesting user
@@ -397,7 +385,7 @@ export class MemberService {
                 hierarchyConditions.push({ celulaId: { in: celulaIdsFromDiscipulados } });
                 // Leaders of these células
                 hierarchyConditions.push({ ledCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
-                hierarchyConditions.push({ leadingInTrainingCelulas: { some: { id: { in: celulaIdsFromDiscipulados } } } });
+                hierarchyConditions.push({ leadingInTrainingCelulas: { some: { celulaId: { in: celulaIdsFromDiscipulados } } } });
             }
 
             // The discipuladores themselves
@@ -417,7 +405,7 @@ export class MemberService {
                 hierarchyConditions.push({ celulaId: { in: celulaIdsFromRedes } });
                 // Leaders of these células
                 hierarchyConditions.push({ ledCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
-                hierarchyConditions.push({ leadingInTrainingCelulas: { some: { id: { in: celulaIdsFromRedes } } } });
+                hierarchyConditions.push({ leadingInTrainingCelulas: { some: { celulaId: { in: celulaIdsFromRedes } } } });
             }
 
             // Discipuladores in these redes
@@ -437,53 +425,31 @@ export class MemberService {
 
         if (congregacaoIds.length > 0) {
             // All members under this congregação (through rede -> discipulado -> celula)
-            hierarchyConditions.push({
-                celula: {
-                    discipulado: {
-                        rede: {
-                            congregacaoId: { in: congregacaoIds }
-                        }
-                    }
-                }
-            });
+            hierarchyConditions.push({ celula: { discipulado: { rede: { congregacaoId: { in: congregacaoIds } } } } });
 
             // All leaders at various levels in this congregação
             hierarchyConditions.push({ congregacoesPastorGoverno: { some: { id: { in: congregacaoIds } } } });
             hierarchyConditions.push({ congregacoesVicePresidente: { some: { id: { in: congregacaoIds } } } });
             hierarchyConditions.push({ redes: { some: { congregacaoId: { in: congregacaoIds } } } });
-            hierarchyConditions.push({
-                discipulados: {
-                    some: {
-                        rede: {
-                            congregacaoId: { in: congregacaoIds }
-                        }
-                    }
-                }
-            });
-            hierarchyConditions.push({
-                ledCelulas: {
-                    some: {
-                        discipulado: {
-                            rede: {
-                                congregacaoId: { in: congregacaoIds }
-                            }
-                        }
-                    }
-                }
-            });
-            hierarchyConditions.push({
-                leadingInTrainingCelulas: {
-                    some: {
-                        celula: {
-                            discipulado: {
-                                rede: {
-                                    congregacaoId: { in: congregacaoIds }
-                                }
-                            }
-                        }
-                    }
-                }
-            });
+            hierarchyConditions.push({ discipulados: { some: { rede: { congregacaoId: { in: congregacaoIds } } } } });
+            hierarchyConditions.push({ ledCelulas: { some: { discipulado: { rede: { congregacaoId: { in: congregacaoIds } } } } } });
+            hierarchyConditions.push({ leadingInTrainingCelulas: { some: { celula: { discipulado: { rede: { congregacaoId: { in: congregacaoIds } } } } } } });
+        }
+
+        // 5. Members and leaders in congregações kids leader by requesting user
+        const kidsLeaderCongregacaoIds = requestingMember.congregacoesKidsLeader.map(c => c.id);
+        if (kidsLeaderCongregacaoIds.length > 0) {
+            hierarchyConditions.push({ congregacoesKidsLeader: { some: { id: { in: kidsLeaderCongregacaoIds } } } });
+        }
+
+        if (kidsLeaderCongregacaoIds.length > 0) {
+            hierarchyConditions.push({ celula: { discipulado: { rede: { congregacaoId: { in: kidsLeaderCongregacaoIds }, isKids: true } } } });
+
+            // All leaders at various levels in this congregação
+            hierarchyConditions.push({ redes: { some: { congregacaoId: { in: kidsLeaderCongregacaoIds }, isKids: true } } });
+            hierarchyConditions.push({ discipulados: { some: { rede: { congregacaoId: { in: kidsLeaderCongregacaoIds }, isKids: true } } } });
+            hierarchyConditions.push({ ledCelulas: { some: { discipulado: { rede: { congregacaoId: { in: kidsLeaderCongregacaoIds }, isKids: true } } } } });
+            hierarchyConditions.push({ leadingInTrainingCelulas: { some: { celula: { discipulado: { rede: { congregacaoId: { in: kidsLeaderCongregacaoIds }, isKids: true } } } } } });
         }
 
         return hierarchyConditions;
@@ -1328,37 +1294,15 @@ export class MemberService {
 
         const member = await this.prisma.member.findUnique({
             include: {
-                leadingInTrainingCelulas: {
-                    include: {
-                        celula: true
-                    }
-                },
+                leadingInTrainingCelulas: { include: { celula: true } },
                 ledCelulas: true,
-                discipulados: {
-                    include: {
-                        celulas: true
-                    }
-                },
-                redes: {
-                    include: {
-                        discipulados: {
-                            include: {
-                                celulas: true
-                            }
-                        }
-                    }
-                },
+                discipulados: { include: { celulas: true } },
+                redes: { include: { discipulados: { include: { celulas: true } } } },
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
-                matrices: {
-                    include: {
-                        matrix: {
-                            include: {
-                                domains: true
-                            }
-                        }
-                    }
-                }
+                congregacoesKidsLeader: true,
+                matrices: { include: { matrix: { include: { domains: true } } } },
+                celula: true
             },
             where: { email: data.email }
         });

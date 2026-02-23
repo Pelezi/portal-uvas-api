@@ -27,7 +27,8 @@ export class DiscipuladoService {
 
         const isLeaderOrHigher = requestingMemberInfo?.ministryPosition?.type === 'LEADER' 
             || requestingMemberInfo?.ministryPosition?.type === 'DISCIPULADOR' 
-            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR';
+            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR'
+            || requestingMemberInfo?.ministryPosition?.type === 'PRESIDENT_PASTOR';
         
         if (filters) {
             // Build OR conditions for permission-based filtering

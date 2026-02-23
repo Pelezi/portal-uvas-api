@@ -36,7 +36,8 @@ export class CongregacaoService {
 
         const isLeaderOrHigher = requestingMemberInfo?.ministryPosition?.type === 'LEADER' 
             || requestingMemberInfo?.ministryPosition?.type === 'DISCIPULADOR' 
-            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR';
+            || requestingMemberInfo?.ministryPosition?.type === 'PASTOR'
+            || requestingMemberInfo?.ministryPosition?.type === 'PRESIDENT_PASTOR';
         
         // Apply additional filters
         if (filters) {
@@ -105,6 +106,7 @@ export class CongregacaoService {
             include: {
                 pastorGoverno: true,
                 vicePresidente: true,
+                kidsLeader: true,
                 redes: {
                     include: {
                         pastor: true
@@ -119,6 +121,7 @@ export class CongregacaoService {
         congregacoes.forEach(c => {
             this.cloudFrontService.transformPhotoUrl(c.pastorGoverno);
             this.cloudFrontService.transformPhotoUrl(c.vicePresidente);
+            this.cloudFrontService.transformPhotoUrl(c.kidsLeader);
             c.redes?.forEach(r => this.cloudFrontService.transformPhotoUrl(r.pastor));
         });
         return congregacoes;
@@ -158,6 +161,7 @@ export class CongregacaoService {
             include: {
                 pastorGoverno: true,
                 vicePresidente: true,
+                kidsLeader: true,
                 redes: {
                     include: {
                         pastor: true,
@@ -174,6 +178,7 @@ export class CongregacaoService {
         if (congregacao) {
             this.cloudFrontService.transformPhotoUrl(congregacao.pastorGoverno);
             this.cloudFrontService.transformPhotoUrl(congregacao.vicePresidente);
+            this.cloudFrontService.transformPhotoUrl(congregacao.kidsLeader);
             congregacao.redes?.forEach(r => {
                 this.cloudFrontService.transformPhotoUrl(r.pastor);
                 r.discipulados?.forEach(d => this.cloudFrontService.transformPhotoUrl(d.discipulador));
@@ -197,6 +202,10 @@ export class CongregacaoService {
             await validator.validateMemberBelongsToMatrix(data.vicePresidenteMemberId, data.matrixId!);
         }
 
+        if (data.kidsLeaderMemberId) {
+            await validator.validateMemberBelongsToMatrix(data.kidsLeaderMemberId, data.matrixId!);
+        }
+
         // If setting as principal, unset any existing principal for this matrix
         if (data.isPrincipal) {
             await this.prisma.congregacao.updateMany({
@@ -211,6 +220,7 @@ export class CongregacaoService {
                 matrixId: data.matrixId!,
                 pastorGovernoMemberId: data.pastorGovernoMemberId,
                 vicePresidenteMemberId: data.vicePresidenteMemberId,
+                kidsLeaderMemberId: data.kidsLeaderMemberId,
                 isPrincipal: data.isPrincipal ?? false,
                 country: data.country,
                 zipCode: cleanStringField(data.zipCode),
@@ -223,11 +233,13 @@ export class CongregacaoService {
             },
             include: {
                 pastorGoverno: true,
-                vicePresidente: true
+                vicePresidente: true,
+                kidsLeader: true
             }
         });
         this.cloudFrontService.transformPhotoUrl(congregacao.pastorGoverno);
         this.cloudFrontService.transformPhotoUrl(congregacao.vicePresidente);
+        this.cloudFrontService.transformPhotoUrl(congregacao.kidsLeader);
         return congregacao;
     }
 
@@ -271,6 +283,10 @@ export class CongregacaoService {
             await validator.validateMemberBelongsToMatrix(data.vicePresidenteMemberId, matrixId);
         }
 
+        if (data.kidsLeaderMemberId !== undefined && data.kidsLeaderMemberId !== null) {
+            await validator.validateMemberBelongsToMatrix(data.kidsLeaderMemberId, matrixId);
+        }
+
         // If setting as principal, unset any existing principal for this matrix
         if (data.isPrincipal && !congregacao.isPrincipal) {
             await this.prisma.congregacao.updateMany({
@@ -285,6 +301,7 @@ export class CongregacaoService {
                 name: data.name,
                 pastorGovernoMemberId: data.pastorGovernoMemberId,
                 vicePresidenteMemberId: data.vicePresidenteMemberId,
+                kidsLeaderMemberId: data.kidsLeaderMemberId,
                 isPrincipal: data.isPrincipal,
                 country: data.country,
                 zipCode: cleanStringField(data.zipCode),
@@ -297,11 +314,13 @@ export class CongregacaoService {
             },
             include: {
                 pastorGoverno: true,
-                vicePresidente: true
+                vicePresidente: true,
+                kidsLeader: true
             }
         });
         this.cloudFrontService.transformPhotoUrl(congregacaoInfo.pastorGoverno);
         this.cloudFrontService.transformPhotoUrl(congregacaoInfo.vicePresidente);
+        this.cloudFrontService.transformPhotoUrl(congregacaoInfo.kidsLeader);
         return congregacaoInfo;
     }
 

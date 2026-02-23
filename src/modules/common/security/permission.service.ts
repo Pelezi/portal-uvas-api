@@ -108,7 +108,8 @@ export class PermissionService {
                 discipulados: true,
                 redes: true,
                 congregacoesPastorGoverno: true,
-                congregacoesVicePresidente: true
+                congregacoesVicePresidente: true,
+                congregacoesKidsLeader: true
             }
         });
 
@@ -122,7 +123,7 @@ export class PermissionService {
             leader: ((dbMember.ledCelulas || []).length > 0) || permission.ministryType === $Enums.MinistryType.LEADER,
             discipulador: ((dbMember.discipulados || []).length > 0) || permission.ministryType === $Enums.MinistryType.DISCIPULADOR,
             pastor: ((dbMember.redes || []).length > 0) || permission.ministryType === $Enums.MinistryType.PASTOR,
-            pastorCongregacao: ((dbMember.congregacoesPastorGoverno || []).length > 0) || ((dbMember.congregacoesVicePresidente || []).length > 0),
+            pastorCongregacao: ((dbMember.congregacoesPastorGoverno || []).length > 0) || ((dbMember.congregacoesVicePresidente || []).length > 0) || ((dbMember.congregacoesKidsLeader || []).length > 0) || permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR,
             pastorPresidente: permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR,
             ministryType: permission.ministryType,
             isAdmin: permission.isAdmin,

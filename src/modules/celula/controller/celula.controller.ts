@@ -29,13 +29,6 @@ export class CelulaController {
         if (!permission) throw new HttpException('Você não tem permissão', HttpStatus.UNAUTHORIZED);
         if (!req.member?.matrixId) throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
 
-        if (!!!filters.all && (!filters.celulaIds || filters.celulaIds.length === 0) && !permission.isAdmin) {
-            // Se all for false e celulaIds não for fornecido, usar as células do próprio usuário
-            filters.celulaIds = permission.celulaIds;
-        }
-
-        // Retornar todas as células da matriz, independente da permissão
-        // O controle de ações será feito no frontend baseado nas permissões
         return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 
@@ -110,7 +103,8 @@ export class CelulaController {
         const permission = req.permission;
         const celulaId = Number(id);
         
-        if (!permission?.isAdmin && !permission?.celulaIds.includes(celulaId)) {
+        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+        if (!celulaAccess) {
             throw new HttpException('Você não tem permissão para atualizar esta célula', HttpStatus.UNAUTHORIZED);
         }
 
@@ -127,6 +121,10 @@ export class CelulaController {
         
         // Apenas admin ou liderança superior podem deletar
         if (permission && !permission.isAdmin) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
+            if (!celulaAccess) {
+                throw new HttpException('Você não tem permissão para excluir esta célula', HttpStatus.UNAUTHORIZED);
+            }
             const celula = await this.prisma.celula.findUnique({
                 where: { id: celulaId },
                 include: { discipulado: { include: { rede: true } } }
@@ -180,14 +178,12 @@ export class CelulaController {
         // Verificar se tem permissão para multiplicar
         // Pode multiplicar: admin, líder, vice-líder, discipulador ou pastor
         if (!permission.isAdmin) {
-            const isLeader = celula.leaderMemberId === permission.id;
-            const isLeaderInTraining = celula.leadersInTraining.some(l => l.memberId === permission.id);
             const isDiscipulador = celula.discipuladoId && permission.discipuladoIds.includes(celula.discipuladoId);
             const isPastor = celula.discipulado?.redeId && permission.redeIds.includes(celula.discipulado.redeId);
             
-            if (!isLeader && !isLeaderInTraining && !isDiscipulador && !isPastor) {
+            if (!isDiscipulador && !isPastor) {
                 throw new HttpException(
-                    'Apenas a liderança da célula (líder ou vice), discipulador, pastor ou admins podem multiplicar esta célula',
+                    'Apenas o discipulador, pastor ou admins podem multiplicar esta célula',
                     HttpStatus.UNAUTHORIZED
                 );
             }

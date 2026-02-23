@@ -135,14 +135,6 @@ export class CelulaService {
                         }
                     });
                 }
-                if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
-                    // if user is a leader in training, add those celulas to celulasIds, if it doesn't already exist
-                    member.leadingInTrainingCelulas.forEach(lit => {
-                        if (!celulaIds.includes(lit.celula.id)) {
-                            celulaIds.push(lit.celula.id);
-                        }
-                    });
-                }
                 if (member.discipulados && member.discipulados.length > 0) {
                     member.discipulados.forEach(d => {
                         d.celulas.forEach(c => {
