@@ -277,6 +277,7 @@ enum CelulaType {
   ADULT
   TEENAGER
   CHILDISH
+  KIDS
 }
 
 enum CelulaLevel {
