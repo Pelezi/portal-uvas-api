@@ -224,6 +224,13 @@ export type DateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
+export type EnumContactPrivacyLevelFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContactPrivacyLevel | Prisma.EnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  in?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContactPrivacyLevelFilter<$PrismaModel> | $Enums.ContactPrivacyLevel
+}
+
 export type BoolNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
   not?: Prisma.NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
@@ -264,6 +271,16 @@ export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type EnumContactPrivacyLevelWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContactPrivacyLevel | Prisma.EnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  in?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContactPrivacyLevelWithAggregatesFilter<$PrismaModel> | $Enums.ContactPrivacyLevel
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContactPrivacyLevelFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContactPrivacyLevelFilter<$PrismaModel>
 }
 
 export type EnumReportTypeFilter<$PrismaModel = never> = {
@@ -506,6 +523,13 @@ export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
 }
 
+export type NestedEnumContactPrivacyLevelFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContactPrivacyLevel | Prisma.EnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  in?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContactPrivacyLevelFilter<$PrismaModel> | $Enums.ContactPrivacyLevel
+}
+
 export type NestedBoolNullableWithAggregatesFilter<$PrismaModel = never> = {
   equals?: boolean | Prisma.BooleanFieldRefInput<$PrismaModel> | null
   not?: Prisma.NestedBoolNullableWithAggregatesFilter<$PrismaModel> | boolean | null
@@ -546,6 +570,16 @@ export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
   _max?: Prisma.NestedDateTimeNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumContactPrivacyLevelWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ContactPrivacyLevel | Prisma.EnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  in?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ContactPrivacyLevel[] | Prisma.ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumContactPrivacyLevelWithAggregatesFilter<$PrismaModel> | $Enums.ContactPrivacyLevel
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumContactPrivacyLevelFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumContactPrivacyLevelFilter<$PrismaModel>
 }
 
 export type NestedEnumReportTypeFilter<$PrismaModel = never> = {

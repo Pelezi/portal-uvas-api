@@ -1,0 +1,5 @@
+-- CreateEnum
+CREATE TYPE "ContactPrivacyLevel" AS ENUM ('MY_LEADERSHIP_AND_DISCIPLES', 'ALL_DISCIPULADO', 'ALL_REDE', 'ALL_CONGREGACAO', 'ALL');
+
+-- AlterTable
+ALTER TABLE "Member" ADD COLUMN     "contactPrivacyLevel" "ContactPrivacyLevel" NOT NULL DEFAULT 'MY_LEADERSHIP_AND_DISCIPLES';

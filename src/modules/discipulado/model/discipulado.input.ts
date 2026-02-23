@@ -27,6 +27,9 @@ export class DiscipuladoFilterInput {
     @ApiProperty({ description: 'Filtro por discipulador', required: false, example: 2 })
     public readonly discipuladorMemberId?: number;
 
+    @ApiProperty({ description: 'Filtro por nome do discipulador', required: false, example: 'Maria' })
+    public readonly name?: string;
+
     @ApiProperty({ description: 'Filtro por IDs específicos de discipulados', required: false, example: [1, 2, 3], type: [Number] })
     public discipuladoIds?: number[];
 

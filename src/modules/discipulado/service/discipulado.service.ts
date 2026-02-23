@@ -28,6 +28,14 @@ export class DiscipuladoService {
             if (filters.discipuladorMemberId) {
                 where.discipuladorMemberId = Number(filters.discipuladorMemberId);
             }
+            if (filters.name) {
+                where.discipulador = {
+                    name: {
+                        contains: filters.name,
+                        mode: 'insensitive'
+                    }
+                };
+            }
             if (filters.discipuladoIds && filters.discipuladoIds.length > 0) {
                 where.id = { in: filters.discipuladoIds.map(Number) };
             } else if (!!!filters.all) {

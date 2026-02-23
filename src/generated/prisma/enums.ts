@@ -43,6 +43,17 @@ export const MinistryType = {
 export type MinistryType = (typeof MinistryType)[keyof typeof MinistryType]
 
 
+export const ContactPrivacyLevel = {
+  MY_LEADERSHIP_AND_DISCIPLES: 'MY_LEADERSHIP_AND_DISCIPLES',
+  ALL_DISCIPULADO: 'ALL_DISCIPULADO',
+  ALL_REDE: 'ALL_REDE',
+  ALL_CONGREGACAO: 'ALL_CONGREGACAO',
+  ALL: 'ALL'
+} as const
+
+export type ContactPrivacyLevel = (typeof ContactPrivacyLevel)[keyof typeof ContactPrivacyLevel]
+
+
 export const ReportType = {
   CELULA: 'CELULA',
   CULTO: 'CULTO'

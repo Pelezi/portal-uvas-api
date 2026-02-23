@@ -212,6 +212,7 @@ export const MemberScalarFieldEnum = {
   state: 'state',
   hasSystemAccess: 'hasSystemAccess',
   isOwner: 'isOwner',
+  contactPrivacyLevel: 'contactPrivacyLevel',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

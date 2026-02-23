@@ -543,19 +543,39 @@ export class CelulaService {
                 });
 
                 // Remove celulaId from both leaders if they were in the original celula
-                const newLeader = await tx.member.findUnique({ where: { id: newLeaderMemberId } });
+                const newLeader = await tx.member.findUnique({ where: { id: newLeaderMemberId }, include: { ministryPosition: true } });
                 if (newLeader && newLeader.celulaId === originalCelulaId) {
                     await tx.member.update({
                         where: { id: newLeaderMemberId },
                         data: { celulaId: null }
                     });
                 }
-                const oldLeader = await tx.member.findUnique({ where: { id: oldLeaderMemberId } });
+                const oldLeader = await tx.member.findUnique({ where: { id: oldLeaderMemberId }, include: { ministryPosition: true } });
                 if (oldLeader && oldLeader.celulaId === originalCelulaId) {
                     await tx.member.update({
                         where: { id: oldLeaderMemberId },
                         data: { celulaId: null }
                     });
+                }
+
+                // update both leaders ministry type to leader if they are leader in training
+                if (newLeader && newLeader.ministryPosition?.type === 'LEADER_IN_TRAINING') {
+                    const leaderMinistry = await tx.ministry.findFirst({ where: { type: 'LEADER' } });
+                    if (leaderMinistry) {
+                        await tx.member.update({
+                            where: { id: newLeaderMemberId },
+                            data: { ministryPositionId: leaderMinistry.id }
+                        });
+                    }
+                }
+                if (oldLeader && oldLeader.ministryPosition?.type === 'LEADER_IN_TRAINING') {
+                    const leaderMinistry = await tx.ministry.findFirst({ where: { type: 'LEADER' } });
+                    if (leaderMinistry) {
+                        await tx.member.update({
+                            where: { id: oldLeaderMemberId },
+                            data: { ministryPositionId: leaderMinistry.id }
+                        });
+                    }
                 }
 
                 // ensure members belong to the original celula

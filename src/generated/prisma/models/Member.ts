@@ -74,6 +74,7 @@ export type MemberMinAggregateOutputType = {
   state: string | null
   hasSystemAccess: boolean | null
   isOwner: boolean | null
+  contactPrivacyLevel: $Enums.ContactPrivacyLevel | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -110,6 +111,7 @@ export type MemberMaxAggregateOutputType = {
   state: string | null
   hasSystemAccess: boolean | null
   isOwner: boolean | null
+  contactPrivacyLevel: $Enums.ContactPrivacyLevel | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -146,6 +148,7 @@ export type MemberCountAggregateOutputType = {
   state: number
   hasSystemAccess: number
   isOwner: number
+  contactPrivacyLevel: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -200,6 +203,7 @@ export type MemberMinAggregateInputType = {
   state?: true
   hasSystemAccess?: true
   isOwner?: true
+  contactPrivacyLevel?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -236,6 +240,7 @@ export type MemberMaxAggregateInputType = {
   state?: true
   hasSystemAccess?: true
   isOwner?: true
+  contactPrivacyLevel?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -272,6 +277,7 @@ export type MemberCountAggregateInputType = {
   state?: true
   hasSystemAccess?: true
   isOwner?: true
+  contactPrivacyLevel?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -395,6 +401,7 @@ export type MemberGroupByOutputType = {
   state: string | null
   hasSystemAccess: boolean
   isOwner: boolean
+  contactPrivacyLevel: $Enums.ContactPrivacyLevel
   createdAt: Date
   updatedAt: Date
   _count: MemberCountAggregateOutputType | null
@@ -454,6 +461,7 @@ export type MemberWhereInput = {
   state?: Prisma.StringNullableFilter<"Member"> | string | null
   hasSystemAccess?: Prisma.BoolFilter<"Member"> | boolean
   isOwner?: Prisma.BoolFilter<"Member"> | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFilter<"Member"> | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   attendances?: Prisma.ReportAttendanceListRelationFilter
@@ -510,6 +518,7 @@ export type MemberOrderByWithRelationInput = {
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   hasSystemAccess?: Prisma.SortOrder
   isOwner?: Prisma.SortOrder
+  contactPrivacyLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   attendances?: Prisma.ReportAttendanceOrderByRelationAggregateInput
@@ -569,6 +578,7 @@ export type MemberWhereUniqueInput = Prisma.AtLeast<{
   state?: Prisma.StringNullableFilter<"Member"> | string | null
   hasSystemAccess?: Prisma.BoolFilter<"Member"> | boolean
   isOwner?: Prisma.BoolFilter<"Member"> | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFilter<"Member"> | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   attendances?: Prisma.ReportAttendanceListRelationFilter
@@ -625,6 +635,7 @@ export type MemberOrderByWithAggregationInput = {
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   hasSystemAccess?: Prisma.SortOrder
   isOwner?: Prisma.SortOrder
+  contactPrivacyLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.MemberCountOrderByAggregateInput
@@ -669,6 +680,7 @@ export type MemberScalarWhereWithAggregatesInput = {
   state?: Prisma.StringNullableWithAggregatesFilter<"Member"> | string | null
   hasSystemAccess?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
   isOwner?: Prisma.BoolWithAggregatesFilter<"Member"> | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelWithAggregatesFilter<"Member"> | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Member"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Member"> | Date | string
 }
@@ -700,6 +712,7 @@ export type MemberCreateInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -756,6 +769,7 @@ export type MemberUncheckedCreateInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -803,6 +817,7 @@ export type MemberUpdateInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -859,6 +874,7 @@ export type MemberUncheckedUpdateInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -911,6 +927,7 @@ export type MemberCreateManyInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -942,6 +959,7 @@ export type MemberUpdateManyMutationInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -978,6 +996,7 @@ export type MemberUncheckedUpdateManyInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1034,6 +1053,7 @@ export type MemberCountOrderByAggregateInput = {
   state?: Prisma.SortOrder
   hasSystemAccess?: Prisma.SortOrder
   isOwner?: Prisma.SortOrder
+  contactPrivacyLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1078,6 +1098,7 @@ export type MemberMaxOrderByAggregateInput = {
   state?: Prisma.SortOrder
   hasSystemAccess?: Prisma.SortOrder
   isOwner?: Prisma.SortOrder
+  contactPrivacyLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1114,6 +1135,7 @@ export type MemberMinOrderByAggregateInput = {
   state?: Prisma.SortOrder
   hasSystemAccess?: Prisma.SortOrder
   isOwner?: Prisma.SortOrder
+  contactPrivacyLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -1312,6 +1334,10 @@ export type NullableEnumGenderFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type EnumContactPrivacyLevelFieldUpdateOperationsInput = {
+  set?: $Enums.ContactPrivacyLevel
 }
 
 export type MemberUpdateOneWithoutSpouseOfNestedInput = {
@@ -1557,6 +1583,7 @@ export type MemberCreateWithoutMatricesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -1612,6 +1639,7 @@ export type MemberUncheckedCreateWithoutMatricesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -1674,6 +1702,7 @@ export type MemberUpdateWithoutMatricesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -1729,6 +1758,7 @@ export type MemberUncheckedUpdateWithoutMatricesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -1775,6 +1805,7 @@ export type MemberCreateWithoutCelulaInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -1829,6 +1860,7 @@ export type MemberUncheckedCreateWithoutCelulaInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -1886,6 +1918,7 @@ export type MemberCreateWithoutLedCelulasInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -1941,6 +1974,7 @@ export type MemberUncheckedCreateWithoutLedCelulasInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -2016,6 +2050,7 @@ export type MemberScalarWhereInput = {
   state?: Prisma.StringNullableFilter<"Member"> | string | null
   hasSystemAccess?: Prisma.BoolFilter<"Member"> | boolean
   isOwner?: Prisma.BoolFilter<"Member"> | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFilter<"Member"> | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFilter<"Member"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Member"> | Date | string
 }
@@ -2058,6 +2093,7 @@ export type MemberUpdateWithoutLedCelulasInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -2113,6 +2149,7 @@ export type MemberUncheckedUpdateWithoutLedCelulasInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -2159,6 +2196,7 @@ export type MemberCreateWithoutMinistryPositionInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -2213,6 +2251,7 @@ export type MemberUncheckedCreateWithoutMinistryPositionInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -2286,6 +2325,7 @@ export type MemberCreateWithoutWinnerPathInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -2340,6 +2380,7 @@ export type MemberUncheckedCreateWithoutWinnerPathInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -2413,6 +2454,7 @@ export type MemberCreateWithoutSpouseOfInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -2468,6 +2510,7 @@ export type MemberUncheckedCreateWithoutSpouseOfInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -2519,6 +2562,7 @@ export type MemberCreateWithoutSpouseInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -2573,6 +2617,7 @@ export type MemberUncheckedCreateWithoutSpouseInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -2636,6 +2681,7 @@ export type MemberUpdateWithoutSpouseOfInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -2691,6 +2737,7 @@ export type MemberUncheckedUpdateWithoutSpouseOfInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -2748,6 +2795,7 @@ export type MemberUpdateWithoutSpouseInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -2802,6 +2850,7 @@ export type MemberUncheckedUpdateWithoutSpouseInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -2849,6 +2898,7 @@ export type MemberCreateWithoutLeadingInTrainingCelulasInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -2904,6 +2954,7 @@ export type MemberUncheckedCreateWithoutLeadingInTrainingCelulasInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -2966,6 +3017,7 @@ export type MemberUpdateWithoutLeadingInTrainingCelulasInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -3021,6 +3073,7 @@ export type MemberUncheckedUpdateWithoutLeadingInTrainingCelulasInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -3067,6 +3120,7 @@ export type MemberCreateWithoutCongregacoesPastorGovernoInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -3122,6 +3176,7 @@ export type MemberUncheckedCreateWithoutCongregacoesPastorGovernoInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -3173,6 +3228,7 @@ export type MemberCreateWithoutCongregacoesVicePresidenteInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -3228,6 +3284,7 @@ export type MemberUncheckedCreateWithoutCongregacoesVicePresidenteInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -3279,6 +3336,7 @@ export type MemberCreateWithoutCongregacoesKidsLeaderInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -3334,6 +3392,7 @@ export type MemberUncheckedCreateWithoutCongregacoesKidsLeaderInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -3396,6 +3455,7 @@ export type MemberUpdateWithoutCongregacoesPastorGovernoInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -3451,6 +3511,7 @@ export type MemberUncheckedUpdateWithoutCongregacoesPastorGovernoInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -3508,6 +3569,7 @@ export type MemberUpdateWithoutCongregacoesVicePresidenteInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -3563,6 +3625,7 @@ export type MemberUncheckedUpdateWithoutCongregacoesVicePresidenteInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -3620,6 +3683,7 @@ export type MemberUpdateWithoutCongregacoesKidsLeaderInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -3675,6 +3739,7 @@ export type MemberUncheckedUpdateWithoutCongregacoesKidsLeaderInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -3721,6 +3786,7 @@ export type MemberCreateWithoutRedesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -3776,6 +3842,7 @@ export type MemberUncheckedCreateWithoutRedesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -3838,6 +3905,7 @@ export type MemberUpdateWithoutRedesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -3893,6 +3961,7 @@ export type MemberUncheckedUpdateWithoutRedesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -3939,6 +4008,7 @@ export type MemberCreateWithoutDiscipuladosInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -3994,6 +4064,7 @@ export type MemberUncheckedCreateWithoutDiscipuladosInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -4056,6 +4127,7 @@ export type MemberUpdateWithoutDiscipuladosInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -4111,6 +4183,7 @@ export type MemberUncheckedUpdateWithoutDiscipuladosInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -4157,6 +4230,7 @@ export type MemberCreateWithoutDiscipleOfInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -4212,6 +4286,7 @@ export type MemberUncheckedCreateWithoutDiscipleOfInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -4274,6 +4349,7 @@ export type MemberUpdateWithoutDiscipleOfInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -4329,6 +4405,7 @@ export type MemberUncheckedUpdateWithoutDiscipleOfInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -4375,6 +4452,7 @@ export type MemberCreateWithoutAttendancesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   redes?: Prisma.RedeCreateNestedManyWithoutPastorInput
@@ -4430,6 +4508,7 @@ export type MemberUncheckedCreateWithoutAttendancesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   redes?: Prisma.RedeUncheckedCreateNestedManyWithoutPastorInput
@@ -4492,6 +4571,7 @@ export type MemberUpdateWithoutAttendancesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   redes?: Prisma.RedeUpdateManyWithoutPastorNestedInput
@@ -4547,6 +4627,7 @@ export type MemberUncheckedUpdateWithoutAttendancesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   redes?: Prisma.RedeUncheckedUpdateManyWithoutPastorNestedInput
@@ -4593,6 +4674,7 @@ export type MemberCreateWithoutRolesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -4648,6 +4730,7 @@ export type MemberUncheckedCreateWithoutRolesInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -4710,6 +4793,7 @@ export type MemberUpdateWithoutRolesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -4765,6 +4849,7 @@ export type MemberUncheckedUpdateWithoutRolesInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -4811,6 +4896,7 @@ export type MemberCreateWithoutRefreshTokensInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -4866,6 +4952,7 @@ export type MemberUncheckedCreateWithoutRefreshTokensInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -4928,6 +5015,7 @@ export type MemberUpdateWithoutRefreshTokensInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -4983,6 +5071,7 @@ export type MemberUncheckedUpdateWithoutRefreshTokensInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -5029,6 +5118,7 @@ export type MemberCreateWithoutCreatedApiKeysInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -5084,6 +5174,7 @@ export type MemberUncheckedCreateWithoutCreatedApiKeysInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -5146,6 +5237,7 @@ export type MemberUpdateWithoutCreatedApiKeysInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -5201,6 +5293,7 @@ export type MemberUncheckedUpdateWithoutCreatedApiKeysInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -5247,6 +5340,7 @@ export type MemberCreateWithoutPasswordResetTokensInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -5302,6 +5396,7 @@ export type MemberUncheckedCreateWithoutPasswordResetTokensInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -5364,6 +5459,7 @@ export type MemberUpdateWithoutPasswordResetTokensInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -5419,6 +5515,7 @@ export type MemberUncheckedUpdateWithoutPasswordResetTokensInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -5465,6 +5562,7 @@ export type MemberCreateWithoutSocialMediaInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceCreateNestedManyWithoutMemberInput
@@ -5520,6 +5618,7 @@ export type MemberUncheckedCreateWithoutSocialMediaInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
   attendances?: Prisma.ReportAttendanceUncheckedCreateNestedManyWithoutMemberInput
@@ -5582,6 +5681,7 @@ export type MemberUpdateWithoutSocialMediaInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -5637,6 +5737,7 @@ export type MemberUncheckedUpdateWithoutSocialMediaInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -5687,6 +5788,7 @@ export type MemberCreateManyCelulaInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -5718,6 +5820,7 @@ export type MemberUpdateWithoutCelulaInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -5772,6 +5875,7 @@ export type MemberUncheckedUpdateWithoutCelulaInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -5823,6 +5927,7 @@ export type MemberUncheckedUpdateManyWithoutCelulaInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -5858,6 +5963,7 @@ export type MemberCreateManyMinistryPositionInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -5889,6 +5995,7 @@ export type MemberUpdateWithoutMinistryPositionInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -5943,6 +6050,7 @@ export type MemberUncheckedUpdateWithoutMinistryPositionInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -5994,6 +6102,7 @@ export type MemberUncheckedUpdateManyWithoutMinistryPositionInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -6029,6 +6138,7 @@ export type MemberCreateManyWinnerPathInput = {
   state?: string | null
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: $Enums.ContactPrivacyLevel
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -6060,6 +6170,7 @@ export type MemberUpdateWithoutWinnerPathInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUpdateManyWithoutMemberNestedInput
@@ -6114,6 +6225,7 @@ export type MemberUncheckedUpdateWithoutWinnerPathInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   attendances?: Prisma.ReportAttendanceUncheckedUpdateManyWithoutMemberNestedInput
@@ -6165,6 +6277,7 @@ export type MemberUncheckedUpdateManyWithoutWinnerPathInput = {
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   hasSystemAccess?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isOwner?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  contactPrivacyLevel?: Prisma.EnumContactPrivacyLevelFieldUpdateOperationsInput | $Enums.ContactPrivacyLevel
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -6358,6 +6471,7 @@ export type MemberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   state?: boolean
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   attendances?: boolean | Prisma.Member$attendancesArgs<ExtArgs>
@@ -6415,6 +6529,7 @@ export type MemberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   state?: boolean
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   celula?: boolean | Prisma.Member$celulaArgs<ExtArgs>
@@ -6455,6 +6570,7 @@ export type MemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   state?: boolean
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   celula?: boolean | Prisma.Member$celulaArgs<ExtArgs>
@@ -6495,11 +6611,12 @@ export type MemberSelectScalar = {
   state?: boolean
   hasSystemAccess?: boolean
   isOwner?: boolean
+  contactPrivacyLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "phone" | "hasDefaultPassword" | "inviteSent" | "hasLoggedIn" | "name" | "celulaId" | "isActive" | "maritalStatus" | "photoUrl" | "gender" | "isBaptized" | "baptismDate" | "birthDate" | "registerDate" | "spouseId" | "ministryPositionId" | "winnerPathId" | "canBeHost" | "country" | "zipCode" | "street" | "streetNumber" | "neighborhood" | "city" | "complement" | "state" | "hasSystemAccess" | "isOwner" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
+export type MemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "phone" | "hasDefaultPassword" | "inviteSent" | "hasLoggedIn" | "name" | "celulaId" | "isActive" | "maritalStatus" | "photoUrl" | "gender" | "isBaptized" | "baptismDate" | "birthDate" | "registerDate" | "spouseId" | "ministryPositionId" | "winnerPathId" | "canBeHost" | "country" | "zipCode" | "street" | "streetNumber" | "neighborhood" | "city" | "complement" | "state" | "hasSystemAccess" | "isOwner" | "contactPrivacyLevel" | "createdAt" | "updatedAt", ExtArgs["result"]["member"]>
 export type MemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   attendances?: boolean | Prisma.Member$attendancesArgs<ExtArgs>
   redes?: boolean | Prisma.Member$redesArgs<ExtArgs>
@@ -6592,6 +6709,7 @@ export type $MemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     state: string | null
     hasSystemAccess: boolean
     isOwner: boolean
+    contactPrivacyLevel: $Enums.ContactPrivacyLevel
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["member"]>
@@ -7068,6 +7186,7 @@ export interface MemberFieldRefs {
   readonly state: Prisma.FieldRef<"Member", 'String'>
   readonly hasSystemAccess: Prisma.FieldRef<"Member", 'Boolean'>
   readonly isOwner: Prisma.FieldRef<"Member", 'Boolean'>
+  readonly contactPrivacyLevel: Prisma.FieldRef<"Member", 'ContactPrivacyLevel'>
   readonly createdAt: Prisma.FieldRef<"Member", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Member", 'DateTime'>
 }

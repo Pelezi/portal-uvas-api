@@ -180,6 +180,9 @@ model Member {
   hasSystemAccess  Boolean    @default(false)
   isOwner          Boolean    @default(false)
   
+  // Privacy
+  contactPrivacyLevel ContactPrivacyLevel @default(MY_LEADERSHIP_AND_DISCIPLES)
+  
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
@@ -249,6 +252,14 @@ enum MinistryType {
   MEMBER
   REGULAR_ATTENDEE
   VISITOR
+}
+
+enum ContactPrivacyLevel {
+  MY_LEADERSHIP_AND_DISCIPLES
+  ALL_DISCIPULADO
+  ALL_REDE
+  ALL_CONGREGACAO
+  ALL
 }
 
 enum ReportType {

@@ -213,17 +213,17 @@ export class MemberService {
                     where.OR = orConditions;
                 }
 
-                // Apply name filter separately (not part of OR)
-                if (filters.name) {
-                    where.name = {
-                        contains: filters.name,
-                        mode: 'insensitive'
-                    };
-                }
-
                 if (filters.isActive !== undefined) {
                     where.isActive = String(filters.isActive).toLowerCase() === 'true';
                 }
+            }
+
+            // Apply name filter separately (not part of OR) - works with all filter combinations
+            if (filters.name) {
+                where.name = {
+                    contains: filters.name,
+                    mode: 'insensitive'
+                };
             }
 
             // Filtrar por tipo de ministério (para selecionar pastores, discipuladores, líderes)
@@ -275,28 +275,68 @@ export class MemberService {
                     include: {
                         discipulado: {
                             include: {
-                                rede: true,
+                                rede: { include: { congregacao: true } },
                                 discipulador: true
                             }
                         }
                     }
                 },
-                ledCelulas: { include: { discipulado: { include: { rede: { include: { congregacao: true } } } } } },
+                ledCelulas: { include: { discipulado: { include: { rede: { include: { congregacao: true } }, discipulador: true } } } },
                 leadingInTrainingCelulas: { include: { celula: true } },
-                discipulados: { include: { rede: { include: { congregacao: true } } } },
+                discipulados: { include: { rede: { include: { congregacao: true } }, discipulador: true } },
                 redes: { include: { congregacao: true } },
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
                 congregacoesKidsLeader: true,
                 roles: { include: { role: true } },
                 discipleOf: { include: { discipulado: { include: { discipulador: true, rede: true } } } },
-                ministryPosition: true
+                ministryPosition: true,
+                spouse: true,
+                socialMedia: true,
             },
+            omit: { password: true },
             orderBy: { name: 'asc' }
         });
 
+        // Apply contact privacy filtering
+        if (requestingMemberId) {
+            for (const member of response) {
+                // Skip if member is the requesting member
+                if (member.id === requestingMemberId) {
+                    continue;
+                }
+
+                // Check privacy settings and censor contact data if needed
+                if (member.contactPrivacyLevel !== 'ALL') {
+                    const hasAccess = await this.checkContactPrivacyAccess(
+                        member.id,
+                        requestingMemberId,
+                        member.contactPrivacyLevel
+                    );
+
+                    if (!hasAccess) {
+                        // Censor contact and address data
+                        member.phone = null;
+                        member.email = null;
+                        member.street = null;
+                        member.streetNumber = null;
+                        member.neighborhood = null;
+                        member.city = null;
+                        member.state = null;
+                        member.zipCode = null;
+                        member.country = null;
+                        member.complement = null;
+                        member.socialMedia = [];
+                    }
+                }
+            }
+        }
+
         // replace photoUrl with full CloudFront URL if it exists
-        this.cloudFrontService.transformPhotoUrls(response);
+        response.forEach(member => {
+            this.cloudFrontService.transformPhotoUrl(member);
+            member.spouse && this.cloudFrontService.transformPhotoUrl(member.spouse);
+        });
 
         return response;
     }
@@ -455,11 +495,65 @@ export class MemberService {
         return hierarchyConditions;
     }
 
-    public async findById(memberId: number) {
+    public async findById(memberId: number, requestingMemberId?: number) {
         const userInfo = await this.prisma.member.findUnique({
             where: { id: memberId },
             include: {
-                celula: true,
+                celula: {
+                    include: {
+                        leader: true,
+                        discipulado: {
+                            include: {
+                                discipulador: true,
+                                rede: {
+                                    include: {
+                                        pastor: true,
+                                        congregacao: {
+                                            include: {
+                                                pastorGoverno: true,
+                                                vicePresidente: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                ledCelulas: {
+                    include: {
+                        discipulado: {
+                            include: {
+                                rede: {
+                                    include: {
+                                        congregacao: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                discipulados: {
+                    include: {
+                        rede: {
+                            include: {
+                                congregacao: true
+                            }
+                        },
+                        disciples: {
+                            include: {
+                                member: true
+                            }
+                        }
+                    }
+                },
+                redes: {
+                    include: {
+                        congregacao: true
+                    }
+                },
+                congregacoesPastorGoverno: true,
+                congregacoesVicePresidente: true,
                 roles: {
                     include: { role: true }
                 },
@@ -468,8 +562,538 @@ export class MemberService {
             omit: { password: true }
         });
 
+        if (!userInfo) {
+            return null;
+        }
+
+        // If requesting member is the same as the member being viewed, return full data
+        if (requestingMemberId && requestingMemberId === memberId) {
+            return this.cloudFrontService.transformPhotoUrl(userInfo);
+        }
+
+        // Check privacy settings and censor contact data if needed
+        if (requestingMemberId && userInfo.contactPrivacyLevel !== 'ALL') {
+            const hasAccess = await this.checkContactPrivacyAccess(
+                userInfo.id,
+                requestingMemberId,
+                userInfo.contactPrivacyLevel
+            );
+
+            if (!hasAccess) {
+                // Censor contact and address data
+                userInfo.phone = null;
+                userInfo.email = null;
+                userInfo.zipCode = null;
+                userInfo.street = null;
+                userInfo.streetNumber = null;
+                userInfo.neighborhood = null;
+                userInfo.city = null;
+                userInfo.complement = null;
+                userInfo.state = null;
+                userInfo.country = null;
+                userInfo.socialMedia = [];
+            }
+        }
+
         // replace photoUrl with full CloudFront URL if it exists
         return this.cloudFrontService.transformPhotoUrl(userInfo);
+    }
+
+    /**
+     * Check if requesting member has access to contact data based on privacy level
+     */
+    private async checkContactPrivacyAccess(
+        targetMemberId: number,
+        requestingMemberId: number,
+        privacyLevel: string
+    ): Promise<boolean> {
+        const [requestingMember, targetMember] = await Promise.all([
+            this.prisma.member.findUnique({
+                where: { id: requestingMemberId },
+                select: {
+                    id: true,
+                    celula: {
+                        select: {
+                            leaderMemberId: true,
+                            discipuladoId: true,
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    redeId: true,
+                                    rede: {
+                                        select: {
+                                            congregacaoId: true,
+                                            isKids: true,
+                                            pastorMemberId: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    ledCelulas: {
+                        select: {
+                            discipuladoId: true,
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    redeId: true,
+                                    rede: {
+                                        select: {
+                                            congregacaoId: true,
+                                            isKids: true,
+                                            pastorMemberId: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    discipulados: {
+                        select: {
+                            id: true,
+                            redeId: true,
+                            rede: {
+                                select: {
+                                    congregacaoId: true,
+                                    isKids: true,
+                                    pastorMemberId: true,
+                                    congregacao: {
+                                        select: {
+                                            pastorGovernoMemberId: true,
+                                            vicePresidenteMemberId: true,
+                                            kidsLeaderMemberId: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    redes: {
+                        select: {
+                            id: true,
+                            congregacaoId: true,
+                            isKids: true,
+                            congregacao: {
+                                select: {
+                                    pastorGovernoMemberId: true,
+                                    vicePresidenteMemberId: true,
+                                    kidsLeaderMemberId: true
+                                }
+                            }
+                        }
+                    },
+                    congregacoesPastorGoverno: {
+                        select: {
+                            id: true,
+                            isPrincipal: true
+                        }
+                    },
+                    congregacoesVicePresidente: {
+                        select: { id: true }
+                    },
+                    congregacoesKidsLeader: {
+                        select: { id: true }
+                    },
+                    discipleOf: {
+                        select: {
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    rede: {
+                                        select: {
+                                            pastorMemberId: true,
+                                            isKids: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    roles: {
+                        select: {
+                            role: {
+                                select: { isAdmin: true }
+                            }
+                        }
+                    }
+                }
+            }),
+            this.prisma.member.findUnique({
+                where: { id: targetMemberId },
+                select: {
+                    id: true,
+                    celula: {
+                        select: {
+                            leaderMemberId: true,
+                            discipuladoId: true,
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    redeId: true,
+                                    rede: {
+                                        select: {
+                                            congregacaoId: true,
+                                            isKids: true,
+                                            pastorMemberId: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    leadingInTrainingCelulas: {
+                        select: {
+                            celula: {
+                                select: {
+                                    discipuladoId: true,
+                                    discipulado: {
+                                        select: {
+                                            discipuladorMemberId: true,
+                                            redeId: true,
+                                            rede: {
+                                                select: {
+                                                    congregacaoId: true,
+                                                    isKids: true,
+                                                    pastorMemberId: true,
+                                                    congregacao: {
+                                                        select: {
+                                                            pastorGovernoMemberId: true,
+                                                            vicePresidenteMemberId: true,
+                                                            kidsLeaderMemberId: true
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    ledCelulas: {
+                        select: {
+                            discipuladoId: true,
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    redeId: true,
+                                    rede: {
+                                        select: {
+                                            congregacaoId: true,
+                                            isKids: true,
+                                            pastorMemberId: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    discipulados: {
+                        select: {
+                            id: true,
+                            redeId: true,
+                            rede: {
+                                select: {
+                                    congregacaoId: true,
+                                    isKids: true,
+                                    pastorMemberId: true,
+                                    congregacao: {
+                                        select: {
+                                            pastorGovernoMemberId: true,
+                                            vicePresidenteMemberId: true,
+                                            kidsLeaderMemberId: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    redes: {
+                        select: {
+                            id: true,
+                            congregacaoId: true,
+                            isKids: true,
+                            congregacao: {
+                                select: {
+                                    pastorGovernoMemberId: true,
+                                    vicePresidenteMemberId: true,
+                                    kidsLeaderMemberId: true
+                                }
+                            }
+                        }
+                    },
+                    congregacoesPastorGoverno: {
+                        select: { id: true }
+                    },
+                    congregacoesVicePresidente: {
+                        select: { id: true }
+                    },
+                    congregacoesKidsLeader: {
+                        select: { id: true }
+                    },
+                    discipleOf: {
+                        select: {
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    rede: {
+                                        select: {
+                                            pastorMemberId: true,
+                                            isKids: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    roles: {
+                        select: {
+                            role: {
+                                select: { isAdmin: true }
+                            }
+                        }
+                    }
+                }
+            })
+        ]);
+
+        if (!requestingMember || !targetMember) {
+            return false;
+        }
+
+        if (targetMember.id == 2) {
+            console.log('here');
+        }
+
+        // Admins and principal pastors have access to all contact data
+        if (requestingMember.roles.some(r => r.role.isAdmin) || requestingMember.congregacoesPastorGoverno.some(c => c.isPrincipal)) {
+            return true;
+        }
+
+        switch (privacyLevel) {
+            case 'ALL':
+                return true;
+
+            case 'ALL_CONGREGACAO': {
+                const targetCongregacoesIds = [
+                    targetMember.celula?.discipulado?.rede?.congregacaoId,
+                    ...targetMember.ledCelulas.flatMap(c => c.discipulado?.rede?.congregacaoId ? [c.discipulado.rede.congregacaoId] : []),
+                    ...targetMember.leadingInTrainingCelulas.flatMap(c => c.celula.discipulado?.rede?.congregacaoId ? [c.celula.discipulado.rede.congregacaoId] : []),
+                    ...targetMember.discipulados.flatMap(d => d.rede?.congregacaoId ? [d.rede.congregacaoId] : []),
+                    ...targetMember.redes.flatMap(r => r.congregacaoId ? [r.congregacaoId] : []),
+                    ...targetMember.congregacoesPastorGoverno.map(c => c.id),
+                    ...targetMember.congregacoesVicePresidente.map(c => c.id),
+                    ...targetMember.congregacoesKidsLeader.map(c => c.id),
+                ].filter(id => id !== undefined) as number[];
+
+                const requestingCongregacoesIds = [
+                    requestingMember.celula?.discipulado?.rede?.congregacaoId,
+                    ...requestingMember.ledCelulas.flatMap(c => c.discipulado?.rede?.congregacaoId ? [c.discipulado.rede.congregacaoId] : []),
+                    ...requestingMember.discipulados.flatMap(d => d.rede?.congregacaoId ? [d.rede.congregacaoId] : []),
+                    ...requestingMember.redes.flatMap(r => r.congregacaoId ? [r.congregacaoId] : []),
+                    ...requestingMember.congregacoesPastorGoverno.map(c => c.id),
+                    ...requestingMember.congregacoesVicePresidente.map(c => c.id),
+                    ...requestingMember.congregacoesKidsLeader.map(c => c.id),
+                ].filter(id => id !== undefined) as number[];
+
+                if (targetCongregacoesIds.some(id => requestingCongregacoesIds.includes(id))) {
+                    return true;
+                }
+            }
+            // Fall through to check rede level
+
+            case 'ALL_REDE': {
+                const targetRedeIds = [
+                    targetMember.celula?.discipulado?.redeId,
+                    ...targetMember.ledCelulas.flatMap(c => c.discipulado?.redeId ? [c.discipulado.redeId] : []),
+                    ...targetMember.leadingInTrainingCelulas.flatMap(c => c.celula.discipulado?.redeId ? [c.celula.discipulado.redeId] : []),
+                    ...targetMember.discipulados.flatMap(d => d.redeId ? [d.redeId] : []),
+                    ...targetMember.redes.flatMap(r => r.id ? [r.id] : []),
+                ].filter(id => id !== undefined) as number[];
+
+                const requestingRedeIds = [
+                    requestingMember.celula?.discipulado?.redeId,
+                    ...requestingMember.ledCelulas.flatMap(c => c.discipulado?.redeId ? [c.discipulado.redeId] : []),
+                    ...requestingMember.discipulados.flatMap(d => d.redeId ? [d.redeId] : []),
+                    ...requestingMember.redes.flatMap(r => r.id ? [r.id] : []),
+                ].filter(id => id !== undefined) as number[];
+
+                if (targetRedeIds.some(id => requestingRedeIds.includes(id))) {
+                    return true;
+                }
+            }
+            // Fall through to check discipulado level
+
+            case 'ALL_DISCIPULADO': {
+                const targetDiscipuladoIds = [
+                    targetMember.celula?.discipuladoId,
+                    ...targetMember.ledCelulas.flatMap(c => c.discipuladoId ? [c.discipuladoId] : []),
+                    ...targetMember.leadingInTrainingCelulas.flatMap(c => c.celula.discipuladoId ? [c.celula.discipuladoId] : []),
+                    ...targetMember.discipulados.flatMap(d => d.id ? [d.id] : []),
+                ].filter(id => id !== undefined) as number[];
+
+                const requestingDiscipuladoIds = [
+                    requestingMember.celula?.discipuladoId,
+                    ...requestingMember.ledCelulas.flatMap(c => c.discipuladoId ? [c.discipuladoId] : []),
+                    ...requestingMember.discipulados.flatMap(d => d.id ? [d.id] : []),
+                ].filter(id => id !== undefined) as number[];
+
+                if (targetDiscipuladoIds.some(id => requestingDiscipuladoIds.includes(id))) {
+                    return true;
+                }
+            }
+            // Fall through to check leadership
+
+            case 'MY_LEADERSHIP_AND_DISCIPLES': {
+                // Leadership up: Check if requesting member is in target's leadership chain
+                
+                // Celula leader
+                if (targetMember.celula?.leaderMemberId === requestingMemberId) {
+                    return true;
+                }
+
+                // Discipulador
+                if (targetMember.celula?.discipulado?.discipuladorMemberId === requestingMemberId
+                    || targetMember.ledCelulas?.some(celula => celula.discipulado?.discipuladorMemberId === requestingMemberId)
+                    || targetMember.leadingInTrainingCelulas?.some(celula => celula.celula.discipulado?.discipuladorMemberId === requestingMemberId)
+                    || targetMember.discipleOf?.some(d => d.discipulado.discipuladorMemberId === requestingMemberId)) {
+                    return true;
+                }
+
+                // Pastor de rede
+                if (targetMember.celula?.discipulado?.rede?.pastorMemberId === requestingMemberId
+                    || targetMember.ledCelulas?.some(celula => celula.discipulado?.rede?.pastorMemberId === requestingMemberId)
+                    || targetMember.leadingInTrainingCelulas?.some(celula => celula.celula.discipulado?.rede?.pastorMemberId === requestingMemberId)
+                    || targetMember.discipulados?.some(d => d.rede?.pastorMemberId === requestingMemberId)
+                    || targetMember.discipleOf?.some(d => d.discipulado.rede?.pastorMemberId === requestingMemberId)) {
+                    return true;
+                }
+
+                // Pastor de governo
+                if (targetMember.celula?.discipulado?.rede?.congregacao?.pastorGovernoMemberId === requestingMemberId
+                    || targetMember.ledCelulas?.some(celula => celula.discipulado?.rede?.congregacao?.pastorGovernoMemberId === requestingMemberId)
+                    || targetMember.leadingInTrainingCelulas?.some(celula => celula.celula.discipulado?.rede?.congregacao?.pastorGovernoMemberId === requestingMemberId)
+                    || targetMember.discipulados?.some(d => d.rede?.congregacao?.pastorGovernoMemberId === requestingMemberId)
+                    || targetMember.redes?.some(r => r.congregacao?.pastorGovernoMemberId === requestingMemberId)) {
+                    return true;
+                }
+
+                // Vice-presidente
+                if (targetMember.celula?.discipulado?.rede?.congregacao?.vicePresidenteMemberId === requestingMemberId
+                    || targetMember.ledCelulas?.some(celula => celula.discipulado?.rede?.congregacao?.vicePresidenteMemberId === requestingMemberId)
+                    || targetMember.leadingInTrainingCelulas?.some(celula => celula.celula.discipulado?.rede?.congregacao?.vicePresidenteMemberId === requestingMemberId)
+                    || targetMember.discipulados?.some(d => d.rede?.congregacao?.vicePresidenteMemberId === requestingMemberId)
+                    || targetMember.redes?.some(r => r.congregacao?.vicePresidenteMemberId === requestingMemberId)) {
+                    return true;
+                }
+
+                // Kids leader
+                if ((targetMember.celula?.discipulado?.rede?.isKids === true && targetMember.celula?.discipulado?.rede?.congregacao.kidsLeaderMemberId === requestingMemberId)
+                    || targetMember.ledCelulas?.some(celula => celula.discipulado?.rede?.isKids === true && celula.discipulado?.rede?.congregacao.kidsLeaderMemberId === requestingMemberId)
+                    || targetMember.leadingInTrainingCelulas?.some(celula => celula.celula.discipulado?.rede?.isKids === true && celula.celula.discipulado?.rede?.congregacao.kidsLeaderMemberId === requestingMemberId)
+                    || targetMember.discipulados?.some(d => d.rede?.isKids === true && d.rede?.congregacao.kidsLeaderMemberId === requestingMemberId)
+                    || targetMember.redes?.some(r => r.isKids === true && r.congregacao.kidsLeaderMemberId === requestingMemberId)
+                    || targetMember.discipleOf?.some(d => d.discipulado.rede?.isKids === true && d.discipulado.rede?.congregacao.kidsLeaderMemberId === requestingMemberId)) {
+                    return true;
+                }
+
+                // Leadership down: Check if target member is in requesting member's leadership chain
+
+                // Celula leader
+                if (requestingMember.celula?.leaderMemberId === targetMemberId) {
+                    return true;
+                }
+
+                // Discipulador
+                if (requestingMember.celula?.discipulado?.discipuladorMemberId === targetMemberId
+                    || requestingMember.ledCelulas?.some(celula => celula.discipulado?.discipuladorMemberId === targetMemberId)
+                    || requestingMember.discipleOf?.some(d => d.discipulado.discipuladorMemberId === targetMemberId)) {
+                    return true;
+                }
+
+                // Pastor de rede
+                if (requestingMember.celula?.discipulado?.rede?.pastorMemberId === targetMemberId
+                    || requestingMember.ledCelulas?.some(celula => celula.discipulado?.rede?.pastorMemberId === targetMemberId)
+                    || requestingMember.discipulados?.some(d => d.rede?.pastorMemberId === targetMemberId)
+                    || requestingMember.discipleOf?.some(d => d.discipulado.rede?.pastorMemberId === targetMemberId)) {
+                    return true;
+                }
+
+                // Pastor de governo
+                if (requestingMember.celula?.discipulado?.rede?.congregacao?.pastorGovernoMemberId === targetMemberId
+                    || requestingMember.ledCelulas?.some(celula => celula.discipulado?.rede?.congregacao?.pastorGovernoMemberId === targetMemberId)
+                    || requestingMember.discipulados?.some(d => d.rede?.congregacao?.pastorGovernoMemberId === targetMemberId)
+                    || requestingMember.redes?.some(r => r.congregacao?.pastorGovernoMemberId === targetMemberId)
+                    || requestingMember.discipleOf?.some(d => d.discipulado.rede?.congregacao?.pastorGovernoMemberId === targetMemberId)) {
+                    return true;
+                }
+
+                // Vice-presidente
+                if (requestingMember.celula?.discipulado?.rede?.congregacao?.vicePresidenteMemberId === targetMemberId
+                    || requestingMember.ledCelulas?.some(celula => celula.discipulado?.rede?.congregacao?.vicePresidenteMemberId === targetMemberId)
+                    || requestingMember.discipulados?.some(d => d.rede?.congregacao?.vicePresidenteMemberId === targetMemberId)
+                    || requestingMember.redes?.some(r => r.congregacao?.vicePresidenteMemberId === targetMemberId)) {
+                    return true;
+                }
+
+                // Kids leader
+                if ((requestingMember.celula?.discipulado?.rede?.isKids === true && requestingMember.celula?.discipulado?.rede?.congregacao.kidsLeaderMemberId === targetMemberId)
+                    || requestingMember.ledCelulas?.some(celula => celula.discipulado?.rede?.isKids === true && celula.discipulado?.rede?.congregacao.kidsLeaderMemberId === targetMemberId)
+                    || requestingMember.discipulados?.some(d => d.rede?.isKids === true && d.rede?.congregacao.kidsLeaderMemberId === targetMemberId)
+                    || requestingMember.redes?.some(r => r.isKids === true && r.congregacao.kidsLeaderMemberId === targetMemberId)
+                    || requestingMember.discipleOf?.some(d => d.discipulado.rede?.isKids === true && d.discipulado.rede?.congregacao.kidsLeaderMemberId === targetMemberId)) {
+                    return true;
+                }
+
+                return false;
+            }
+
+            default:
+                return false;
+        }
     }
 
     public async create(body: MemberData.MemberInput, matrixId: number, requestingMemberId?: number, photo?: File) {
@@ -531,7 +1155,7 @@ export class MemberService {
             await this.validateAndUpdateSpouse(body.spouseId, null);
         }
 
-        const { roleIds, ...memberData } = body;
+        const { roleIds, socialMedia, ...memberData } = body;
 
         // Se hasSystemAccess é true e não foi fornecida senha, definir senha padrão
         if (memberData.hasSystemAccess && !memberData.password) {
@@ -888,9 +1512,9 @@ export class MemberService {
 
         // Se myLeadership for true e não houver filtros específicos, aplicar filtros baseados em permissões
         const hasExplicitFilters = filters && (
-            filters.celulaId !== undefined || 
-            filters.discipuladoId !== undefined || 
-            filters.redeId !== undefined || 
+            filters.celulaId !== undefined ||
+            filters.discipuladoId !== undefined ||
+            filters.redeId !== undefined ||
             filters.congregacaoId !== undefined
         );
 
@@ -1078,7 +1702,7 @@ export class MemberService {
 
         const members = await this.prisma.member.findMany({
             where,
-            include: { 
+            include: {
                 celula: true,
                 ministryPosition: true
             }
@@ -1086,12 +1710,12 @@ export class MemberService {
 
         // Leadership types (LEADER and above)
         const leadershipTypes = ['LEADER', 'DISCIPULADOR', 'PASTOR', 'PRESIDENT_PASTOR'];
-        const leadership = members.filter(m => 
+        const leadership = members.filter(m =>
             m.ministryPosition && leadershipTypes.includes(m.ministryPosition.type)
         ).length;
 
         const total = members.length;
-        const withoutCelula = members.filter(m => 
+        const withoutCelula = members.filter(m =>
             !m.celulaId && (!m.ministryPosition || !leadershipTypes.includes(m.ministryPosition.type))
         ).length;
 

@@ -24,6 +24,12 @@ export class RedeFilterInput {
     @ApiProperty({ description: 'Filtro por pastor', required: false, example: 2 })
     public readonly pastorMemberId?: number;
 
+    @ApiProperty({ description: 'Filtro por nome da rede', required: false, example: 'Rede Norte' })
+    public readonly name?: string;
+
+    @ApiProperty({ description: 'Filtro por tipo de rede (Kids)', required: false, example: true })
+    public readonly isKids?: boolean;
+
     @ApiProperty({ description: 'Filtro por IDs específicos de redes', required: false, example: [1, 2, 3], type: [Number] })
     public redeIds?: number[];
 

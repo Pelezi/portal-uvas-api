@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, MaritalStatus } from '../../../generated/prisma/enums';
+import { Gender, MaritalStatus, ContactPrivacyLevel } from '../../../generated/prisma/enums';
 
 export class MemberInput {
     // Auth/User fields
@@ -279,6 +279,15 @@ export class UpdateOwnProfileInput {
         required: false 
     })
     public readonly socialMedia?: Array<{ type: string; username: string }>;
+
+    // Privacy
+    @ApiProperty({ 
+        description: 'Contact privacy level', 
+        example: 'MY_LEADERSHIP_AND_DISCIPLES',
+        enum: ['MY_LEADERSHIP_AND_DISCIPLES', 'ALL_DISCIPULADO', 'ALL_REDE', 'ALL_CONGREGACAO', 'ALL'],
+        required: false 
+    })
+    public readonly contactPrivacyLevel?: ContactPrivacyLevel;
 
     //photo
     @ApiProperty({ description: 'Profile photo file', type: 'string', format: 'binary', required: false })

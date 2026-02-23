@@ -2065,6 +2065,7 @@ export const MemberScalarFieldEnum = {
   state: 'state',
   hasSystemAccess: 'hasSystemAccess',
   isOwner: 'isOwner',
+  contactPrivacyLevel: 'contactPrivacyLevel',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2342,6 +2343,20 @@ export type EnumGenderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaMod
  * Reference to a field of type 'Gender[]'
  */
 export type ListEnumGenderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Gender[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ContactPrivacyLevel'
+ */
+export type EnumContactPrivacyLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactPrivacyLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'ContactPrivacyLevel[]'
+ */
+export type ListEnumContactPrivacyLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ContactPrivacyLevel[]'>
     
 
 

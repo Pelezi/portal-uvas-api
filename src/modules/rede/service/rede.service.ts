@@ -25,6 +25,15 @@ export class RedeService {
                 if (filters.pastorMemberId) {
                     where.pastorMemberId = Number(filters.pastorMemberId);
                 }
+                if (filters.name) {
+                    where.name = {
+                        contains: filters.name,
+                        mode: 'insensitive'
+                    };
+                }
+                if (filters.isKids !== undefined && filters.isKids !== null) {
+                    where.isKids = filters.isKids;
+                }
                 if (filters.redeIds && filters.redeIds.length > 0) {
                     where.id = { in: filters.redeIds.map(Number) };
                 } else if (!!!filters.all) {

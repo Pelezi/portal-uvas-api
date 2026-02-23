@@ -35,9 +35,9 @@ export class MemberController {
     @ApiOperation({ summary: 'Buscar membro por ID' })
     @ApiResponse({ status: 200, description: 'Dados do membro' })
     @ApiResponse({ status: 404, description: 'Membro não encontrado' })
-    public async getById(@Param('memberId') memberIdParam: string) {
+    public async getById(@Req() req: AuthenticatedRequest, @Param('memberId') memberIdParam: string) {
         const memberId = Number(memberIdParam);
-        const member = await this.service.findById(memberId);
+        const member = await this.service.findById(memberId, req.member?.id);
         if (!member) throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         return member;
     }
