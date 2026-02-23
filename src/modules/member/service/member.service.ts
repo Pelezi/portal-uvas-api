@@ -1078,11 +1078,22 @@ export class MemberService {
 
         const members = await this.prisma.member.findMany({
             where,
-            include: { celula: true }
+            include: { 
+                celula: true,
+                ministryPosition: true
+            }
         });
 
+        // Leadership types (LEADER and above)
+        const leadershipTypes = ['LEADER', 'DISCIPULADOR', 'PASTOR', 'PRESIDENT_PASTOR'];
+        const leadership = members.filter(m => 
+            m.ministryPosition && leadershipTypes.includes(m.ministryPosition.type)
+        ).length;
+
         const total = members.length;
-        const withoutCelula = members.filter(m => !m.celulaId).length;
+        const withoutCelula = members.filter(m => 
+            !m.celulaId && (!m.ministryPosition || !leadershipTypes.includes(m.ministryPosition.type))
+        ).length;
 
         // Gender statistics
         const genderStats = {
@@ -1133,6 +1144,7 @@ export class MemberService {
         return {
             total,
             withoutCelula,
+            leadership,
             gender: genderStats,
             maritalStatus: maritalStatusStats,
             ageRanges,

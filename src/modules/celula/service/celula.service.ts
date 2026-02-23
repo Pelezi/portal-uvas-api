@@ -283,11 +283,7 @@ export class CelulaService {
             include: {
                 ministryPosition: true,
                 winnerPath: true,
-                roles: {
-                    include: {
-                        role: true
-                    }
-                },
+                roles: { include: { role: true } },
                 celula: {
                     include: {
                         discipulado: {
@@ -297,7 +293,8 @@ export class CelulaService {
                             }
                         }
                     }
-                }
+                },
+                leadingInTrainingCelulas: true
             }
         });
         this.cloudFrontService.transformPhotoUrls(members);
@@ -489,11 +486,11 @@ export class CelulaService {
             return this.prisma.$transaction(async (tx) => {
                 const original = await tx.celula.findUnique({ where: { id: originalCelulaId } });
                 if (!original) {
-                    throw new HttpException('Original celula not found', HttpStatus.NOT_FOUND);
+                    throw new HttpException('Célula original não encontrada', HttpStatus.NOT_FOUND);
                 }
 
-                if (oldLeaderMemberId && original.leaderMemberId !== oldLeaderMemberId) {
-                    throw new HttpException('Old leader does not match', HttpStatus.BAD_REQUEST);
+                if (!oldLeaderMemberId) {
+                    throw new HttpException('Líder original é obrigatório ao multiplicar célula', HttpStatus.BAD_REQUEST);
                 }
 
                 if (!newLeaderMemberId) {
@@ -531,7 +528,7 @@ export class CelulaService {
                 const createData: Prisma.CelulaUncheckedCreateInput = {
                     name: newCelulaName,
                     discipuladoId: original.discipuladoId,
-                    leaderMemberId: newLeaderMemberId,
+                    leaderMemberId: oldLeaderMemberId,
                     matrixId
                 };
                 const newCelula = await tx.celula.create({
@@ -539,12 +536,34 @@ export class CelulaService {
                     include: { leader: { omit: { password: true } } }
                 });
 
+                // Update original celula to the new leader
+                await tx.celula.update({
+                    where: { id: originalCelulaId },
+                    data: { leaderMemberId: newLeaderMemberId }
+                });
+
+                // Remove celulaId from both leaders if they were in the original celula
+                const newLeader = await tx.member.findUnique({ where: { id: newLeaderMemberId } });
+                if (newLeader && newLeader.celulaId === originalCelulaId) {
+                    await tx.member.update({
+                        where: { id: newLeaderMemberId },
+                        data: { celulaId: null }
+                    });
+                }
+                const oldLeader = await tx.member.findUnique({ where: { id: oldLeaderMemberId } });
+                if (oldLeader && oldLeader.celulaId === originalCelulaId) {
+                    await tx.member.update({
+                        where: { id: oldLeaderMemberId },
+                        data: { celulaId: null }
+                    });
+                }
+
                 // ensure members belong to the original celula
                 const validMembers = await tx.member.findMany({ where: { id: { in: memberIds }, celulaId: originalCelulaId } });
                 const validIds = validMembers.map(m => m.id);
 
                 if (validIds.length === 0) {
-                    throw new HttpException('No provided members belong to the original celula', HttpStatus.BAD_REQUEST);
+                    throw new HttpException('Nenhum membro válido foi selecionado para ser movido para a nova célula', HttpStatus.BAD_REQUEST);
                 }
 
                 await tx.member.updateMany({ where: { id: { in: validIds } }, data: { celulaId: newCelula.id } });
