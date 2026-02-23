@@ -158,6 +158,7 @@ export class CelulaService {
             orderBy: { name: 'asc' },
             include: {
                 leader: { omit: { password: true } },
+                host: { omit: { password: true } },
                 leadersInTraining: { include: { member: { omit: { password: true } } } },
                 discipulado: {
                     include: {
@@ -169,6 +170,7 @@ export class CelulaService {
         });
         celulas.forEach(celula => {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
+            this.cloudFrontService.transformPhotoUrl(celula.host);
             celula.leadersInTraining?.forEach(lit => this.cloudFrontService.transformPhotoUrl(lit.member));
         });
         return celulas;
@@ -245,8 +247,13 @@ export class CelulaService {
             weekday: body.weekday,
             time: body.time,
             leaderMemberId: body.leaderMemberId,
+            hostMemberId: body.hostMemberId,
             discipuladoId: body.discipuladoId,
             matrixId,
+            openingDate: body.openingDate ? new Date(body.openingDate) : undefined,
+            hasNextHost: body.hasNextHost,
+            type: body.type as any,
+            level: body.level as any,
             country: body.country,
             zipCode: cleanStringField(body.zipCode),
             street: body.street,
@@ -257,8 +264,9 @@ export class CelulaService {
             state: body.state,
         };
 
-        const celula = await this.prisma.celula.create({ data: data, include: { leader: { omit: { password: true } }, discipulado: true } });
+        const celula = await this.prisma.celula.create({ data: data, include: { leader: { omit: { password: true } }, host: { omit: { password: true } }, discipulado: true } });
         this.cloudFrontService.transformPhotoUrl(celula.leader);
+        this.cloudFrontService.transformPhotoUrl(celula.host);
         return celula;
     }
 
@@ -267,11 +275,13 @@ export class CelulaService {
             where: { id },
             include: {
                 leader: { omit: { password: true } },
+                host: { omit: { password: true } },
                 discipulado: true
             }
         });
         if (celula) {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
+            this.cloudFrontService.transformPhotoUrl(celula.host);
         }
         return celula;
     }
@@ -341,6 +351,20 @@ export class CelulaService {
         if (data.city !== undefined) updateData.city = data.city;
         if (data.complement !== undefined) updateData.complement = data.complement;
         if (data.state !== undefined) updateData.state = data.state;
+
+        // New fields
+        if (data.hostMemberId !== undefined) {
+            if (data.hostMemberId !== null) {
+                await validator.validateMemberBelongsToMatrix(data.hostMemberId, matrixId);
+            }
+            updateData.hostMemberId = data.hostMemberId;
+        }
+        if (data.openingDate !== undefined) {
+            updateData.openingDate = data.openingDate ? new Date(data.openingDate) : null;
+        }
+        if (data.hasNextHost !== undefined) updateData.hasNextHost = data.hasNextHost;
+        if (data.type !== undefined) updateData.type = data.type as any;
+        if (data.level !== undefined) updateData.level = data.level as any;
 
         if (data.leaderMemberId !== undefined) {
             if (data.leaderMemberId !== null) {
@@ -524,12 +548,19 @@ export class CelulaService {
                     });
                 }
 
+                const originalCelulaInfo = await tx.celula.findUnique({
+                    where: { id: originalCelulaId },
+                    select: { weekday: true, time: true }
+                });
+
                 // create new celula
                 const createData: Prisma.CelulaUncheckedCreateInput = {
                     name: newCelulaName,
                     discipuladoId: original.discipuladoId,
                     leaderMemberId: oldLeaderMemberId,
-                    matrixId
+                    matrixId,
+                    weekday: originalCelulaInfo?.weekday,
+                    time: originalCelulaInfo?.time
                 };
                 const newCelula = await tx.celula.create({
                     data: createData,

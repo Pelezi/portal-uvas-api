@@ -125,6 +125,7 @@ export const CelulaScalarFieldEnum = {
   name: 'name',
   matrixId: 'matrixId',
   leaderMemberId: 'leaderMemberId',
+  hostMemberId: 'hostMemberId',
   discipuladoId: 'discipuladoId',
   weekday: 'weekday',
   time: 'time',
@@ -136,6 +137,11 @@ export const CelulaScalarFieldEnum = {
   city: 'city',
   complement: 'complement',
   state: 'state',
+  openingDate: 'openingDate',
+  multiplicationDate: 'multiplicationDate',
+  hasNextHost: 'hasNextHost',
+  type: 'type',
+  level: 'level',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

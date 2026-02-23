@@ -54,6 +54,27 @@ export const ContactPrivacyLevel = {
 export type ContactPrivacyLevel = (typeof ContactPrivacyLevel)[keyof typeof ContactPrivacyLevel]
 
 
+export const CelulaType = {
+  YOUNG: 'YOUNG',
+  ADULT: 'ADULT',
+  TEENAGER: 'TEENAGER',
+  CHILDISH: 'CHILDISH'
+} as const
+
+export type CelulaType = (typeof CelulaType)[keyof typeof CelulaType]
+
+
+export const CelulaLevel = {
+  EVANGELISM: 'EVANGELISM',
+  EDIFICATION: 'EDIFICATION',
+  COMMUNION: 'COMMUNION',
+  MULTIPLICATION: 'MULTIPLICATION',
+  UNKNOWN: 'UNKNOWN'
+} as const
+
+export type CelulaLevel = (typeof CelulaLevel)[keyof typeof CelulaLevel]
+
+
 export const ReportType = {
   CELULA: 'CELULA',
   CULTO: 'CULTO'

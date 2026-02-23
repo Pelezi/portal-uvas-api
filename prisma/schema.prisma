@@ -57,6 +57,7 @@ model Celula {
   name               String
   matrixId           Int
   leaderMemberId     Int
+  hostMemberId       Int?
   discipuladoId      Int
   weekday            Int?
   time               String?
@@ -71,6 +72,13 @@ model Celula {
   complement   String?
   state        String?
   
+  // Cell details
+  openingDate        DateTime?
+  multiplicationDate DateTime?
+  hasNextHost        Boolean   @default(false)
+  type               CelulaType?
+  level              CelulaLevel?
+  
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -81,11 +89,13 @@ model Celula {
   matrix      Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   discipulado Discipulado @relation(fields: [discipuladoId], references: [id])
   leader      Member      @relation("CelulaLeader", fields: [leaderMemberId], references: [id], onDelete: NoAction)
+  host        Member?     @relation("CelulaHost", fields: [hostMemberId], references: [id], onDelete: NoAction)
 
   @@unique([name, matrixId])
   @@index([matrixId])
   @@index([discipuladoId])
   @@index([leaderMemberId])
+  @@index([hostMemberId])
 }
 
 model Role {
@@ -191,6 +201,7 @@ model Member {
   redes                    Rede[]
   discipulados             Discipulado[]
   ledCelulas               Celula[]                @relation("CelulaLeader")
+  hostedCelulas            Celula[]                @relation("CelulaHost")
   congregacoesPastorGoverno Congregacao[]          @relation("CongregacaoPastorGoverno")
   congregacoesVicePresidente Congregacao[]         @relation("CongregacaoVicePresidente")
   congregacoesKidsLeader   Congregacao[]           @relation("CongregacaoKidsLeader")
@@ -260,6 +271,20 @@ enum ContactPrivacyLevel {
   ALL_REDE
   ALL_CONGREGACAO
   ALL
+}
+enum CelulaType {
+  YOUNG
+  ADULT
+  TEENAGER
+  CHILDISH
+}
+
+enum CelulaLevel {
+  EVANGELISM
+  EDIFICATION
+  COMMUNION
+  MULTIPLICATION
+  UNKNOWN
 }
 
 enum ReportType {

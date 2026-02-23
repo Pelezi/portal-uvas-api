@@ -1978,6 +1978,7 @@ export const CelulaScalarFieldEnum = {
   name: 'name',
   matrixId: 'matrixId',
   leaderMemberId: 'leaderMemberId',
+  hostMemberId: 'hostMemberId',
   discipuladoId: 'discipuladoId',
   weekday: 'weekday',
   time: 'time',
@@ -1989,6 +1990,11 @@ export const CelulaScalarFieldEnum = {
   city: 'city',
   complement: 'complement',
   state: 'state',
+  openingDate: 'openingDate',
+  multiplicationDate: 'multiplicationDate',
+  hasNextHost: 'hasNextHost',
+  type: 'type',
+  level: 'level',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2301,6 +2307,34 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
+ * Reference to a field of type 'CelulaType'
+ */
+export type EnumCelulaTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CelulaType'>
+    
+
+
+/**
+ * Reference to a field of type 'CelulaType[]'
+ */
+export type ListEnumCelulaTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CelulaType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CelulaLevel'
+ */
+export type EnumCelulaLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CelulaLevel'>
+    
+
+
+/**
+ * Reference to a field of type 'CelulaLevel[]'
+ */
+export type ListEnumCelulaLevelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CelulaLevel[]'>
     
 
 

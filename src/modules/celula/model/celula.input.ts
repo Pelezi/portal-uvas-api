@@ -8,6 +8,9 @@ export class CelulaCreateInput {
     @ApiProperty({ description: 'Leader member id (member must exist)', example: 5, required: false })
     public readonly leaderMemberId?: number;
     
+    @ApiProperty({ description: 'Host member id (member must exist)', example: 6, required: false })
+    public readonly hostMemberId?: number;
+    
     @ApiProperty({ description: 'Discipulado id that this celula belongs to', example: 2, required: false })
     public readonly discipuladoId?: number;
 
@@ -16,6 +19,18 @@ export class CelulaCreateInput {
 
     @ApiProperty({ description: 'Horário da reunião (formato HH:mm)', example: '19:30' })
     public readonly time: string;
+
+    @ApiProperty({ description: 'Data de abertura da célula', example: '2024-01-15', required: false })
+    public readonly openingDate?: string;
+
+    @ApiProperty({ description: 'Tem próximo anfitrião', example: false, required: false })
+    public readonly hasNextHost?: boolean;
+
+    @ApiProperty({ description: 'Tipo da célula', example: 'YOUNG', enum: ['YOUNG', 'ADULT', 'TEENAGER', 'CHILDISH'], required: false })
+    public readonly type?: string;
+
+    @ApiProperty({ description: 'Nível da célula', example: 'MULTIPLICATION', enum: ['EVANGELISM', 'EDIFICATION', 'COMMUNION', 'MULTIPLICATION', 'UNKNOWN'], required: false })
+    public readonly level?: string;
 
     @ApiProperty({ description: 'País da célula', example: 'Brasil', required: false })
     public readonly country?: string;
@@ -47,6 +62,8 @@ export class CelulaUpdateInput {
     public readonly name?: string;
     @ApiProperty({ description: 'Leader member id (member must exist)', example: 6, required: false })
     public readonly leaderMemberId?: number;
+    @ApiProperty({ description: 'Host member id (member must exist)', example: 7, required: false })
+    public readonly hostMemberId?: number;
     @ApiProperty({ description: 'Discipulado id that this celula belongs to', example: 2, required: false })
     public readonly discipuladoId?: number;
     @ApiProperty({ description: 'IDs dos líderes em treinamento', example: [7, 8], required: false, type: [Number] })
@@ -55,6 +72,14 @@ export class CelulaUpdateInput {
     public readonly weekday?: number;
     @ApiProperty({ description: 'Horário da reunião (formato HH:mm)', example: '19:30', required: false })
     public readonly time?: string;
+    @ApiProperty({ description: 'Data de abertura da célula', example: '2024-01-15', required: false })
+    public readonly openingDate?: string;
+    @ApiProperty({ description: 'Tem próximo anfitrião', example: false, required: false })
+    public readonly hasNextHost?: boolean;
+    @ApiProperty({ description: 'Tipo da célula', example: 'YOUNG', enum: ['YOUNG', 'ADULT', 'TEENAGER', 'CHILDISH'], required: false })
+    public readonly type?: string;
+    @ApiProperty({ description: 'Nível da célula', example: 'MULTIPLICATION', enum: ['EVANGELISM', 'EDIFICATION', 'COMMUNION', 'MULTIPLICATION', 'UNKNOWN'], required: false })
+    public readonly level?: string;
     @ApiProperty({ description: 'País da célula', example: 'Brasil', required: false })
     public readonly country?: string;
     @ApiProperty({ description: 'CEP da célula', example: '55020-000', required: false })

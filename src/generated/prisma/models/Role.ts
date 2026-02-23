@@ -446,10 +446,6 @@ export type RoleUncheckedUpdateManyWithoutMatrixNestedInput = {
   deleteMany?: Prisma.RoleScalarWhereInput | Prisma.RoleScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type RoleCreateNestedOneWithoutMembersInput = {
   create?: Prisma.XOR<Prisma.RoleCreateWithoutMembersInput, Prisma.RoleUncheckedCreateWithoutMembersInput>
   connectOrCreate?: Prisma.RoleCreateOrConnectWithoutMembersInput
