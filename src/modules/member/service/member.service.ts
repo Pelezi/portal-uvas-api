@@ -894,7 +894,7 @@ export class MemberService {
             filters.congregacaoId !== undefined
         );
 
-        if (filters?.myLeadership && !hasExplicitFilters && permission) {
+        if (filters?.myLeadership == 'true' && !hasExplicitFilters && permission) {
             // Aplicar filtros baseados em hierarquia do usuário
             const orConditions: PrismaModels.MemberWhereInput[] = [];
 
@@ -948,7 +948,7 @@ export class MemberService {
             // Aplicar filtros explícitos
             if (filters.celulaId !== undefined) {
                 const celulaId = Number(filters.celulaId);
-                if (filters.celulaId === 0) {
+                if (filters.celulaId === '0') {
                     where.celulaId = null;
                 } else {
                     // Include members AND leaders of the celula

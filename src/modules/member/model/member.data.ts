@@ -208,19 +208,19 @@ export class MemberFilterInput {
 
 export class StatisticsFilterInput {
     @ApiProperty({ description: 'Id da célula (0 para sem célula)', example: 1, required: false })
-    public readonly celulaId?: number;
+    public readonly celulaId?: string;
 
     @ApiProperty({ description: 'Id do discipulado', example: 1, required: false })
-    public readonly discipuladoId?: number;
+    public readonly discipuladoId?: string;
 
     @ApiProperty({ description: 'Id da rede', example: 1, required: false })
-    public readonly redeId?: number;
+    public readonly redeId?: string;
 
     @ApiProperty({ description: 'Id da congregação', example: 1, required: false })
-    public readonly congregacaoId?: number;
+    public readonly congregacaoId?: string;
 
     @ApiProperty({ description: 'Filtrar apenas por minha liderança/hierarquia', example: false, required: false })
-    public readonly myLeadership?: boolean;
+    public readonly myLeadership?: string;
 }
 
 export class UpdateOwnProfileInput {
