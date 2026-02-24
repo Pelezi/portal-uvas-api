@@ -44,6 +44,8 @@ WORKDIR /home/node
 COPY --from=builder --chown=node:node /home/node/package*.json ./
 COPY --from=builder --chown=node:node /home/node/node_modules/ ./node_modules/
 COPY --from=builder --chown=node:node /home/node/dist/ ./dist/
+COPY --from=builder --chown=node:node /home/node/prisma.config.ts ./
+COPY --from=builder --chown=node:node /home/node/prisma/ ./prisma/
 
 # FIX 2: Explicitly copy the Prisma folder. This is helpful if you ever need to run migrations 
 # directly against this container or if Prisma needs to resolve the schema path at runtime.
@@ -51,4 +53,4 @@ COPY --from=builder --chown=node:node /home/node/prisma/ ./prisma/
 
 # FIX 3: Verify this entry point! NestJS usually outputs to 'dist/main.js'. 
 # If your app actually uses 'server.js', leave this alone. If not, change it to "dist/main.js".
-CMD ["node", "dist/server.js"]
+CMD ["node", "dist/src/server.js"]
