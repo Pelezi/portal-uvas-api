@@ -268,77 +268,269 @@ export class MemberService {
             }
         }
 
-        const response = await this.prisma.member.findMany({
-            where,
-            include: {
-                celula: {
-                    include: {
-                        discipulado: {
-                            include: {
-                                rede: { include: { congregacao: true } },
-                                discipulador: true
-                            }
-                        }
-                    }
+        const page = Math.max(1, Number(filters?.page) || 1);
+        const pageSize = Math.max(1, Math.min(100, Number(filters?.pageSize) || 20));
+
+        const [response, total] = await Promise.all([
+            this.prisma.member.findMany({
+                where,
+                select: {
+                    id: true,
+                    name: true,
+                    photoUrl: true,
+                    celulaId: true,
+                    isActive: true,
+                    celula: {
+                        select: {
+                            id: true,
+                            name: true,
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    rede: {
+                                        select: {
+                                            pastorMemberId: true,
+                                            isKids: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    ledCelulas: {
+                        select: {
+                            id: true,
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    rede: {
+                                        select: {
+                                            pastorMemberId: true,
+                                            isKids: true,
+                                            congregacao: {
+                                                select: {
+                                                    pastorGovernoMemberId: true,
+                                                    vicePresidenteMemberId: true,
+                                                    kidsLeaderMemberId: true,
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    leadingInTrainingCelulas: { select: { celulaId: true } },
+                    discipulados: {
+                        select: {
+                            rede: {
+                                select: {
+                                    pastorMemberId: true,
+                                    isKids: true,
+                                    congregacao: {
+                                        select: {
+                                            pastorGovernoMemberId: true,
+                                            vicePresidenteMemberId: true,
+                                            kidsLeaderMemberId: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    redes: {
+                        select: {
+                            pastorMemberId: true,
+                            isKids: true,
+                            congregacao: {
+                                select: {
+                                    pastorGovernoMemberId: true,
+                                    vicePresidenteMemberId: true,
+                                    kidsLeaderMemberId: true,
+                                },
+                            },
+                        },
+                    },
+                    congregacoesPastorGoverno: { select: { id: true } },
+                    congregacoesVicePresidente: { select: { id: true, pastorGovernoMemberId: true, vicePresidenteMemberId: true, kidsLeaderMemberId: true } },
+                    congregacoesKidsLeader: { select: { id: true, pastorGovernoMemberId: true, vicePresidenteMemberId: true, kidsLeaderMemberId: true } },
+                    discipleOf: {
+                        select: {
+                            discipulado: {
+                                select: {
+                                    discipuladorMemberId: true,
+                                    rede: { select: { isKids: true } },
+                                },
+                            },
+                        },
+                    },
+                    ministryPosition: { select: { id: true, name: true, type: true, priority: true } },
                 },
-                ledCelulas: { include: { discipulado: { include: { rede: { include: { congregacao: true } }, discipulador: true } } } },
-                leadingInTrainingCelulas: { include: { celula: true } },
-                discipulados: { include: { rede: { include: { congregacao: true } }, discipulador: true } },
-                redes: { include: { congregacao: true } },
-                congregacoesPastorGoverno: true,
-                congregacoesVicePresidente: true,
-                congregacoesKidsLeader: true,
-                roles: { include: { role: true } },
-                discipleOf: { include: { discipulado: { include: { discipulador: true, rede: true } } } },
-                ministryPosition: true,
-                spouse: true,
-                socialMedia: true,
+                orderBy: { name: 'asc' },
+                skip: (page - 1) * pageSize,
+                take: pageSize,
+            }),
+            this.prisma.member.count({ where }),
+        ]);
+
+        // Load requesting user data once for canManage computation
+        const requestingUser = await this.prisma.member.findUnique({
+            where: { id: requestingMemberId },
+            select: {
+                id: true,
+                roles: { select: { role: { select: { isAdmin: true } } } },
+                congregacoesPastorGoverno: { select: { id: true, isPrincipal: true } },
+                ministryPosition: { select: { priority: true } },
+                ledCelulas: { select: { id: true } },
+                leadingInTrainingCelulas: { select: { celulaId: true } },
             },
-            omit: { password: true },
-            orderBy: { name: 'asc' }
         });
 
-        // Apply contact privacy filtering
-        if (requestingMemberId) {
-            for (const member of response) {
-                // Skip if member is the requesting member
-                if (member.id === requestingMemberId) {
-                    continue;
+        const isAdmin = requestingUser?.roles?.some(r => r.role.isAdmin) || false;
+        const isPastorPresidente = requestingUser?.congregacoesPastorGoverno?.some(c => c.isPrincipal) || false;
+        const userPriority = requestingUser?.ministryPosition?.priority ?? null;
+        const userCelulaIds = new Set([
+            ...(requestingUser?.ledCelulas?.map(c => c.id) || []),
+            ...(requestingUser?.leadingInTrainingCelulas?.map(c => c.celulaId) || []),
+        ]);
+
+        // Helper: check if member has lower ministry level than requesting user
+        const isLowerMinistry = (memberPriority: number | null | undefined): boolean => {
+            if (!userPriority || !memberPriority) return true;
+            return memberPriority > userPriority;
+        };
+
+        // Map to slim response with computed fields
+        const result = response.map(member => {
+            // --- Compute leadershipTags ---
+            const leadershipTags: { label: string; color: string }[] = [];
+            if (member.congregacoesPastorGoverno?.length) leadershipTags.push({ label: 'Pastor de Governo', color: 'text-purple-400' });
+            if (member.congregacoesVicePresidente?.length) leadershipTags.push({ label: 'Vice-Presidente', color: 'text-purple-400' });
+            if (member.congregacoesKidsLeader?.length) leadershipTags.push({ label: 'Responsável Kids', color: 'text-pink-400' });
+            if (member.redes?.length) leadershipTags.push({ label: 'Pastor de Rede', color: 'text-blue-400' });
+            if (member.discipulados?.length) leadershipTags.push({ label: 'Discipulador', color: 'text-green-400' });
+            if (member.ledCelulas?.length) leadershipTags.push({ label: 'Líder de Célula', color: 'text-yellow-400' });
+            if (member.leadingInTrainingCelulas?.length) leadershipTags.push({ label: 'Líder em Treinamento', color: 'text-yellow-400' });
+
+            // --- Compute canManage ---
+            let canManage = false;
+            const memberPriority = member.ministryPosition?.priority ?? null;
+
+            if (isAdmin || isPastorPresidente) {
+                canManage = true;
+            } else if (member.id === requestingMemberId) {
+                canManage = true;
+            } else if (memberPriority && userPriority && memberPriority <= userPriority) {
+                canManage = false; // member has equal or higher rank
+            } else if (
+                !member.celulaId &&
+                !member.ledCelulas?.length &&
+                !member.leadingInTrainingCelulas?.length &&
+                !member.discipulados?.length &&
+                !member.redes?.length &&
+                !member.congregacoesPastorGoverno?.length &&
+                !member.congregacoesVicePresidente?.length &&
+                !member.congregacoesKidsLeader?.length
+            ) {
+                canManage = true; // member has no position at all
+            } else {
+                // Check if requesting user is leader of member's célula
+                if (member.celulaId && userCelulaIds.has(member.celulaId)) {
+                    // Leader in training cannot manage the actual celula leader
+                    const isLeaderOfCelula = member.ledCelulas?.some(c => c.id === member.celulaId);
+                    if (!isLeaderOfCelula) {
+                        canManage = isLowerMinistry(memberPriority);
+                    }
                 }
 
-                // Check privacy settings and censor contact data if needed
-                if (member.contactPrivacyLevel !== 'ALL') {
-                    const hasAccess = await this.checkContactPrivacyAccess(
-                        member.id,
-                        requestingMemberId,
-                        member.contactPrivacyLevel
-                    );
+                // Check if requesting user is discipulador of member (via member's célula)
+                if (!canManage && member.celula?.discipulado?.discipuladorMemberId === requestingMemberId) {
+                    canManage = isLowerMinistry(memberPriority);
+                }
 
-                    if (!hasAccess) {
-                        // Censor contact and address data
-                        member.phone = null;
-                        member.email = null;
-                        member.street = null;
-                        member.streetNumber = null;
-                        member.neighborhood = null;
-                        member.city = null;
-                        member.state = null;
-                        member.zipCode = null;
-                        member.country = null;
-                        member.complement = null;
-                        member.socialMedia = [];
+                // Check if requesting user is discipulador of member (via member's led células)
+                if (!canManage && member.ledCelulas?.some(c => c.discipulado?.discipuladorMemberId === requestingMemberId)) {
+                    canManage = isLowerMinistry(memberPriority);
+                }
+
+                // Check if requesting user is kids discipuladora (via discipleOf)
+                if (!canManage && member.discipleOf?.some(d =>
+                    d.discipulado.discipuladorMemberId === requestingMemberId && d.discipulado.rede?.isKids
+                )) {
+                    canManage = isLowerMinistry(memberPriority);
+                }
+
+                // Collect all redes the member belongs to
+                if (!canManage) {
+                    const memberRedes = [
+                        member.celula?.discipulado?.rede,
+                        ...(member.ledCelulas?.flatMap(c => c.discipulado?.rede ? [c.discipulado.rede] : []) || []),
+                        ...(member.discipulados?.flatMap(d => d.rede ? [d.rede] : []) || []),
+                        ...(member.redes || []),
+                    ].filter(Boolean);
+
+                    // Check if requesting user is pastor de rede
+                    if (memberRedes.some(r => r!.pastorMemberId === requestingMemberId)) {
+                        canManage = isLowerMinistry(memberPriority);
+                    }
+
+                    // Check if requesting user is kids leader of the rede's congregação
+                    if (!canManage) {
+                        const kidsRedes = memberRedes.filter(r => r!.isKids);
+                        if (kidsRedes.some(r => r!.congregacao?.kidsLeaderMemberId === requestingMemberId)) {
+                            canManage = isLowerMinistry(memberPriority);
+                        }
+                    }
+
+                    // Check if requesting user is pastor de governo or vice-presidente
+                    if (!canManage) {
+                        const allCongregacoes = [
+                            member.celula?.discipulado?.rede?.congregacao,
+                            ...(member.ledCelulas?.flatMap(c => c.discipulado?.rede?.congregacao ? [c.discipulado.rede.congregacao] : []) || []),
+                            ...(member.discipulados?.flatMap(d => d.rede?.congregacao ? [d.rede.congregacao] : []) || []),
+                            ...(member.redes?.flatMap(r => r.congregacao ? [r.congregacao] : []) || []),
+                            ...(member.congregacoesVicePresidente || []),
+                            ...(member.congregacoesKidsLeader || []),
+                        ].filter(Boolean);
+
+                        if (allCongregacoes.some(c =>
+                            c!.pastorGovernoMemberId === requestingMemberId ||
+                            c!.vicePresidenteMemberId === requestingMemberId
+                        )) {
+                            canManage = isLowerMinistry(memberPriority);
+                        }
                     }
                 }
             }
-        }
 
-        // replace photoUrl with full CloudFront URL if it exists
-        response.forEach(member => {
+            // Return slim object with computed fields
             this.cloudFrontService.transformPhotoUrl(member);
-            member.spouse && this.cloudFrontService.transformPhotoUrl(member.spouse);
+            return {
+                id: member.id,
+                name: member.name,
+                photoUrl: member.photoUrl,
+                celulaId: member.celulaId,
+                isActive: member.isActive,
+                celula: member.celula ? { id: member.celula.id, name: member.celula.name } : null,
+                ministryPosition: member.ministryPosition,
+                canManage,
+                leadershipTags,
+            };
         });
 
-        return response;
+        return {
+            data: result,
+            total,
+            page,
+            pageSize,
+        };
     }
 
     public async findByCelula(celulaId: number) {
@@ -520,43 +712,17 @@ export class MemberService {
                         }
                     }
                 },
-                ledCelulas: {
-                    include: {
-                        discipulado: {
-                            include: {
-                                rede: {
-                                    include: {
-                                        congregacao: true
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
+                ledCelulas: { include: { discipulado: { include: { rede: { include: { congregacao: true } } } } } },
                 discipulados: {
                     include: {
-                        rede: {
-                            include: {
-                                congregacao: true
-                            }
-                        },
-                        disciples: {
-                            include: {
-                                member: true
-                            }
-                        }
+                        rede: { include: { congregacao: true } },
+                        disciples: { include: { member: true } }
                     }
                 },
-                redes: {
-                    include: {
-                        congregacao: true
-                    }
-                },
+                redes: { include: { congregacao: true } },
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
-                roles: {
-                    include: { role: true }
-                },
+                roles: { include: { role: true } },
                 socialMedia: true
             },
             omit: { password: true }
@@ -895,7 +1061,8 @@ export class MemberService {
                                 select: { isAdmin: true }
                             }
                         }
-                    }
+                    },
+                    ministryPosition: { select: { type: true } }
                 }
             })
         ]);
@@ -904,12 +1071,13 @@ export class MemberService {
             return false;
         }
 
-        if (targetMember.id == 2) {
-            console.log('here');
-        }
-
         // Admins and principal pastors have access to all contact data
         if (requestingMember.roles.some(r => r.role.isAdmin) || requestingMember.congregacoesPastorGoverno.some(c => c.isPrincipal)) {
+            return true;
+        }
+
+        // If the target member is pastor or president_pastor, allow access
+        if (targetMember.ministryPosition?.type === 'PASTOR' || targetMember.ministryPosition?.type === 'PRESIDENT_PASTOR') {
             return true;
         }
 
@@ -989,7 +1157,7 @@ export class MemberService {
 
             case 'MY_LEADERSHIP_AND_DISCIPLES': {
                 // Leadership up: Check if requesting member is in target's leadership chain
-                
+
                 // Celula leader
                 if (targetMember.celula?.leaderMemberId === requestingMemberId) {
                     return true;
@@ -2508,5 +2676,120 @@ export class MemberService {
                 roles: u.roles.map(mr => mr.role)
             };
         });
+    }
+
+    /**
+     * Slim member list for autocomplete/select pickers.
+     * Returns only the fields needed by dropdowns and selectors —
+     * much lighter than findAll (no deep relations, no privacy filtering loop).
+     */
+    public async findAutocomplete(
+        matrixId: number,
+        requestingMemberId: number,
+        filters?: {
+            name?: string;
+            ministryType?: string;
+            gender?: string;
+            all?: boolean;
+            celulaId?: number;
+            isActive?: boolean;
+            discipleOfId?: number;
+        }
+    ) {
+        const where: PrismaModels.MemberWhereInput = {
+            matrices: { some: { matrixId } },
+        };
+
+        if (filters?.name) {
+            where.name = { contains: filters.name, mode: 'insensitive' };
+        }
+        if (filters?.ministryType) {
+            const types = filters.ministryType.split(',');
+            where.ministryPosition = { type: { in: types as any } };
+        }
+        if (filters?.gender) {
+            where.gender = filters.gender as any;
+        }
+        if (filters?.celulaId !== undefined) {
+            where.celulaId = filters.celulaId;
+        }
+        if (filters?.isActive !== undefined) {
+            where.isActive = filters.isActive;
+        }
+        if (filters?.discipleOfId) {
+            where.discipleOf = {
+                some: { discipuladoId: filters.discipleOfId },
+            };
+        }
+
+        if (!filters?.all && requestingMemberId) {
+            const hierarchyConditions = await this.buildHierarchyFilter(requestingMemberId);
+            if (hierarchyConditions.length > 0) {
+                where.OR = hierarchyConditions;
+            }
+        }
+
+        const members = await this.prisma.member.findMany({
+            where,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                phone: true,
+                gender: true,
+                celulaId: true,
+                photoUrl: true,
+                celula: {
+                    select: {
+                        id: true,
+                        name: true,
+                        leader: { select: { id: true, name: true } },
+                        discipulado: {
+                            select: {
+                                id: true,
+                                discipulador: { select: { id: true, name: true } },
+                                rede: { select: { id: true, name: true } },
+                            },
+                        },
+                    },
+                },
+                ministryPosition: {
+                    select: { id: true, name: true, type: true, priority: true },
+                },
+                roles: {
+                    select: { role: { select: { id: true, name: true } } },
+                },
+            },
+            orderBy: { name: 'asc' },
+        });
+
+        members.forEach(m => this.cloudFrontService.transformPhotoUrl(m));
+        return members;
+    }
+
+    /**
+     * Check for existing members with the same name and gender (duplicate detection).
+     * Returns a slim subset — no deep relations needed.
+     */
+    public async findDuplicates(matrixId: number, name: string, gender: string) {
+        const members = await this.prisma.member.findMany({
+            where: {
+                matrices: { some: { matrixId } },
+                name: { equals: name.trim(), mode: 'insensitive' },
+                gender: gender as any,
+            },
+            select: {
+                id: true,
+                name: true,
+                gender: true,
+                celulaId: true,
+                photoUrl: true,
+                celula: { select: { id: true, name: true } },
+            },
+            orderBy: { name: 'asc' },
+        });
+
+        members.forEach(m => this.cloudFrontService.transformPhotoUrl(m));
+        return members;
     }
 }

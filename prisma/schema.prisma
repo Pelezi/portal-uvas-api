@@ -10,9 +10,9 @@ datasource db {
 model Matrix {
   id             Int      @id @default(autoincrement())
   name           String
-  whatsappApiKey String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  whatsappApiKey String?  @map("whatsapp_api_key")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   domains       MatrixDomain[]
   members       MemberMatrix[]
@@ -25,24 +25,28 @@ model Matrix {
   discipulados  Discipulado[]
   reports       Report[]
   apiKeys       ApiKey[]
+
+  @@map("matrix")
 }
 
 model MatrixDomain {
   id        Int      @id @default(autoincrement())
   domain    String   @unique
-  matrixId  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  matrixId  Int      @map("matrix_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   matrix Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)
 
   @@index([matrixId])
+
+  @@map("matrix_domain")
 }
 
 model MemberMatrix {
   id       Int @id @default(autoincrement())
-  memberId Int
-  matrixId Int
+  memberId Int @map("member_id")
+  matrixId Int @map("matrix_id")
 
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
   matrix Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)
@@ -50,38 +54,40 @@ model MemberMatrix {
   @@unique([memberId, matrixId])
   @@index([memberId])
   @@index([matrixId])
+
+  @@map("member_matrix")
 }
 
 model Celula {
   id                 Int      @id @default(autoincrement())
   name               String
-  matrixId           Int
-  leaderMemberId     Int
-  hostMemberId       Int?
-  discipuladoId      Int
+  matrixId           Int      @map("matrix_id")
+  leaderMemberId     Int      @map("leader_member_id")
+  hostMemberId       Int?     @map("host_member_id")
+  discipuladoId      Int      @map("discipulado_id")
   weekday            Int?
   time               String?
   
   // Address fields
   country      String?       @default("Brasil")
-  zipCode      String?
+  zipCode      String?       @map("zip_code")
   street       String?
-  streetNumber String?
+  streetNumber String?       @map("street_number")
   neighborhood String?
   city         String?
   complement   String?
   state        String?
   
   // Cell details
-  openingDate        DateTime?
-  multiplicationDate DateTime?
-  hasNextHost        Boolean   @default(false)
+  openingDate        DateTime?  @map("opening_date")
+  multiplicationDate DateTime?  @map("multiplication_date")
+  hasNextHost        Boolean    @default(false) @map("has_next_host")
   type               CelulaType?
   level              CelulaLevel?
-  parallelCelulaId   Int?
+  parallelCelulaId   Int?       @map("parallel_celula_id")
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
   members Member[]
   reports Report[]
@@ -100,15 +106,17 @@ model Celula {
   @@index([leaderMemberId])
   @@index([hostMemberId])
   @@index([parallelCelulaId])
+
+  @@map("celula")
 }
 
 model Role {
   id        Int      @id @default(autoincrement())
   name      String
-  matrixId  Int
-  isAdmin   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  matrixId  Int      @map("matrix_id")
+  isAdmin   Boolean  @default(false) @map("is_admin")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
   // To do: Permissões de tesoureiro, gerenciar landing page, gerenciar revistas, etc.
 
   matrix  Matrix       @relation(fields: [matrixId], references: [id], onDelete: NoAction)
@@ -116,37 +124,43 @@ model Role {
 
   @@unique([name, matrixId])
   @@index([matrixId])
+
+  @@map("role")
 }
 
 model Ministry {
   id        Int          @id @default(autoincrement())
   name      String
-  matrixId  Int
+  matrixId  Int          @map("matrix_id")
   type      MinistryType @default(MEMBER)
   priority  Int          @default(0)
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
 
   matrix  Matrix   @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   members Member[]
 
   @@unique([name, matrixId])
   @@index([matrixId])
+
+  @@map("ministry")
 }
 
 model WinnerPath {
   id        Int      @id @default(autoincrement())
   name      String
-  matrixId  Int
+  matrixId  Int      @map("matrix_id")
   priority  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   matrix  Matrix   @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   members Member[]
 
   @@unique([name, matrixId])
   @@index([matrixId])
+
+  @@map("winner_path")
 }
 
 model Member {
@@ -156,49 +170,49 @@ model Member {
   email       String?      @unique
   password    String?
   phone       String?
-  hasDefaultPassword Boolean?
-  inviteSent  Boolean      @default(false)
-  hasLoggedIn Boolean      @default(false)
+  hasDefaultPassword Boolean? @map("has_default_password")
+  inviteSent  Boolean      @default(false) @map("invite_sent")
+  hasLoggedIn Boolean      @default(false) @map("has_logged_in")
   
   // Member info fields (from old Member model)
   name          String
-  celulaId      Int?
-  isActive      Boolean       @default(true)
-  maritalStatus MaritalStatus @default(SINGLE)
+  celulaId      Int?           @map("celula_id")
+  isActive      Boolean        @default(true) @map("is_active")
+  maritalStatus MaritalStatus  @default(SINGLE) @map("marital_status")
   
   // Personal info
-  photoUrl      String?
+  photoUrl      String?       @map("photo_url")
   gender        Gender?
-  isBaptized    Boolean       @default(false)
-  baptismDate   DateTime?
-  birthDate     DateTime?
-  registerDate  DateTime?
-  spouseId      Int?          @unique
+  isBaptized    Boolean       @default(false) @map("is_baptized")
+  baptismDate   DateTime?     @map("baptism_date")
+  birthDate     DateTime?     @map("birth_date")
+  registerDate  DateTime?     @map("register_date")
+  spouseId      Int?          @unique @map("spouse_id")
   
   // Church info
-  ministryPositionId  Int
-  winnerPathId        Int?
-  canBeHost           Boolean    @default(false)
+  ministryPositionId  Int       @map("ministry_position_id")
+  winnerPathId        Int?      @map("winner_path_id")
+  canBeHost           Boolean   @default(false) @map("can_be_host")
   
   // Address
   country      String?       @default("Brasil")
-  zipCode      String?
+  zipCode      String?       @map("zip_code")
   street       String?
-  streetNumber String?
+  streetNumber String?       @map("street_number")
   neighborhood String?
   city         String?
   complement   String?
   state        String?
   
   // Access
-  hasSystemAccess  Boolean    @default(false)
-  isOwner          Boolean    @default(false)
+  hasSystemAccess  Boolean    @default(false) @map("has_system_access")
+  isOwner          Boolean    @default(false) @map("is_owner")
   
   // Privacy
-  contactPrivacyLevel ContactPrivacyLevel @default(MY_LEADERSHIP_AND_DISCIPLES)
-  
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  contactPrivacyLevel ContactPrivacyLevel @default(MY_LEADERSHIP_AND_DISCIPLES) @map("contact_privacy_level")
+
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
 
   // Relations
   attendances              ReportAttendance[]
@@ -227,14 +241,16 @@ model Member {
   @@index([ministryPositionId])
   @@index([winnerPathId])
   @@index([spouseId])
+
+  @@map("member")
 }
 
 model CelulaLeaderInTraining {
   id        Int      @id @default(autoincrement())
-  celulaId  Int
-  memberId  Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  celulaId  Int       @map("celula_id")
+  memberId  Int       @map("member_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
 
   celula Celula @relation(fields: [celulaId], references: [id], onDelete: Cascade)
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
@@ -242,6 +258,8 @@ model CelulaLeaderInTraining {
   @@unique([celulaId, memberId])
   @@index([celulaId])
   @@index([memberId])
+
+  @@map("celula_leader_in_training")
 }
 
 enum Gender {
@@ -300,24 +318,24 @@ enum ReportType {
 model Congregacao {
   id                      Int      @id @default(autoincrement())
   name                    String
-  matrixId                Int
-  pastorGovernoMemberId   Int
-  vicePresidenteMemberId  Int?
-  kidsLeaderMemberId      Int?
-  isPrincipal             Boolean  @default(false)
+  matrixId                Int      @map("matrix_id")
+  pastorGovernoMemberId   Int      @map("pastor_governo_member_id")
+  vicePresidenteMemberId  Int?     @map("vice_presidente_member_id")
+  kidsLeaderMemberId      Int?     @map("kids_leader_member_id")
+  isPrincipal             Boolean  @default(false) @map("is_principal")
   
   // Address fields
   country      String?       @default("Brasil")
-  zipCode      String?
+  zipCode      String?       @map("zip_code")
   street       String?
-  streetNumber String?
+  streetNumber String?       @map("street_number")
   neighborhood String?
   city         String?
   complement   String?
   state        String?
   
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   matrix             Matrix   @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   pastorGoverno      Member   @relation("CongregacaoPastorGoverno", fields: [pastorGovernoMemberId], references: [id], onDelete: NoAction)
@@ -330,17 +348,19 @@ model Congregacao {
   @@index([pastorGovernoMemberId])
   @@index([vicePresidenteMemberId])
   @@index([kidsLeaderMemberId])
+
+  @@map("congregacao")
 }
 
 model Rede {
   id             Int      @id @default(autoincrement())
   name           String
-  matrixId       Int
-  congregacaoId  Int
-  pastorMemberId Int
-  isKids         Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  matrixId       Int      @map("matrix_id")
+  congregacaoId  Int      @map("congregacao_id")
+  pastorMemberId Int      @map("pastor_member_id")
+  isKids         Boolean  @default(false) @map("is_kids")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   matrix       Matrix      @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   congregacao  Congregacao @relation(fields: [congregacaoId], references: [id], onDelete: NoAction)
@@ -349,15 +369,17 @@ model Rede {
 
   @@index([matrixId])
   @@index([congregacaoId])
+
+  @@map("rede")
 }
 
 model Discipulado {
   id                 Int      @id @default(autoincrement())
-  matrixId           Int
-  redeId             Int
-  discipuladorMemberId Int
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  matrixId           Int      @map("matrix_id")
+  redeId             Int      @map("rede_id")
+  discipuladorMemberId Int    @map("discipulador_member_id")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
 
   celulas   Celula[]
   disciples DiscipuladoDisciple[]
@@ -369,14 +391,16 @@ model Discipulado {
   @@index([matrixId])
   @@index([redeId])
   @@index([discipuladorMemberId])
+
+  @@map("discipulado")
 }
 
 model DiscipuladoDisciple {
   id            Int      @id @default(autoincrement())
-  discipuladoId Int
-  memberId      Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  discipuladoId Int      @map("discipulado_id")
+  memberId      Int      @map("member_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
 
   discipulado Discipulado @relation(fields: [discipuladoId], references: [id], onDelete: Cascade)
   member      Member      @relation(fields: [memberId], references: [id], onDelete: Cascade)
@@ -384,13 +408,15 @@ model DiscipuladoDisciple {
   @@unique([discipuladoId, memberId])
   @@index([discipuladoId])
   @@index([memberId])
+
+  @@map("discipulado_disciple")
 }
 
 model Report {
   id        Int        @id @default(autoincrement())
-  matrixId  Int
-  createdAt DateTime   @default(now())
-  celulaId  Int
+  matrixId  Int        @map("matrix_id")
+  createdAt DateTime   @default(now()) @map("created_at")
+  celulaId  Int        @map("celula_id")
   type      ReportType @default(CELULA)
 
   matrix      Matrix             @relation(fields: [matrixId], references: [id], onDelete: NoAction)
@@ -399,12 +425,14 @@ model Report {
 
   @@index([matrixId])
   @@index([celulaId])
+
+  @@map("report")
 }
 
 model ReportAttendance {
   id       Int @id @default(autoincrement())
-  reportId Int
-  memberId Int
+  reportId Int @map("report_id")
+  memberId Int @map("member_id")
 
   report Report @relation(fields: [reportId], references: [id], onDelete: Cascade)
   member Member @relation(fields: [memberId], references: [id], onDelete: NoAction)
@@ -412,12 +440,14 @@ model ReportAttendance {
   @@unique([reportId, memberId])
   @@index([reportId])
   @@index([memberId])
+
+  @@map("report_attendance")
 }
 
 model MemberRole {
   id       Int @id @default(autoincrement())
-  memberId Int
-  roleId   Int
+  memberId Int @map("member_id")
+  roleId   Int @map("role_id")
 
   member Member @relation(fields: [memberId], references: [id], onDelete: NoAction)
   role   Role   @relation(fields: [roleId], references: [id], onDelete: NoAction)
@@ -425,33 +455,37 @@ model MemberRole {
   @@unique([memberId, roleId])
   @@index([memberId])
   @@index([roleId])
+
+  @@map("member_role")
 }
 
 model RefreshToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
-  memberId  Int
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  isRevoked Boolean  @default(false)
+  memberId  Int      @map("member_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isRevoked Boolean  @default(false) @map("is_revoked")
 
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([memberId])
   @@index([token])
+
+  @@map("refresh_token")
 }
 
 model ApiKey {
   id          Int      @id @default(autoincrement())
   name        String
-  matrixId    Int
+  matrixId    Int      @map("matrix_id")
   key         String   @unique
-  isActive    Boolean  @default(true)
-  createdById Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  lastUsedAt  DateTime?
+  isActive    Boolean  @default(true) @map("is_active")
+  createdById Int      @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  lastUsedAt  DateTime? @map("last_used_at")
 
   matrix    Matrix @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   createdBy Member @relation(fields: [createdById], references: [id], onDelete: Cascade)
@@ -459,33 +493,40 @@ model ApiKey {
   @@index([matrixId])
   @@index([key])
   @@index([createdById])
+
+  @@map("api_key")
 }
 
 model PasswordResetToken {
   id        Int      @id @default(autoincrement())
   token     String   @unique
-  memberId  Int
-  expiresAt DateTime
-  isUsed    Boolean  @default(false)
-  createdAt DateTime @default(now())
+  memberId  Int      @map("member_id")
+  expiresAt DateTime @map("expires_at")
+  isUsed    Boolean  @default(false) @map("is_used")
+  createdAt DateTime @default(now()) @map("created_at")
 
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([memberId])
   @@index([token])
+
+  @@map("password_reset_token")
 }
 
 model MemberSocialMedia {
   id        Int      @id @default(autoincrement())
-  memberId  Int
+  memberId  Int      @map("member_id")
   type      String   // Tipo da rede social: INSTAGRAM, FACEBOOK, TWITTER, WHATSAPP, LINKEDIN, TIKTOK, YOUTUBE, etc.
   username  String   // Username, URL ou identificador
   
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
 
   @@index([memberId])
   @@index([type])
+
+  @@map("member_social_media")
 }
+

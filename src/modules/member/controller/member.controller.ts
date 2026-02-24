@@ -31,6 +31,44 @@ export class MemberController {
         return this.service.getStatistics(filters, req.member.matrixId, req.permission);
     }
 
+    @Get('autocomplete')
+    @ApiOperation({ summary: 'Buscar membros slim para seletores (id, name, email, celula, ministryPosition, roles)' })
+    @ApiResponse({ status: 200, description: 'Lista slim de membros' })
+    public async autocomplete(
+        @Req() req: AuthenticatedRequest,
+        @Query() query: { name?: string; ministryType?: string; gender?: string; all?: string; celulaId?: string; isActive?: string; discipleOfId?: string }
+    ) {
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+        return this.service.findAutocomplete(req.member.matrixId, req.member.id, {
+            name: query.name,
+            ministryType: query.ministryType,
+            gender: query.gender,
+            all: query.all === 'true',
+            celulaId: query.celulaId !== undefined ? Number(query.celulaId) : undefined,
+            isActive: query.isActive !== undefined ? query.isActive === 'true' : undefined,
+            discipleOfId: query.discipleOfId ? Number(query.discipleOfId) : undefined,
+        });
+    }
+
+    @Get('check-duplicate')
+    @ApiOperation({ summary: 'Verificar duplicidade de membro por nome e gênero' })
+    @ApiResponse({ status: 200, description: 'Lista de membros com mesmo nome e gênero' })
+    public async checkDuplicate(
+        @Req() req: AuthenticatedRequest,
+        @Query('name') name: string,
+        @Query('gender') gender: string
+    ) {
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+        if (!name || !gender) {
+            throw new HttpException('name e gender são obrigatórios', HttpStatus.BAD_REQUEST);
+        }
+        return this.service.findDuplicates(req.member.matrixId, name, gender);
+    }
+
     @Get(':memberId')
     @ApiOperation({ summary: 'Buscar membro por ID' })
     @ApiResponse({ status: 200, description: 'Dados do membro' })

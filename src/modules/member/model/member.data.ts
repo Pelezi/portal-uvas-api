@@ -204,6 +204,12 @@ export class MemberFilterInput {
 
     @ApiProperty({ description: 'Indica se deve retornar membros que não estão debaixo da sua cobertura', example: false, required: false })
     public readonly all?: boolean;
+
+    @ApiProperty({ description: 'Número da página (1-indexed)', example: 1, required: false })
+    public readonly page?: number;
+
+    @ApiProperty({ description: 'Quantidade de itens por página', example: 20, required: false })
+    public readonly pageSize?: number;
 }
 
 export class StatisticsFilterInput {
