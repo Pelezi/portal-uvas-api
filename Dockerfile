@@ -17,6 +17,9 @@ RUN npm ci
 # Copy the rest of the application code
 COPY --chown=node:node . .
 
+# Add this fake URL so Prisma doesn't crash during build
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+
 # Generate Prisma Client, build the NestJS app, and remove dev dependencies
 RUN npx prisma generate \
     && npm run build \
