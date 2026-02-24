@@ -10,7 +10,7 @@
   },
   "scripts": {
     "clean": "rimraf ./dist",
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "start:local": "env-cmd -f .env node dist/server.js",
     "dev": "env-cmd -f .env nodemon",
     "build": "npx prisma generate && npm run clean && tsc",
@@ -52,7 +52,7 @@
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/multer": "^2.0.0",
-    "@types/node": "^22.19.1",
+    "@types/node": "^22.19.11",
     "@types/nodemailer": "^7.0.4",
     "@types/pg": "^8.16.0",
     "@types/supertest": "^6.0.2",
