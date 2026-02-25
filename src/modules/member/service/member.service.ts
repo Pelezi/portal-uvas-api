@@ -720,10 +720,16 @@ export class MemberService {
                     }
                 },
                 redes: { include: { congregacao: true } },
-                congregacoesPastorGoverno: true,
-                congregacoesVicePresidente: true,
+                congregacoesPastorGoverno: { select: { id: true, isPrincipal: true } },
+                congregacoesVicePresidente: { select: { id: true, pastorGovernoMemberId: true, vicePresidenteMemberId: true, kidsLeaderMemberId: true } },
                 roles: { include: { role: true } },
-                socialMedia: true
+                socialMedia: true,
+                ministryPosition: true,
+                spouse: { select: { id: true, name: true } },
+                congregacoesKidsLeader: { select: { id: true, name: true } },
+                discipleOf: { select: { discipulado: { select: { discipulador: { select: { id: true, name: true } }, rede: { select: { id: true, name: true, isKids: true, congregacao: { select: { id: true, name: true } } } } } } } },
+                hostedCelulas: { select: { id: true, name: true } },
+                leadingInTrainingCelulas: { select: { celula: { select: { id: true, name: true, discipulado: { select: { rede: { select: { congregacao: { select: { id: true, name: true } } } } } } } } } }
             },
             omit: { password: true }
         });
@@ -2715,6 +2721,8 @@ export class MemberService {
         }
         if (filters?.isActive !== undefined) {
             where.isActive = filters.isActive;
+        } else {
+            where.isActive = true;
         }
         if (filters?.discipleOfId) {
             where.discipleOf = {
