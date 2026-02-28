@@ -2809,4 +2809,71 @@ export class MemberService {
         members.forEach(m => this.cloudFrontService.transformPhotoUrl(m));
         return members;
     }
+
+    /**
+     * Send invites to all members with ministry type >= LEADER
+     */
+    public async sendBulkInviteToLeaders(matrixId: number): Promise<MemberData.BulkInviteResponse> {
+        // Buscar todos os membros ativos com ministryType >= LEADER
+        const members = await this.prisma.member.findMany({
+            where: {
+                matrices: { some: { matrixId } },
+                isActive: true,
+                ministryPosition: {
+                    type: {
+                        in: ['PRESIDENT_PASTOR', 'PASTOR', 'DISCIPULADOR', 'LEADER']
+                    }
+                },
+                email: { not: null }
+            },
+            select: {
+                id: true,
+                name: true,
+                email: true
+            },
+            orderBy: { name: 'asc' }
+        });
+
+        const results: Array<{
+            memberId: number;
+            memberName: string;
+            success: boolean;
+            error?: string;
+        }> = [];
+
+        let successCount = 0;
+        let failureCount = 0;
+
+        // Enviar convite para cada membro
+        for (const member of members) {
+            try {
+                await this.prisma.member.update({
+                    where: { id: member.id },
+                    data: { hasSystemAccess: true }
+                });
+                await this.sendInvite(member.id, matrixId);
+                results.push({
+                    memberId: member.id,
+                    memberName: member.name || 'Sem nome',
+                    success: true
+                });
+                successCount++;
+            } catch (error) {
+                results.push({
+                    memberId: member.id,
+                    memberName: member.name || 'Sem nome',
+                    success: false,
+                    error: error instanceof Error ? error.message : 'Erro desconhecido'
+                });
+                failureCount++;
+            }
+        }
+
+        return {
+            totalMembers: members.length,
+            successCount,
+            failureCount,
+            results
+        };
+    }
 }

@@ -142,6 +142,25 @@ export class InviteResponse {
     public readonly whatsappSent: boolean;
 }
 
+export class BulkInviteResponse {
+    @ApiProperty({ description: 'Total de membros encontrados', example: 10 })
+    public readonly totalMembers: number;
+
+    @ApiProperty({ description: 'Número de convites enviados com sucesso', example: 8 })
+    public readonly successCount: number;
+
+    @ApiProperty({ description: 'Número de convites que falharam', example: 2 })
+    public readonly failureCount: number;
+
+    @ApiProperty({ description: 'Detalhes dos resultados', type: [Object] })
+    public readonly results: Array<{
+        memberId: number;
+        memberName: string;
+        success: boolean;
+        error?: string;
+    }>;
+}
+
 export class LoginOutput {
 
     @ApiProperty({ description: 'JWT token para autenticação', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' })

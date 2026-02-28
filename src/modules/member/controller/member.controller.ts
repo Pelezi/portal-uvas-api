@@ -315,6 +315,26 @@ export class MemberController {
         return this.service.resendInvite(memberId, req.member!.matrixId);
     }
 
+    @Post('send-bulk-invite-to-leaders')
+    @ApiOperation({ summary: 'Enviar convites para todos os membros com ministry type >= LEADER' })
+    @ApiResponse({ status: 200, description: 'Convites enviados', type: MemberData.BulkInviteResponse })
+    public async sendBulkInviteToLeaders(
+        @Req() req: AuthenticatedRequest
+    ) {
+        const permission = req.permission;
+
+        // Apenas admins podem enviar convites em massa
+        if (!permission.isAdmin) {
+            throw new HttpException('Apenas administradores podem enviar convites em massa', HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+
+        return this.service.sendBulkInviteToLeaders(req.member.matrixId);
+    }
+
     @Get('with-roles')
     @ApiOperation({ summary: 'Listar membros com informações de roles' })
     @ApiResponse({ status: 200, description: 'Lista de membros com roles' })
