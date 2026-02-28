@@ -2084,7 +2084,7 @@ export class MemberService {
                         to: phone,
                         name: name,
                         platform: matrixName,
-                        platformUrl: matrixDomain,
+                        platformUrl: `${matrixDomain}/auth/login`,
                         login: email,
                         password: '123456'
                     });
