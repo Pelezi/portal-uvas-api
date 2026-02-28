@@ -38,8 +38,6 @@ model MatrixDomain {
 
   matrix Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)
 
-  @@index([matrixId])
-
   @@map("matrix_domain")
 }
 
