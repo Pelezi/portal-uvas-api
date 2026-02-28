@@ -239,7 +239,7 @@ export class CelulaService {
         if (!canBeLeader(leader.ministryPosition?.type)) {
             throw new HttpException(
                 `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(leader.ministryPosition?.type)}. ` +
-                `É necessário ser pelo menos Líder.`,
+                `É necessário ser pelo menos Membro.`,
                 HttpStatus.BAD_REQUEST
             );
         }
@@ -279,12 +279,19 @@ export class CelulaService {
             include: {
                 leader: { omit: { password: true } },
                 host: { omit: { password: true } },
-                discipulado: true
+                discipulado: { include: { discipulador: { select: { id: true, name: true, photoUrl: true } }, rede: { include: { congregacao: true } } } },
+                leadersInTraining: { select: { id: true, memberId: true, member: { select: { id: true, name: true, photoUrl: true } } } },
+                parallelCelula: { include: { leader: { omit: { password: true } } } },
             }
         });
         if (celula) {
             this.cloudFrontService.transformPhotoUrl(celula.leader);
             this.cloudFrontService.transformPhotoUrl(celula.host);
+            this.cloudFrontService.transformPhotoUrl(celula.discipulado?.discipulador);
+            this.cloudFrontService.transformPhotoUrls(celula.leadersInTraining.map((lit: any) => lit.member));
+            if (celula.parallelCelula?.leader) {
+                this.cloudFrontService.transformPhotoUrl(celula.parallelCelula.leader);
+            }
         }
         return celula;
     }
@@ -369,6 +376,7 @@ export class CelulaService {
         if (data.type !== undefined) updateData.type = data.type as any;
         if (data.level !== undefined) updateData.level = data.level as any;
         if (data.parallelCelulaId !== undefined) updateData.parallelCelulaId = data.parallelCelulaId ?? null;
+        if (data.isOk !== undefined) updateData.isOk = data.isOk;
 
         if (data.leaderMemberId !== undefined) {
             if (data.leaderMemberId !== null) {
@@ -385,7 +393,7 @@ export class CelulaService {
                 if (!canBeLeader(leader.ministryPosition?.type)) {
                     throw new HttpException(
                         `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(leader.ministryPosition?.type)}. ` +
-                        `É necessário ser pelo menos Líder.`,
+                        `É necessário ser pelo menos Membro.`,
                         HttpStatus.BAD_REQUEST
                     );
                 }

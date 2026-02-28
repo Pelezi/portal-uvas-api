@@ -16,6 +16,7 @@ import { firstValueFrom } from 'rxjs';
 import { File } from 'fastify-multer/lib/interfaces';
 
 import * as PrismaModels from '../../../generated/prisma/models';
+import { SocialMediaType } from '../../../generated/prisma/enums';
 
 interface SetPasswordPayload extends jwt.JwtPayload {
     userId: number;
@@ -82,6 +83,12 @@ export class MemberService {
             }
         };
 
+        if (filters?.isActive !== undefined) {
+            where.isActive = String(filters.isActive).toLowerCase() === 'true';
+        } else {
+            where.isActive = true;
+        }
+
         if (filters) {
             // celulaId = 0 significa "sem célula" (celulaId is null)
             if (filters.celulaId !== undefined) {
@@ -94,6 +101,7 @@ export class MemberService {
                     where.redes = { none: {} };
                     where.congregacoesPastorGoverno = { none: {} };
                     where.congregacoesVicePresidente = { none: {} };
+                    where.congregacoesKidsLeader = { none: {} };
                 } else {
                     // Include members AND leaders of the celula
                     where.OR = [
@@ -212,10 +220,6 @@ export class MemberService {
                 if (orConditions.length > 0) {
                     where.OR = orConditions;
                 }
-
-                if (filters.isActive !== undefined) {
-                    where.isActive = String(filters.isActive).toLowerCase() === 'true';
-                }
             }
 
             // Apply name filter separately (not part of OR) - works with all filter combinations
@@ -328,6 +332,7 @@ export class MemberService {
                         },
                     },
                     leadingInTrainingCelulas: { select: { celulaId: true } },
+                    hostedCelulas: { select: { id: true, name: true } },
                     discipulados: {
                         select: {
                             rede: {
@@ -418,6 +423,7 @@ export class MemberService {
             if (member.discipulados?.length) leadershipTags.push({ label: 'Discipulador', color: 'text-green-400' });
             if (member.ledCelulas?.length) leadershipTags.push({ label: 'Líder de Célula', color: 'text-yellow-400' });
             if (member.leadingInTrainingCelulas?.length) leadershipTags.push({ label: 'Líder em Treinamento', color: 'text-yellow-400' });
+            if (member.hostedCelulas?.length) leadershipTags.push({ label: 'Anfitrião', color: 'text-orange-400' });
 
             // --- Compute canManage ---
             let canManage = false;
@@ -729,7 +735,8 @@ export class MemberService {
                 congregacoesKidsLeader: { select: { id: true, name: true } },
                 discipleOf: { select: { discipulado: { select: { discipulador: { select: { id: true, name: true } }, rede: { select: { id: true, name: true, isKids: true, congregacao: { select: { id: true, name: true } } } } } } } },
                 hostedCelulas: { select: { id: true, name: true } },
-                leadingInTrainingCelulas: { select: { celula: { select: { id: true, name: true, discipulado: { select: { rede: { select: { congregacao: { select: { id: true, name: true } } } } } } } } } }
+                leadingInTrainingCelulas: { select: { celula: { select: { id: true, name: true, discipulado: { select: { rede: { select: { congregacao: { select: { id: true, name: true } } } } } } } } } },
+                winnerPath: { select: { id: true, name: true } }
             },
             omit: { password: true }
         });
@@ -1408,10 +1415,7 @@ export class MemberService {
 
             // Upsert social media if provided
             if (body.socialMedia && body.socialMedia.length > 0) {
-                await this.upsertSocialMedia(member.id, body.socialMedia, cleanPhoneField(body.phone) || undefined);
-            } else if (body.phone) {
-                // If only phone is provided (no social media), auto-fill WhatsApp
-                await this.upsertSocialMedia(member.id, undefined, cleanPhoneField(body.phone) || undefined);
+                await this.upsertSocialMedia(member.id, body.socialMedia);
             }
 
             return await this.prisma.member.findUnique({
@@ -1640,16 +1644,8 @@ export class MemberService {
             }
 
             // Upsert social media if provided
-            const phoneUpdated = data.phone !== undefined && cleanPhoneField(data.phone) !== null;
-            const hadNoPhoneBefore = !currentMember?.phone;
-
             if (data.socialMedia && data.socialMedia.length > 0) {
-                // Auto-fill WhatsApp only if phone is being added for the first time
-                const autoFillPhone = (phoneUpdated && hadNoPhoneBefore) ? (cleanPhoneField(data.phone) || undefined) : undefined;
-                await this.upsertSocialMedia(memberId, data.socialMedia, autoFillPhone);
-            } else if (phoneUpdated && hadNoPhoneBefore) {
-                // If only phone is being added (no social media array), auto-fill WhatsApp
-                await this.upsertSocialMedia(memberId, undefined, cleanPhoneField(data.phone) || undefined);
+                await this.upsertSocialMedia(memberId, data.socialMedia);
             }
 
             return await this.prisma.member.findUnique({
@@ -1748,6 +1744,13 @@ export class MemberService {
                 const celulaId = Number(filters.celulaId);
                 if (filters.celulaId === '0') {
                     where.celulaId = null;
+                    where.ledCelulas = { none: {} };
+                    where.leadingInTrainingCelulas = { none: {} };
+                    where.discipulados = { none: {} };
+                    where.redes = { none: {} };
+                    where.congregacoesPastorGoverno = { none: {} };
+                    where.congregacoesVicePresidente = { none: {} };
+                    where.congregacoesKidsLeader = { none: {} };
                 } else {
                     // Include members AND leaders of the celula
                     where.OR = [
@@ -1876,10 +1879,21 @@ export class MemberService {
 
         const members = await this.prisma.member.findMany({
             where,
-            include: {
-                celula: true,
-                ministryPosition: true
-            }
+            select: {
+                id: true,
+                gender: true,
+                maritalStatus: true,
+                birthDate: true,
+                celulaId: true,
+                ledCelulas: { select: { id: true } },
+                leadingInTrainingCelulas: { select: { id: true, celulaId: true } },
+                discipulados: { select: { id: true } },
+                redes: { select: { id: true } },
+                congregacoesPastorGoverno: { select: { id: true } },
+                congregacoesVicePresidente: { select: { id: true } },
+                congregacoesKidsLeader: { select: { id: true } },
+                ministryPosition: { select: { type: true } },
+            },
         });
 
         // Leadership types (LEADER and above)
@@ -1890,7 +1904,7 @@ export class MemberService {
 
         const total = members.length;
         const withoutCelula = members.filter(m =>
-            !m.celulaId && (!m.ministryPosition || !leadershipTypes.includes(m.ministryPosition.type))
+            !m.celulaId && !m.ledCelulas?.length && !m.leadingInTrainingCelulas?.length && !m.discipulados?.length && !m.redes?.length && !m.congregacoesPastorGoverno?.length && !m.congregacoesVicePresidente?.length && !m.congregacoesKidsLeader?.length
         ).length;
 
         // Gender statistics
@@ -2477,17 +2491,9 @@ export class MemberService {
             omit: { password: true }
         });
 
-        // Upsert social media if provided
-        const phoneUpdated = data.phone !== undefined && cleanPhoneField(data.phone) !== null;
-        const hadNoPhoneBefore = !currentMember?.phone;
 
         if (socialMedia && socialMedia.length > 0) {
-            // Auto-fill WhatsApp only if phone is being added for the first time
-            const autoFillPhone = (phoneUpdated && hadNoPhoneBefore) ? (cleanPhoneField(data.phone) || undefined) : undefined;
-            await this.upsertSocialMedia(memberId, socialMedia, autoFillPhone);
-        } else if (phoneUpdated && hadNoPhoneBefore) {
-            // If only phone is being added (no social media array), auto-fill WhatsApp
-            await this.upsertSocialMedia(memberId, undefined, cleanPhoneField(data.phone) || undefined);
+            await this.upsertSocialMedia(memberId, socialMedia);
         }
 
         // Fetch updated member with social media
@@ -2573,31 +2579,19 @@ export class MemberService {
      */
     private async upsertSocialMedia(
         memberId: number,
-        socialMediaArray?: Array<{ type: string; username: string }>,
-        autoFillWhatsAppFromPhone?: string
+        socialMediaArray?: Array<{ type: SocialMediaType; username: string }>
     ) {
         // Delete all existing social media for this member
         await this.prisma.memberSocialMedia.deleteMany({
             where: { memberId }
         });
 
-        // Start with provided array or empty array
-        const finalArray: Array<{ type: string; username: string }> = socialMediaArray ? [...socialMediaArray] : [];
-
-        // Auto-fill WhatsApp if phone is provided and WhatsApp is not in the array
-        if (autoFillWhatsAppFromPhone) {
-            const hasWhatsApp = finalArray.some(sm => sm.type.toUpperCase() === 'WHATSAPP');
-            if (!hasWhatsApp) {
-                finalArray.push({ type: 'WHATSAPP', username: autoFillWhatsAppFromPhone });
-            }
-        }
-
-        // Create all social media entries
-        if (finalArray.length > 0) {
+        // Create social media entries if provided
+        if (socialMediaArray && socialMediaArray.length > 0) {
             await this.prisma.memberSocialMedia.createMany({
-                data: finalArray.map(sm => ({
+                data: socialMediaArray.map(sm => ({
                     memberId,
-                    type: sm.type.toUpperCase(),
+                    type: sm.type,
                     username: sm.username
                 }))
             });
@@ -2717,7 +2711,22 @@ export class MemberService {
             where.gender = filters.gender as any;
         }
         if (filters?.celulaId !== undefined) {
-            where.celulaId = filters.celulaId;
+            if (filters.celulaId == 0) {
+                where.celulaId = null;
+                where.ledCelulas = { none: {} };
+                where.leadingInTrainingCelulas = { none: {} };
+                where.discipulados = { none: {} };
+                where.redes = { none: {} };
+                where.congregacoesPastorGoverno = { none: {} };
+                where.congregacoesVicePresidente = { none: {} };
+                where.congregacoesKidsLeader = { none: {} };
+            } else {
+                where.OR = [
+                    { celulaId: filters.celulaId },
+                    { ledCelulas: { some: { id: filters.celulaId } } },
+                    { leadingInTrainingCelulas: { some: { celulaId: filters.celulaId } } }
+                ];
+            }
         }
         if (filters?.isActive !== undefined) {
             where.isActive = filters.isActive;

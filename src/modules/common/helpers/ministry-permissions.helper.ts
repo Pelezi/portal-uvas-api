@@ -27,7 +27,9 @@ export function canBeLeader(ministryType?: $Enums.MinistryType | null): boolean 
         ministryType === $Enums.MinistryType.PRESIDENT_PASTOR ||
         ministryType === $Enums.MinistryType.PASTOR ||
         ministryType === $Enums.MinistryType.DISCIPULADOR ||
-        ministryType === $Enums.MinistryType.LEADER
+        ministryType === $Enums.MinistryType.LEADER ||
+        ministryType === $Enums.MinistryType.LEADER_IN_TRAINING ||
+        ministryType === $Enums.MinistryType.MEMBER
     );
 }
 

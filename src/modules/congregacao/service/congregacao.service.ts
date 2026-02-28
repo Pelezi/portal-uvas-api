@@ -147,7 +147,7 @@ export class CongregacaoService {
         return congregacoes;
     }
 
-    public async findOne(id: number, matrixId: number, permission?: LoadedPermission | null) {
+    public async getById(id: number, matrixId: number, permission?: LoadedPermission | null) {
         const validator = createMatrixValidator(this.prisma);
         await validator.validateCongregacaoBelongsToMatrix(id, matrixId);
 

@@ -102,6 +102,9 @@ export class CelulaUpdateInput {
 
     @ApiProperty({ description: 'ID da célula paralela', example: 2, required: false })
     public readonly parallelCelulaId?: number;
+
+    @ApiProperty({ description: 'Marca se a célula está OK', example: true, required: false })
+    public readonly isOk?: boolean;
 }
 
 export class CelulaMultiplyInput {

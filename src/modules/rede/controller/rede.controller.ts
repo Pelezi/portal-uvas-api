@@ -32,6 +32,16 @@ export class RedeController {
         return this.service.findAll(req.member.matrixId, req.member.id, filters);
     }
 
+    @Get(':id')
+    @ApiOperation({ summary: 'Buscar rede por ID' })
+    @ApiResponse({ status: 200, description: 'Rede encontrada' })
+    public async getById(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+        return this.service.getById(Number(id), req.member.matrixId);
+    }
+
     @Post()
     @ApiOperation({ summary: 'Criar rede' })
     @ApiBody({ type: RedeData.RedeCreateInput })

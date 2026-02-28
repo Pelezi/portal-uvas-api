@@ -34,11 +34,11 @@ export class CongregacaoController {
 
     @Get(':id')
     @ApiOperation({ summary: 'Buscar congregação por ID' })
-    public async findOne(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    public async getById(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.findOne(Number(id), req.member.matrixId, req.permission);
+        return this.service.getById(Number(id), req.member.matrixId, req.permission);
     }
 
     @Post()

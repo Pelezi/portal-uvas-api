@@ -12,7 +12,7 @@ export class ReportService {
         private readonly cloudFrontService: CloudFrontService
     ) {}
 
-    public async create(celulaId: number, memberIds: number[], matrixId: number, date?: string, type?: 'CELULA' | 'CULTO') {
+    public async create(celulaId: number, memberIds: number[], matrixId: number, date?: string, type?: 'CELULA' | 'CULTO', offerAmount?: number) {
         const brazilOffsetHours = 3;
 
         let startUtc: Date;
@@ -52,7 +52,8 @@ export class ReportService {
             celula: { connect: { id: celulaId } },
             matrix: { connect: { id: matrixId } },
             type: type || 'CELULA',
-            ...(date && { createdAt: startUtc })
+            ...(date && { createdAt: startUtc }),
+            ...(offerAmount !== undefined && { offerAmount })
         };
 
         const report = await this.prisma.report.create({ data: createData });
@@ -497,7 +498,9 @@ export class ReportService {
                         present,
                         absent,
                         hasReport: true,
-                        isStandardDay
+                        isStandardDay,
+                        offerAmount: report.offerAmount ? Number(report.offerAmount) : undefined,
+                        type: report.type
                     };
                 } else {
                     // Data sem relatório - usar validDate

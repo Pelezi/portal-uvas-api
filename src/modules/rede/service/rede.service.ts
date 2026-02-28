@@ -145,6 +145,28 @@ export class RedeService {
         }
     }
 
+    public async getById(id: number, matrixId: number) {
+        const rede = await this.prisma.rede.findFirst({
+            where: { id, matrixId },
+            include: {
+                pastor: { omit: { password: true } },
+                congregacao: true,
+                discipulados: {
+                    include: {
+                        discipulador: { omit: { password: true } },
+                        celulas: true
+                    }
+                }
+            }
+        });
+        if (!rede) {
+            throw new HttpException('Rede não encontrada', HttpStatus.NOT_FOUND);
+        }
+        this.cloudFrontService.transformPhotoUrl(rede.pastor);
+        rede.discipulados?.forEach(d => this.cloudFrontService.transformPhotoUrl(d.discipulador));
+        return rede;
+    }
+
     public async create(data: RedeData.RedeCreateInput, permission: LoadedPermission) {
         try {
             const validator = createMatrixValidator(this.prisma);

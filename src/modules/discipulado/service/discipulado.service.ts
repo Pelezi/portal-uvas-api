@@ -158,6 +158,33 @@ export class DiscipuladoService {
         return discipulados;
     }
 
+    public async getById(id: number, matrixId: number) {
+        const discipulado = await this.prisma.discipulado.findFirst({
+            where: { id, matrixId },
+            include: {
+                rede: { include: { congregacao: true } },
+                discipulador: { omit: { password: true } },
+                disciples: {
+                    include: {
+                        member: { omit: { password: true } }
+                    }
+                },
+                celulas: { include: { leader: { omit: { password: true } } } }
+            }
+        });
+        if (!discipulado) {
+            throw new HttpException('Discipulado não encontrado', HttpStatus.NOT_FOUND);
+        }
+        this.cloudFrontService.transformPhotoUrl(discipulado.discipulador);
+        discipulado.disciples?.forEach(disc => this.cloudFrontService.transformPhotoUrl(disc.member));
+        discipulado.celulas?.forEach(c => {
+            if (c.leader) {
+                this.cloudFrontService.transformPhotoUrl(c.leader);
+            }
+        });
+        return discipulado;
+    }
+
     public async create(data: DiscipuladoData.DiscipuladoCreateInput, permission: LoadedPermission) {
         const validator = createMatrixValidator(this.prisma);
 

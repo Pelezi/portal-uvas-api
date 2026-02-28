@@ -7,6 +7,8 @@ export class ReportCreateInput {
     public readonly date?: string;
     @ApiProperty({ description: 'Report type: CELULA or CULTO', example: 'CELULA', enum: ['CELULA', 'CULTO'], default: 'CELULA', required: false })
     public readonly type?: 'CELULA' | 'CULTO';
+    @ApiProperty({ description: 'Offer amount for the report (only for CELULA type)', example: 150.50, required: false })
+    public readonly offerAmount?: number;
 }
 
 export class ReportFilterInput {

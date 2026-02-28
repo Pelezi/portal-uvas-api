@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Gender, MaritalStatus, ContactPrivacyLevel } from '../../../generated/prisma/enums';
+import { Gender, MaritalStatus, ContactPrivacyLevel, SocialMediaType } from '../../../generated/prisma/enums';
 
 export class MemberInput {
     // Auth/User fields
@@ -89,16 +89,8 @@ export class MemberInput {
     public readonly roleIds?: number[];
 
     // Social Media
-    @ApiProperty({ 
-        description: 'Social media accounts', 
-        example: [
-            { type: 'INSTAGRAM', username: 'johndoe' },
-            { type: 'WHATSAPP', username: '+5511999999999' },
-            { type: 'TELEGRAM', username: '@johndoe' }
-        ], 
-        required: false 
-    })
-    public readonly socialMedia?: Array<{ type: string; username: string }>;
+    @ApiProperty({ description: 'Social media accounts', required: false })
+    public readonly socialMedia?: SocialMediaInput[];
 
     //photo
     @ApiProperty({ description: 'Profile photo file', type: 'string', format: 'binary', required: false })
@@ -275,16 +267,8 @@ export class UpdateOwnProfileInput {
     public readonly state?: string;
 
     // Social Media
-    @ApiProperty({ 
-        description: 'Social media accounts', 
-        example: [
-            { type: 'INSTAGRAM', username: 'johndoe' },
-            { type: 'WHATSAPP', username: '+5511999999999' },
-            { type: 'TELEGRAM', username: '@johndoe' }
-        ], 
-        required: false 
-    })
-    public readonly socialMedia?: Array<{ type: string; username: string }>;
+    @ApiProperty({ description: 'Social media accounts', required: false })
+    public readonly socialMedia?: SocialMediaInput[];
 
     // Privacy
     @ApiProperty({ 
@@ -298,4 +282,12 @@ export class UpdateOwnProfileInput {
     //photo
     @ApiProperty({ description: 'Profile photo file', type: 'string', format: 'binary', required: false })
     public readonly photo?: any;
+}
+
+export class SocialMediaInput {
+    @ApiProperty({ description: 'Type of social media', example: 'INSTAGRAM', enum: SocialMediaType })
+    public readonly type: SocialMediaType;
+
+    @ApiProperty({ description: 'Username on the social media platform', example: 'johndoe' })
+    public readonly username: string;
 }

@@ -85,6 +85,7 @@ model Celula {
   type               CelulaType?
   level              CelulaLevel?
   parallelCelulaId   Int?       @map("parallel_celula_id")
+  isOk               Boolean    @default(false) @map("is_ok")
 
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
@@ -100,7 +101,6 @@ model Celula {
   parallelCelula Celula?     @relation("ParallelCelulas", fields: [parallelCelulaId], references: [id], onDelete: NoAction)
   parallelOf     Celula[]    @relation("ParallelCelulas")
 
-  @@unique([name, matrixId])
   @@index([matrixId])
   @@index([discipuladoId])
   @@index([leaderMemberId])
@@ -413,11 +413,12 @@ model DiscipuladoDisciple {
 }
 
 model Report {
-  id        Int        @id @default(autoincrement())
-  matrixId  Int        @map("matrix_id")
-  createdAt DateTime   @default(now()) @map("created_at")
-  celulaId  Int        @map("celula_id")
-  type      ReportType @default(CELULA)
+  id          Int        @id @default(autoincrement())
+  matrixId    Int        @map("matrix_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  celulaId    Int        @map("celula_id")
+  type        ReportType @default(CELULA)
+  offerAmount Decimal?   @map("offer_amount") @db.Decimal(10, 2)
 
   matrix      Matrix             @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   celula      Celula             @relation(fields: [celulaId], references: [id], onDelete: NoAction)
@@ -516,7 +517,7 @@ model PasswordResetToken {
 model MemberSocialMedia {
   id        Int      @id @default(autoincrement())
   memberId  Int      @map("member_id")
-  type      String   // Tipo da rede social: INSTAGRAM, FACEBOOK, TWITTER, WHATSAPP, LINKEDIN, TIKTOK, YOUTUBE, etc.
+  type      SocialMediaType
   username  String   // Username, URL ou identificador
   
   createdAt DateTime @default(now()) @map("created_at")
@@ -528,5 +529,22 @@ model MemberSocialMedia {
   @@index([type])
 
   @@map("member_social_media")
+}
+
+enum SocialMediaType {
+  INSTAGRAM
+  FACEBOOK
+  TWITTER
+  X
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+  TELEGRAM
+  DISCORD
+  THREADS
+  SNAPCHAT
+  PINTEREST
+  TWITCH
+  OUTRO
 }
 

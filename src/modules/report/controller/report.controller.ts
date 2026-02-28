@@ -30,7 +30,7 @@ export class ReportController {
             throw new HttpException('Você não tem acesso a essa célula', HttpStatus.UNAUTHORIZED);
         }
 
-        return this.service.create(celulaId, body.memberIds || [], req.member!.matrixId, body.date, body.type);
+        return this.service.create(celulaId, body.memberIds || [], req.member!.matrixId, body.date, body.type, body.offerAmount);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
