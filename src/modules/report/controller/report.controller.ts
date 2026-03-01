@@ -187,7 +187,8 @@ export class ReportGlobalController {
             year,
             month,
             filters,
-            req.member.matrixId
+            req.member.matrixId,
+            req.member.id
         );
     }
 

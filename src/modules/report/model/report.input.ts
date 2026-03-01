@@ -23,4 +23,7 @@ export class ReportFilterInput {
 
     @ApiProperty({ description: 'Id da congregação', example: 1, required: false })
     public readonly congregacaoId?: number;
+
+    @ApiProperty({ description: 'Se true, retorna todas as células (ignora hierarquia do usuário)', example: true, required: false })
+    public all?: boolean;
 }

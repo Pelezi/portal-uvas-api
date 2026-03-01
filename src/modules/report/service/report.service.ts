@@ -259,7 +259,8 @@ export class ReportService {
         year: number,
         month: number,
         filters: ReportData.ReportFilterInput,
-        matrixId: number
+        matrixId: number,
+        requestingMemberId: number
     ) {
         const brazilOffsetHours = 3;
         
@@ -278,57 +279,101 @@ export class ReportService {
             celulaWhere.discipulado = { rede: { congregacaoId: Number(filters.congregacaoId) } };
         }
         
-        // Apply permissions if not admin
-        if (!permission?.isAdmin && permission?.ministryType !== 'PRESIDENT_PASTOR') {
-            // Build permission-based OR conditions
-            const permissionConditions: any[] = [];
-            
-            // Direct celula access
-            if (permission.celulaIds && permission.celulaIds.length > 0) {
-                permissionConditions.push({ id: { in: permission.celulaIds.map(Number) } });
-            }
-            
-            // Discipulado access
-            if (permission.discipuladoIds && permission.discipuladoIds.length > 0) {
-                permissionConditions.push({ discipuladoId: { in: permission.discipuladoIds.map(Number) } });
-            }
-            
-            // Rede access
-            if (permission.redeIds && permission.redeIds.length > 0) {
-                permissionConditions.push({ discipulado: { redeId: { in: permission.redeIds.map(Number) } } });
-            }
-            
-            // Congregação access
-            if (permission.congregacaoIds && permission.congregacaoIds.length > 0) {
-                permissionConditions.push({ 
-                    discipulado: { 
-                        rede: { 
-                            congregacaoId: { in: permission.congregacaoIds.map(Number) } 
-                        } 
-                    } 
-                });
-            }
-            
-            // Combine filter with permissions
-            if (permissionConditions.length > 0) {
-                if (Object.keys(celulaWhere).length > 0) {
-                    // Both filter and permissions - need AND (filter AND permissions)
-                    celulaWhere = {
-                        AND: [
-                            celulaWhere,
-                            { OR: permissionConditions }
-                        ]
-                    };
-                } else {
-                    // Only permissions - use OR
-                    celulaWhere = { OR: permissionConditions };
+        // Converter string 'true'/'false' para boolean (query params chegam como string)
+        const isAllFilter = filters.all === true || (filters.all as any) === 'true';
+        
+        // Apply hierarchy filtering if not admin/president and all is not true
+        if (!isAllFilter) {
+            // Buscar hierarquia do usuário (mesma lógica da listagem de células)
+            let celulaIds: number[] = [];
+            const member = await this.prisma.member.findUnique({
+                include: {
+                    ledCelulas: { select: { id: true } },
+                    leadingInTrainingCelulas: { select: { celulaId: true } },
+                    discipulados: { include: { celulas: { select: { id: true } } } },
+                    redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } },
+                    congregacoesVicePresidente: { include: { redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } } } },
+                    congregacoesPastorGoverno: { include: { redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } } } },
+                    congregacoesKidsLeader: { include: { redes: { include: { discipulados: { include: { celulas: { select: { id: true } } } } } } } },
+                },
+                where: { id: requestingMemberId }
+            });
+            if (member) {
+                if (member.ledCelulas && member.ledCelulas.length > 0) {
+                    member.ledCelulas.forEach(c => {
+                        if (!celulaIds.includes(c.id)) celulaIds.push(c.id);
+                    });
                 }
+                if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+                    member.leadingInTrainingCelulas.forEach(c => {
+                        if (!celulaIds.includes(c.celulaId)) celulaIds.push(c.celulaId);
+                    });
+                }
+                if (member.discipulados && member.discipulados.length > 0) {
+                    member.discipulados.forEach(d => {
+                        d.celulas.forEach(c => {
+                            if (!celulaIds.includes(c.id)) celulaIds.push(c.id);
+                        });
+                    });
+                }
+                if (member.redes && member.redes.length > 0) {
+                    member.redes.forEach(r => {
+                        r.discipulados.forEach(d => {
+                            d.celulas.forEach(c => {
+                                if (!celulaIds.includes(c.id)) celulaIds.push(c.id);
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesVicePresidente && member.congregacoesVicePresidente.length > 0) {
+                    member.congregacoesVicePresidente.forEach(cong => {
+                        cong.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                d.celulas.forEach(cel => {
+                                    if (!celulaIds.includes(cel.id)) celulaIds.push(cel.id);
+                                });
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesPastorGoverno && member.congregacoesPastorGoverno.length > 0) {
+                    member.congregacoesPastorGoverno.forEach(cong => {
+                        cong.redes.forEach(r => {
+                            r.discipulados.forEach(d => {
+                                d.celulas.forEach(cel => {
+                                    if (!celulaIds.includes(cel.id)) celulaIds.push(cel.id);
+                                });
+                            });
+                        });
+                    });
+                }
+                if (member.congregacoesKidsLeader && member.congregacoesKidsLeader.length > 0) {
+                    member.congregacoesKidsLeader.forEach(cong => {
+                        cong.redes.forEach(r => {
+                            if (r.isKids) {
+                                r.discipulados.forEach(d => {
+                                    d.celulas.forEach(cel => {
+                                        if (!celulaIds.includes(cel.id)) celulaIds.push(cel.id);
+                                    });
+                                });
+                            }
+                        });
+                    });
+                }
+            }
+            
+            if (celulaIds.length > 0) {
+                celulaWhere = {
+                    AND: [
+                        celulaWhere,
+                        { id: { in: celulaIds } }
+                    ]
+                };
             } else {
-                // No permissions at all - return empty result
                 celulaWhere = { id: -1 };
             }
         }
-        // If admin and no filter, celulaWhere remains {} which means all celulas
+        // If admin/president or all=true, celulaWhere keeps only matrixId + user filters
         
         // Calcular início e fim do mês em UTC
         const startBrazilUtcMillis = Date.UTC(year, month - 1, 1, 0, 0, 0) + brazilOffsetHours * 60 * 60 * 1000;
@@ -487,7 +532,14 @@ export class ReportService {
                 if (report) {
                     // Usar a data do relatório para calcular isStandardDay
                     const weekdayOfReport = getWeekdayBrazil(report.createdAt);
-                    const isStandardDay = celula.weekday === null || celula.weekday === undefined ? true : weekdayOfReport === celula.weekday;
+                    let isStandardDay: boolean;
+                    if (report.type === 'CULTO') {
+                        // Para cultos, o dia padrão é domingo (0)
+                        isStandardDay = weekdayOfReport === 0;
+                    } else {
+                        // Para células, usar o dia da semana da célula
+                        isStandardDay = celula.weekday === null || celula.weekday === undefined ? true : weekdayOfReport === celula.weekday;
+                    }
                     
                     const presentIds = new Set((report.attendances || []).map(a => a.memberId));
                     const present = (report.attendances || []).map(a => a.member);
