@@ -1,10 +1,13 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { PrismaService } from '../../common';
+import { PrismaService, CloudFrontService } from '../../common';
 import { MatrixCreateInput, MatrixUpdateInput } from '../model/matrix.input';
 
 @Injectable()
 export class MatrixService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly cloudFrontService: CloudFrontService
+    ) { }
 
     public async findAll() {
         return this.prisma.matrix.findMany({
@@ -126,6 +129,30 @@ export class MatrixService {
 
         if (data.whatsappApiKey !== undefined) {
             updateData.whatsappApiKey = data.whatsappApiKey;
+        }
+
+        if (data.pixKey !== undefined) {
+            updateData.pixKey = data.pixKey;
+        }
+
+        if (data.pixCode !== undefined) {
+            updateData.pixCode = data.pixCode;
+        }
+
+        if (data.whatsappNumber !== undefined) {
+            updateData.whatsappNumber = data.whatsappNumber;
+        }
+
+        if (data.instagramUrl !== undefined) {
+            updateData.instagramUrl = data.instagramUrl;
+        }
+
+        if (data.facebookUrl !== undefined) {
+            updateData.facebookUrl = data.facebookUrl;
+        }
+
+        if (data.youtubeUrl !== undefined) {
+            updateData.youtubeUrl = data.youtubeUrl;
         }
 
         if (data.domains !== undefined) {
@@ -251,5 +278,143 @@ export class MatrixService {
         });
 
         return memberMatrices.map(mm => mm.matrix);
+    }
+
+    /**
+     * Get landing page data for a domain (matrix info, congregations, pastoral team)
+     */
+    public async getLandingPageData(domain: string) {
+        const normalizedDomain = this.normalizeDomain(domain);
+        
+        const matrixDomain = await this.prisma.matrixDomain.findUnique({
+            where: { domain: normalizedDomain },
+            include: {
+                matrix: {
+                    include: {
+                        domains: true,
+                        congregacoes: {
+                            include: {
+                                pastorGoverno: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        photoUrl: true
+                                    }
+                                },
+                                vicePresidente: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        photoUrl: true
+                                    }
+                                },
+                                kidsLeader: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        photoUrl: true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!matrixDomain || !matrixDomain.matrix) {
+            return null;
+        }
+
+        const matrix = matrixDomain.matrix;
+
+        // Get all members who are pastors with their responsibilities
+        // Include: PRESIDENT_PASTOR, pastors of congregations, and pastors of redes
+        const pastoralTeam = await this.prisma.member.findMany({
+            where: {
+                matrices: {
+                    some: {
+                        matrixId: matrix.id
+                    }
+                },
+                isActive: true,
+                gender: 'MALE',
+                OR: [
+                    {
+                        ministryPosition: {
+                            type: 'PRESIDENT_PASTOR'
+                        }
+                    },
+                    {
+                        congregacoesPastorGoverno: {
+                            some: {
+                                matrixId: matrix.id
+                            }
+                        }
+                    },
+                    {
+                        redes: {
+                            some: {
+                                matrixId: matrix.id
+                            }
+                        }
+                    }
+                ]
+            },
+            select: {
+                id: true,
+                name: true,
+                photoUrl: true,
+                ministryPosition: {
+                    select: {
+                        name: true,
+                        type: true
+                    }
+                },
+                congregacoesPastorGoverno: {
+                    where: {
+                        matrixId: matrix.id
+                    },
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                },
+                redes: {
+                    where: {
+                        matrixId: matrix.id
+                    },
+                    select: {
+                        id: true,
+                        name: true
+                    }
+                }
+            },
+            orderBy: [
+                { ministryPosition: { type: 'asc' } }, // PRESIDENT_PASTOR comes first
+                { name: 'asc' }
+            ]
+        });
+
+        // Transform photo URLs using CloudFront
+        this.cloudFrontService.transformPhotoUrls(pastoralTeam);
+        matrix.congregacoes.forEach(cong => {
+            this.cloudFrontService.transformPhotoUrl(cong.pastorGoverno);
+            this.cloudFrontService.transformPhotoUrl(cong.vicePresidente);
+            this.cloudFrontService.transformPhotoUrl(cong.kidsLeader);
+        });
+
+        return {
+            id: matrix.id,
+            name: matrix.name,
+            pixKey: matrix.pixKey,
+            pixCode: matrix.pixCode,
+            whatsappNumber: matrix.whatsappNumber,
+            instagramUrl: matrix.instagramUrl,
+            facebookUrl: matrix.facebookUrl,
+            youtubeUrl: matrix.youtubeUrl,
+            congregacoes: matrix.congregacoes,
+            pastoralTeam
+        };
     }
 }

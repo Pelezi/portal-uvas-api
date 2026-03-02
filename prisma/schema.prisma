@@ -11,6 +11,12 @@ model Matrix {
   id             Int      @id @default(autoincrement())
   name           String
   whatsappApiKey String?  @map("whatsapp_api_key")
+  whatsappNumber String?  @map("whatsapp_number")
+  pixKey         String?  @map("pix_key")
+  pixCode        String?  @map("pix_code")
+  instagramUrl   String?  @map("instagram_url")
+  facebookUrl    String?  @map("facebook_url")
+  youtubeUrl     String?  @map("youtube_url")
   createdAt      DateTime @default(now()) @map("created_at")
   updatedAt      DateTime @updatedAt @map("updated_at")
 
@@ -75,6 +81,8 @@ model Celula {
   city         String?
   complement   String?
   state        String?
+  latitude     Float?
+  longitude    Float?
   
   // Cell details
   openingDate        DateTime?  @map("opening_date")
@@ -201,6 +209,8 @@ model Member {
   city         String?
   complement   String?
   state        String?
+  latitude     Float?
+  longitude    Float?
   
   // Access
   hasSystemAccess  Boolean    @default(false) @map("has_system_access")
@@ -322,6 +332,10 @@ model Congregacao {
   kidsLeaderMemberId      Int?     @map("kids_leader_member_id")
   isPrincipal             Boolean  @default(false) @map("is_principal")
   
+  // Social media
+  instagram               String?
+  whatsappResponsavel     String?  @map("whatsapp_responsavel")
+  
   // Address fields
   country      String?       @default("Brasil")
   zipCode      String?       @map("zip_code")
@@ -331,6 +345,8 @@ model Congregacao {
   city         String?
   complement   String?
   state        String?
+  latitude     Float?
+  longitude    Float?
   
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")

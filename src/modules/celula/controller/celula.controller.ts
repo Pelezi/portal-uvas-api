@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, Req, Put, HttpException, Delete, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, Req, Put, HttpException, Delete, HttpStatus, Query, Headers } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { CelulaService } from '../service/celula.service';
 import { RestrictedGuard } from '../../common/security/restricted.guard';
@@ -16,6 +16,22 @@ export class CelulaController {
         private readonly prisma: PrismaService,
         private readonly permissionService: PermissionService
     ) {}
+
+    @Get('public/find-celulas')
+    @ApiOperation({ summary: 'Buscar células para exibição pública (sem autenticação)' })
+    @ApiResponse({ status: 200, description: 'Células públicas listadas' })
+    public async findPublic(
+        @Headers('origin') origin: string,
+        @Query('lat') lat?: string,
+        @Query('lng') lng?: string,
+        @Query('limit') limit?: string
+    ) {
+        const latitude = lat ? parseFloat(lat) : undefined;
+        const longitude = lng ? parseFloat(lng) : undefined;
+        const maxResults = limit ? parseInt(limit) : 50;
+
+        return this.service.findPublicCelulas(origin, latitude, longitude, maxResults);
+    }
 
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get()

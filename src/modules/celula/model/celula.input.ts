@@ -56,6 +56,12 @@ export class CelulaCreateInput {
     @ApiProperty({ description: 'Estado da célula', example: 'PE', required: false })
     public readonly state?: string;
 
+    @ApiProperty({ description: 'Latitude da localização da célula', example: -8.2838, required: false })
+    public readonly latitude?: number;
+
+    @ApiProperty({ description: 'Longitude da localização da célula', example: -35.9736, required: false })
+    public readonly longitude?: number;
+
     @ApiProperty({ description: 'ID da célula paralela', example: 2, required: false })
     public readonly parallelCelulaId?: number;
 }
@@ -99,6 +105,12 @@ export class CelulaUpdateInput {
     public readonly complement?: string;
     @ApiProperty({ description: 'Estado da célula', example: 'PE', required: false })
     public readonly state?: string;
+
+    @ApiProperty({ description: 'Latitude da localização da célula', example: -8.2838, required: false })
+    public readonly latitude?: number;
+
+    @ApiProperty({ description: 'Longitude da localização da célula', example: -35.9736, required: false })
+    public readonly longitude?: number;
 
     @ApiProperty({ description: 'ID da célula paralela', example: 2, required: false })
     public readonly parallelCelulaId?: number;

@@ -264,6 +264,8 @@ export class CelulaService {
             city: body.city,
             complement: body.complement,
             state: body.state,
+            latitude: body.latitude,
+            longitude: body.longitude,
             parallelCelulaId: body.parallelCelulaId ?? null,
         };
 
@@ -361,6 +363,8 @@ export class CelulaService {
         if (data.city !== undefined) updateData.city = data.city;
         if (data.complement !== undefined) updateData.complement = data.complement;
         if (data.state !== undefined) updateData.state = data.state;
+        if (data.latitude !== undefined) updateData.latitude = data.latitude;
+        if (data.longitude !== undefined) updateData.longitude = data.longitude;
 
         // New fields
         if (data.hostMemberId !== undefined) {
@@ -641,6 +645,110 @@ export class CelulaService {
             const message = error instanceof Error ? error.message : 'Erro desconhecido';
             const status = (typeof error === 'object' && error !== null && 'status' in error && typeof error.status === 'number') ? error.status : HttpStatus.BAD_REQUEST;
             throw new HttpException(`Erro ao multiplicar célula: ${message}`, status);
+        }
+    }
+
+    public async findPublicCelulas(origin: string, latitude?: number, longitude?: number, maxResults: number = 50) {
+        try {
+            // Extrair o domínio do origin
+            let domain: string | null = null;
+            if (origin) {
+                try {
+                    const url = new URL(origin);
+                    domain = url.hostname;
+                } catch (e) {
+                    console.warn('Não foi possível parsear o origin:', origin);
+                }
+            }
+
+            // Buscar matrix pelo domínio se disponível
+            let matrixId: number | undefined;
+            if (domain) {
+                const matrixDomain = await this.prisma.matrixDomain.findUnique({
+                    where: { domain }
+                });
+                if (matrixDomain) {
+                    matrixId = matrixDomain.matrixId;
+                }
+            }
+
+            // Buscar todas as células com informações básicas para exibição pública
+            const celulas = await this.prisma.celula.findMany({
+                where: {
+                    // Filtrar por matrix se encontrado
+                    ...(matrixId && { matrixId }),
+                    // Apenas células com endereço definido
+                    OR: [
+                        { street: { not: null } },
+                        { city: { not: null } }
+                    ]
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    weekday: true,
+                    time: true,
+                    country: true,
+                    zipCode: true,
+                    street: true,
+                    streetNumber: true,
+                    neighborhood: true,
+                    city: true,
+                    state: true,
+                    complement: true,
+                    type: true,
+                    level: true,
+                    latitude: true,
+                    longitude: true,
+                    leader: {
+                        select: {
+                            id: true,
+                            name: true,
+                            photoUrl: true,
+                            phone: true
+                        }
+                    },
+                    discipulado: {
+                        select: {
+                            id: true,
+                            discipulador: {
+                                select: {
+                                    name: true
+                                }
+                            },
+                            rede: {
+                                select: {
+                                    id: true,
+                                    name: true,
+                                    congregacao: {
+                                        select: {
+                                            id: true,
+                                            name: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                take: 500 // Limite máximo para evitar sobrecarga
+            });
+
+            // Se latitude e longitude fornecidas, calcular distância e ordenar
+            if (latitude !== undefined && longitude !== undefined) {
+                // Aqui você pode implementar um cálculo de distância
+                // Por enquanto, retornar todas as células
+                // Em produção, considere usar uma biblioteca de geolocalização
+                // ou salvar lat/lng no banco de dados
+
+                // Retornar limitado
+                return celulas.slice(0, maxResults);
+            }
+
+            return celulas.slice(0, maxResults);
+        } catch (error) {
+            console.error('Erro ao buscar células públicas:', error);
+            throw new HttpException('Erro ao buscar células públicas', HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

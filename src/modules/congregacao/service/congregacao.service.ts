@@ -242,6 +242,8 @@ export class CongregacaoService {
                 vicePresidenteMemberId: data.vicePresidenteMemberId,
                 kidsLeaderMemberId: data.kidsLeaderMemberId,
                 isPrincipal: data.isPrincipal ?? false,
+                instagram: data.instagram,
+                whatsappResponsavel: data.whatsappResponsavel,
                 country: data.country,
                 zipCode: cleanStringField(data.zipCode),
                 street: data.street,
@@ -249,7 +251,9 @@ export class CongregacaoService {
                 neighborhood: data.neighborhood,
                 city: data.city,
                 complement: data.complement,
-                state: data.state
+                state: data.state,
+                latitude: data.latitude,
+                longitude: data.longitude
             },
             include: {
                 pastorGoverno: true,
@@ -323,6 +327,8 @@ export class CongregacaoService {
                 vicePresidenteMemberId: data.vicePresidenteMemberId,
                 kidsLeaderMemberId: data.kidsLeaderMemberId,
                 isPrincipal: data.isPrincipal,
+                instagram: data.instagram,
+                whatsappResponsavel: data.whatsappResponsavel,
                 country: data.country,
                 zipCode: cleanStringField(data.zipCode),
                 street: data.street,
@@ -330,7 +336,9 @@ export class CongregacaoService {
                 neighborhood: data.neighborhood,
                 city: data.city,
                 complement: data.complement,
-                state: data.state
+                state: data.state,
+                latitude: data.latitude,
+                longitude: data.longitude
             },
             include: {
                 pastorGoverno: true,
@@ -371,5 +379,86 @@ export class CongregacaoService {
         }
 
         return this.prisma.congregacao.delete({ where: { id } });
+    }
+
+    public async findPublicCongregacoes(origin: string, latitude?: number, longitude?: number, maxResults: number = 50) {
+        try {
+            // Extrair o domínio do origin
+            let domain: string | null = null;
+            if (origin) {
+                try {
+                    const url = new URL(origin);
+                    domain = url.hostname;
+                } catch (e) {
+                    console.warn('Não foi possível parsear o origin:', origin);
+                }
+            }
+
+            // Buscar matrix pelo domínio se disponível
+            let matrixId: number | undefined;
+            if (domain) {
+                const matrixDomain = await this.prisma.matrixDomain.findUnique({
+                    where: { domain }
+                });
+                if (matrixDomain) {
+                    matrixId = matrixDomain.matrixId;
+                }
+            }
+
+            // Buscar todas as congregações com informações básicas para exibição pública
+            const congregacoes = await this.prisma.congregacao.findMany({
+                where: {
+                    // Filtrar por matrix se encontrado
+                    ...(matrixId && { matrixId }),
+                    // Apenas congregações com endereço definido
+                    OR: [
+                        { street: { not: null } },
+                        { city: { not: null } }
+                    ]
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    country: true,
+                    zipCode: true,
+                    street: true,
+                    streetNumber: true,
+                    neighborhood: true,
+                    city: true,
+                    state: true,
+                    complement: true,
+                    latitude: true,
+                    longitude: true,
+                    instagram: true,
+                    whatsappResponsavel: true,
+                    pastorGoverno: {
+                        select: {
+                            id: true,
+                            name: true,
+                            photoUrl: true,
+                            phone: true
+                        }
+                    }
+                },
+                take: 500 // Limite máximo para evitar sobrecarga
+            });
+
+            // Transformar URLs das fotos
+            congregacoes.forEach(congregacao => {
+                if (congregacao.pastorGoverno) {
+                    this.cloudFrontService.transformPhotoUrl(congregacao.pastorGoverno);
+                }
+            });
+
+            // Se latitude e longitude fornecidas, retornar limitado
+            if (latitude !== undefined && longitude !== undefined) {
+                return congregacoes.slice(0, maxResults);
+            }
+
+            return congregacoes.slice(0, maxResults);
+        } catch (error) {
+            console.error('Erro ao buscar congregações públicas:', error);
+            throw new HttpException('Erro ao buscar congregações', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

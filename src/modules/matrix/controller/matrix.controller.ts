@@ -18,12 +18,32 @@ export class MatrixController {
     @Get('by-current-domain')
     @ApiOperation({ summary: 'Get matrix by current domain (public endpoint)' })
     @ApiResponse({ status: 200, description: 'Returns matrix information' })
-    public async findByCurrentDomain(@Headers('origin') origin: string) {
+    public async findByCurrentDomain(
+        @Headers('origin') origin: string
+    ) {
         const matrix = await this.matrixService.findByDomain(origin);
         if (!matrix) {
             return { name: '' };
         }
         return { id: matrix.id, name: matrix.name };
+    }
+
+    @Get('landing-page-data')
+    @ApiOperation({ summary: 'Get landing page data by current domain (public endpoint)' })
+    @ApiResponse({ status: 200, description: 'Returns matrix info, congregations, and pastoral team' })
+    public async getLandingPageData(
+        @Headers('origin') origin: string
+    ) {
+        const data = await this.matrixService.getLandingPageData(origin);
+        if (!data) {
+            return { 
+                id: undefined, 
+                name: 'Videira', 
+                congregacoes: [], 
+                pastoralTeam: [] 
+            };
+        }
+        return data;
     }
 
     @Get(':id')

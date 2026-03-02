@@ -16,6 +16,12 @@ export class CongregacaoCreateInput {
     @ApiProperty({ description: 'Se esta é a congregação principal da cidade', required: false, default: false })
     public readonly isPrincipal?: boolean;
 
+    @ApiProperty({ description: 'Instagram da congregação', required: false })
+    public readonly instagram?: string;
+
+    @ApiProperty({ description: 'WhatsApp do responsável pela congregação', required: false })
+    public readonly whatsappResponsavel?: string;
+
     @ApiProperty({ description: 'CEP', required: false })
     public readonly zipCode?: string;
 
@@ -40,6 +46,12 @@ export class CongregacaoCreateInput {
     @ApiProperty({ description: 'País', required: false, default: 'Brasil' })
     public readonly country?: string;
 
+    @ApiProperty({ description: 'Latitude da localização', example: -8.2838, required: false })
+    public readonly latitude?: number;
+
+    @ApiProperty({ description: 'Longitude da localização', example: -35.9741, required: false })
+    public readonly longitude?: number;
+
     @ApiProperty({ description: 'Matrix id', required: false })
     public readonly matrixId?: number;
 }
@@ -59,6 +71,12 @@ export class CongregacaoUpdateInput {
 
     @ApiProperty({ description: 'Se esta é a congregação principal da cidade', required: false })
     public readonly isPrincipal?: boolean;
+
+    @ApiProperty({ description: 'Instagram da congregação', required: false })
+    public readonly instagram?: string;
+
+    @ApiProperty({ description: 'WhatsApp do responsável pela congregação', required: false })
+    public readonly whatsappResponsavel?: string;
 
     @ApiProperty({ description: 'CEP', required: false })
     public readonly zipCode?: string;
@@ -83,6 +101,12 @@ export class CongregacaoUpdateInput {
 
     @ApiProperty({ description: 'País', required: false })
     public readonly country?: string;
+
+    @ApiProperty({ description: 'Latitude da localização', example: -8.2838, required: false })
+    public readonly latitude?: number;
+
+    @ApiProperty({ description: 'Longitude da localização', example: -35.9741, required: false })
+    public readonly longitude?: number;
 }
 
 export class CongregacaoFilterInput {

@@ -73,6 +73,12 @@ export class MemberInput {
     @ApiProperty({ description: 'State', example: 'SP', required: false })
     public readonly state?: string;
 
+    @ApiProperty({ description: 'Latitude da localização', example: -8.2838, required: false })
+    public readonly latitude?: number;
+
+    @ApiProperty({ description: 'Longitude da localização', example: -35.9741, required: false })
+    public readonly longitude?: number;
+
     @ApiProperty({ description: 'Has system access', example: false, required: false })
     public readonly hasSystemAccess?: boolean;
 
@@ -284,6 +290,12 @@ export class UpdateOwnProfileInput {
 
     @ApiProperty({ description: 'State', example: 'SP', required: false })
     public readonly state?: string;
+
+    @ApiProperty({ description: 'Latitude da localização', example: -8.2838, required: false })
+    public readonly latitude?: number;
+
+    @ApiProperty({ description: 'Longitude da localização', example: -35.9741, required: false })
+    public readonly longitude?: number;
 
     // Social Media
     @ApiProperty({ description: 'Social media accounts', required: false })
