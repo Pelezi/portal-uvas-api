@@ -380,4 +380,41 @@ export class MemberController {
         return this.service.updateHiddenStatus(memberId, req.member.matrixId, body.isHidden);
     }
 
+    @Post(':memberId/deactivate')
+    @ApiOperation({ summary: 'Desligar membro (após validações de posições de liderança)' })
+    @ApiResponse({ status: 200, description: 'Membro desligado com sucesso' })
+    @ApiResponse({ status: 400, description: 'Membro possui posições de liderança impeditivas' })
+    public async deactivateMember(
+        @Req() req: AuthenticatedRequest,
+        @Param('memberId') memberIdParam: string
+    ) {
+        const permission = req.permission;
+        const memberId = Number(memberIdParam);
+
+        // Verificar permissão (admin ou líder da célula do membro)
+        const member = await this.service.findById(memberId);
+        if (!member) {
+            throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
+        }
+
+        // Não permitir desligar a si mesmo
+        if (memberId === req.member?.id) {
+            throw new HttpException('Você não pode desligar a si mesmo', HttpStatus.BAD_REQUEST);
+        }
+
+        // Verificar se tem permissão para alterar este membro
+        if (!permission?.isAdmin && member.celulaId) {
+            const celulaAccess = await this.permissionService.hasCelulaAccess(permission, member.celulaId);
+            if (!celulaAccess) {
+                throw new HttpException('Você não tem permissão para desligar este membro', HttpStatus.UNAUTHORIZED);
+            }
+        }
+
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+
+        return this.service.deactivateMember(memberId, req.member.matrixId);
+    }
+
 }

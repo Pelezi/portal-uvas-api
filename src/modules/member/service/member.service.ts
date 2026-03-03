@@ -2893,6 +2893,135 @@ export class MemberService {
     }
 
     /**
+     * Deactivate a member after checking leadership positions
+     */
+    public async deactivateMember(memberId: number, matrixId: number) {
+        // Fetch member with all relationships
+        const member = await this.prisma.member.findUnique({
+            where: { id: memberId },
+            include: {
+                ledCelulas: true,
+                discipulados: true,
+                redes: true,
+                congregacoesPastorGoverno: true,
+                congregacoesVicePresidente: true,
+                congregacoesKidsLeader: true,
+                leadingInTrainingCelulas: {
+                    include: {
+                        celula: true
+                    }
+                },
+                discipleOf: {
+                    include: {
+                        discipulado: true
+                    }
+                },
+                celula: true,
+                ministryPosition: true
+            }
+        });
+
+        if (!member) {
+            throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
+        }
+
+        // Collect blocking reasons (cannot deactivate)
+        const blockingReasons: string[] = [];
+
+        // Check if is leader of any celula
+        if (member.ledCelulas && member.ledCelulas.length > 0) {
+            blockingReasons.push(`Responsável por ${member.ledCelulas.length} célula(s)`);
+        }
+
+        // Check if is discipulador of any discipulado
+        if (member.discipulados && member.discipulados.length > 0) {
+            blockingReasons.push(`Responsável por ${member.discipulados.length} discipulado(s)`);
+        }
+
+        // Check if is pastor of any rede
+        if (member.redes && member.redes.length > 0) {
+            blockingReasons.push(`Responsável por ${member.redes.length} rede(s)`);
+        }
+
+        // Check if is pastor governo of any congregacao
+        if (member.congregacoesPastorGoverno && member.congregacoesPastorGoverno.length > 0) {
+            blockingReasons.push(`Pastor de governo de ${member.congregacoesPastorGoverno.length} congregação(ões)`);
+        }
+
+        // Check if is kids leader of any congregacao
+        if (member.congregacoesKidsLeader && member.congregacoesKidsLeader.length > 0) {
+            blockingReasons.push(`Responsável kids de ${member.congregacoesKidsLeader.length} congregação(ões)`);
+        }
+
+        // Check if is vice presidente of any congregacao
+        if (member.congregacoesVicePresidente && member.congregacoesVicePresidente.length > 0) {
+            blockingReasons.push(`Vice-presidente de ${member.congregacoesVicePresidente.length} congregação(ões)`);
+        }
+
+        // Check if has PRESIDENT_PASTOR ministry position
+        if (member.ministryPosition && member.ministryPosition.type === 'PRESIDENT_PASTOR') {
+            blockingReasons.push('Possui cargo ministerial de Pastor Presidente');
+        }
+
+        // If there are blocking reasons, throw error
+        if (blockingReasons.length > 0) {
+            throw new HttpException(
+                `Não é possível desligar este membro pelos seguintes motivos:\n\n${blockingReasons.join('\n')}\n\nRemova-o dessas posições antes de desligá-lo.`,
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        // Collect information about removable positions
+        const removablePositions: string[] = [];
+
+        // Check if is leader in training
+        if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+            removablePositions.push(`Líder em treinamento de ${member.leadingInTrainingCelulas.length} célula(s)`);
+        }
+
+        // Check if is disciple of any discipulado
+        if (member.discipleOf && member.discipleOf.length > 0) {
+            removablePositions.push(`Discípulo de ${member.discipleOf.length} discipulado(s)`);
+        }
+
+        // Check if is in a celula
+        if (member.celula) {
+            removablePositions.push(`Membro da célula "${member.celula.name}"`);
+        }
+
+        // Remove leader in training positions
+        if (member.leadingInTrainingCelulas && member.leadingInTrainingCelulas.length > 0) {
+            await this.prisma.celulaLeaderInTraining.deleteMany({
+                where: { memberId: memberId }
+            });
+        }
+
+        // Remove disciple relationships
+        if (member.discipleOf && member.discipleOf.length > 0) {
+            await this.prisma.discipuladoDisciple.deleteMany({
+                where: { memberId: memberId }
+            });
+        }
+
+        // Update member: deactivate and clear relationships
+        await this.prisma.member.update({
+            where: { id: memberId },
+            data: {
+                isActive: false,
+                celulaId: null,
+                canBeHost: false,
+                hasSystemAccess: false
+            }
+        });
+
+        return {
+            success: true,
+            memberId,
+            removedPositions: removablePositions
+        };
+    }
+
+    /**
      * Update isHidden field for a member in a specific matrix
      */
     public async updateHiddenStatus(memberId: number, matrixId: number, isHidden: boolean) {
