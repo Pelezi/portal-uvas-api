@@ -334,7 +334,8 @@ export class MatrixService {
             where: {
                 matrices: {
                     some: {
-                        matrixId: matrix.id
+                        matrixId: matrix.id,
+                        isHidden: false
                     }
                 },
                 isActive: true,

@@ -107,7 +107,11 @@ export class CelulaController {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 
-        return this.service.findMembersByCelulaId(celulaId);
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+
+        return this.service.findMembersByCelulaId(celulaId, req.member.matrixId);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)

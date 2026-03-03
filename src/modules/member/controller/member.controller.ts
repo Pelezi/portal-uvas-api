@@ -104,7 +104,11 @@ export class MemberController {
             throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
         }
 
-        return this.service.findByCelula(celulaId);
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+
+        return this.service.findByCelula(celulaId, req.member.matrixId);
     }
 
     @Post('')
@@ -344,6 +348,36 @@ export class MemberController {
         }
 
         return this.service.findAllWithRoles(req.member.matrixId);
+    }
+
+    @Put(':memberId/hidden-status')
+    @ApiOperation({ summary: 'Atualizar status de visibilidade do membro' })
+    @ApiBody({ 
+        schema: {
+            type: 'object',
+            properties: {
+                isHidden: { type: 'boolean', description: 'Define se o membro está oculto nas listagens' }
+            },
+            required: ['isHidden']
+        }
+    })
+    @ApiResponse({ status: 200, description: 'Status de visibilidade atualizado' })
+    public async updateHiddenStatus(
+        @Req() req: AuthenticatedRequest,
+        @Param('memberId') memberIdParam: string,
+        @Body() body: { isHidden: boolean }
+    ) {
+        const permission = req.permission;
+        if (!permission?.isAdmin) {
+            throw new HttpException('Apenas administradores podem alterar o status de visibilidade', HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!req.member?.matrixId) {
+            throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
+        }
+
+        const memberId = Number(memberIdParam);
+        return this.service.updateHiddenStatus(memberId, req.member.matrixId, body.isHidden);
     }
 
 }

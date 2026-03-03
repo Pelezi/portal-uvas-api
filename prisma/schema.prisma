@@ -48,9 +48,10 @@ model MatrixDomain {
 }
 
 model MemberMatrix {
-  id       Int @id @default(autoincrement())
-  memberId Int @map("member_id")
-  matrixId Int @map("matrix_id")
+  id       Int     @id @default(autoincrement())
+  memberId Int     @map("member_id")
+  matrixId Int     @map("matrix_id")
+  isHidden Boolean @default(false) @map("is_hidden")
 
   member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
   matrix Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)

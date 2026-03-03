@@ -4,6 +4,7 @@ import * as CelulaData from '../model';
 import { canBeLeader, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
 import { Prisma } from '../../../generated/prisma/client';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
+import { MemberWhereInput } from '../../../generated/prisma/models';
 
 // Função auxiliar para limpar campos string que podem vir como number
 function cleanStringField(value: string | number | undefined | null): string | null | undefined {
@@ -27,6 +28,12 @@ export class CelulaService {
         if (filters) {
             if (filters.name) {
                 where.name = { contains: filters.name, mode: 'insensitive' };
+            }
+            if (filters.nameOrLeader) {
+                where.OR = [
+                    { name: { contains: filters.nameOrLeader, mode: 'insensitive' } },
+                    { leader: { name: { contains: filters.nameOrLeader, mode: 'insensitive' } } }
+                ];
             }
             if (filters.leaderInTrainingMemberId) {
                 where.leadersInTraining = { some: { memberId: Number(filters.leaderInTrainingMemberId) } };
@@ -298,9 +305,22 @@ export class CelulaService {
         return celula;
     }
 
-    public async findMembersByCelulaId(celulaId: number) {
+    public async findMembersByCelulaId(celulaId: number, matrixId?: number) {
+        // Build where clause
+        const where: MemberWhereInput = { celulaId };
+        
+        // If matrixId is provided, filter by matrix and hidden status
+        if (matrixId) {
+            where.matrices = {
+                some: {
+                    matrixId: matrixId,
+                    isHidden: false
+                }
+            };
+        }
+        
         const members = await this.prisma.member.findMany({
-            where: { celulaId },
+            where,
             orderBy: { name: 'asc' },
             include: {
                 ministryPosition: true,

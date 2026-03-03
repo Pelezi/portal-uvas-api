@@ -220,7 +220,15 @@ export class ReportService {
 
         // Buscar todos os membros da célula
         const allMembers = await this.prisma.member.findMany({
-            where: { celulaId },
+            where: { 
+                celulaId,
+                matrices: {
+                    some: {
+                        matrixId: matrixId,
+                        isHidden: false
+                    }
+                }
+            },
             orderBy: { name: 'asc' },
             include: {
                 ministryPosition: true
@@ -429,7 +437,8 @@ export class ReportService {
                 celulaId: { in: celulaIds },
                 matrices: {
                     some: {
-                        matrixId
+                        matrixId,
+                        isHidden: false
                     }
                 }
             },

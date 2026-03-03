@@ -137,6 +137,9 @@ export class CelulaFilterInput {
     @ApiProperty({ description: 'Nome da célula para filtrar', example: 'Célula Vida', required: false })
     public readonly name?: string;
     
+    @ApiProperty({ description: 'Nome da célula ou do líder para filtrar', example: 'João Silva', required: false })
+    public readonly nameOrLeader?: string;
+    
     @ApiProperty({ description: 'ID do líder em treinamento para filtrar as células', example: 8, required: false })
     public readonly leaderInTrainingMemberId?: number;
     

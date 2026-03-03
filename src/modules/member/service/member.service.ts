@@ -78,7 +78,8 @@ export class MemberService {
         const where: PrismaModels.MemberWhereInput = {
             matrices: {
                 some: {
-                    matrixId: matrixId
+                    matrixId: matrixId,
+                    isHidden: false
                 }
             }
         };
@@ -539,9 +540,22 @@ export class MemberService {
         };
     }
 
-    public async findByCelula(celulaId: number) {
+    public async findByCelula(celulaId: number, matrixId?: number) {
+        // Build where clause
+        const where: PrismaModels.MemberWhereInput = { celulaId };
+        
+        // If matrixId is provided, filter by matrix and hidden status
+        if (matrixId) {
+            where.matrices = {
+                some: {
+                    matrixId: matrixId,
+                    isHidden: false
+                }
+            };
+        }
+        
         return await this.prisma.member.findMany({
-            where: { celulaId },
+            where,
             include: {
                 celula: {
                     include: {
@@ -2647,7 +2661,8 @@ export class MemberService {
             where: {
                 matrices: {
                     some: {
-                        matrixId: matrixId
+                        matrixId: matrixId,
+                        isHidden: false
                     }
                 }
             },
@@ -2697,7 +2712,7 @@ export class MemberService {
         }
     ) {
         const where: PrismaModels.MemberWhereInput = {
-            matrices: { some: { matrixId } },
+            matrices: { some: { matrixId, isHidden: false } },
         };
 
         if (filters?.name) {
@@ -2817,7 +2832,7 @@ export class MemberService {
         // Buscar todos os membros ativos com ministryType >= LEADER
         const members = await this.prisma.member.findMany({
             where: {
-                matrices: { some: { matrixId } },
+                matrices: { some: { matrixId, isHidden: false } },
                 isActive: true,
                 ministryPosition: {
                     type: {
@@ -2875,5 +2890,34 @@ export class MemberService {
             failureCount,
             results
         };
+    }
+
+    /**
+     * Update isHidden field for a member in a specific matrix
+     */
+    public async updateHiddenStatus(memberId: number, matrixId: number, isHidden: boolean) {
+        // Check if member-matrix relationship exists
+        const memberMatrix = await this.prisma.memberMatrix.findFirst({
+            where: {
+                memberId,
+                matrixId
+            }
+        });
+
+        if (!memberMatrix) {
+            throw new HttpException('Membro não encontrado nesta matriz', HttpStatus.NOT_FOUND);
+        }
+
+        // Update the isHidden field
+        await this.prisma.memberMatrix.update({
+            where: {
+                id: memberMatrix.id
+            },
+            data: {
+                isHidden
+            }
+        });
+
+        return { success: true, memberId, isHidden };
     }
 }
