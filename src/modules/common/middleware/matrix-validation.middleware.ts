@@ -25,12 +25,17 @@ export class MatrixValidationMiddleware implements NestMiddleware {
             '/auth/select-matrix',
             '/auth/refresh-token',
             '/matrix/domain/',
+            '/announcements/active',
+            '/magazines/current-week/magazine',
             '/health',
             '/api-docs'
         ];
 
-        // Verificar se é uma rota pública
-        const isPublicRoute = publicRoutes.some(route => req.url?.startsWith(route));
+        // Verificar se é uma rota pública (com ou sem prefixo /api/v1/)
+        const url = req.url || '';
+        const isPublicRoute = publicRoutes.some(route => 
+            url.startsWith(route) || url.includes(route)
+        );
         if (isPublicRoute) {
             return next();
         }
