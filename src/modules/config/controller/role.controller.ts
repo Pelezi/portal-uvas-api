@@ -30,23 +30,56 @@ export class RoleController {
     }
 
     @Post()
-    public async create(@Req() req: AuthenticatedRequest, @Body() body: { name: string; isAdmin?: boolean }) {
+    public async create(
+        @Req() req: AuthenticatedRequest, 
+        @Body() body: { 
+            name: string; 
+            isAdmin?: boolean;
+            canManageDonation?: boolean;
+            canManageSocialMedia?: boolean;
+            canManageMagazines?: boolean;
+        }
+    ) {
         try {
             this.permissionService.requireAdmin(req.permission);
         } catch (error: unknown) {
             throw new HttpException('Apenas administradores podem criar funções', HttpStatus.UNAUTHORIZED);
         }
-        return this.roleService.create(body.name, req.member!.matrixId, body.isAdmin);
+        return this.roleService.create(
+            body.name, 
+            req.member!.matrixId, 
+            body.isAdmin,
+            body.canManageDonation,
+            body.canManageSocialMedia,
+            body.canManageMagazines
+        );
     }
 
     @Put(':id')
-    public async update(@Req() req: AuthenticatedRequest, @Param('id') id: string, @Body() body: { name: string; isAdmin?: boolean }) {
+    public async update(
+        @Req() req: AuthenticatedRequest, 
+        @Param('id') id: string, 
+        @Body() body: { 
+            name: string; 
+            isAdmin?: boolean;
+            canManageDonation?: boolean;
+            canManageSocialMedia?: boolean;
+            canManageMagazines?: boolean;
+        }
+    ) {
         try {
             this.permissionService.requireAdmin(req.permission);
         } catch (error: unknown) {
             throw new HttpException('Apenas administradores podem atualizar funções', HttpStatus.UNAUTHORIZED);
         }
-        return this.roleService.update(parseInt(id, 10), body.name, body.isAdmin);
+        return this.roleService.update(
+            parseInt(id, 10), 
+            body.name, 
+            body.isAdmin,
+            body.canManageDonation,
+            body.canManageSocialMedia,
+            body.canManageMagazines
+        );
     }
 
     @Delete(':id')

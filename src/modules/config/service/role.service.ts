@@ -18,14 +18,40 @@ export class RoleService {
         return this.prisma.role.findUnique({ where: { id } });
     }
 
-    public async create(name: string, matrixId: number, isAdmin: boolean = false) {
-        return this.prisma.role.create({ data: { name, isAdmin, matrix: { connect: { id: matrixId } } } });
+    public async create(
+        name: string, 
+        matrixId: number, 
+        isAdmin: boolean = false,
+        canManageDonation: boolean = false,
+        canManageSocialMedia: boolean = false,
+        canManageMagazines: boolean = false
+    ) {
+        return this.prisma.role.create({ 
+            data: { 
+                name, 
+                isAdmin, 
+                canManageDonation,
+                canManageSocialMedia,
+                canManageMagazines,
+                matrix: { connect: { id: matrixId } } 
+            } 
+        });
     }
 
-    public async update(id: number, name: string, isAdmin?: boolean) {
+    public async update(
+        id: number, 
+        name: string, 
+        isAdmin?: boolean,
+        canManageDonation?: boolean,
+        canManageSocialMedia?: boolean,
+        canManageMagazines?: boolean
+    ) {
         const data: Prisma.RoleUpdateInput = { 
             name,
-            ...(typeof isAdmin !== 'undefined' && { isAdmin })
+            ...(typeof isAdmin !== 'undefined' && { isAdmin }),
+            ...(typeof canManageDonation !== 'undefined' && { canManageDonation }),
+            ...(typeof canManageSocialMedia !== 'undefined' && { canManageSocialMedia }),
+            ...(typeof canManageMagazines !== 'undefined' && { canManageMagazines })
         };
         return this.prisma.role.update({ where: { id }, data });
     }

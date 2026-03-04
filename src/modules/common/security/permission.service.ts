@@ -23,6 +23,9 @@ export interface SimplifiedPermission {
     pastorPresidente: boolean;
     ministryType: $Enums.MinistryType | null;
     isAdmin: boolean;
+    canManageDonation: boolean;
+    canManageSocialMedia: boolean;
+    canManageMagazines: boolean;
     celulaIds: number[] | null;
     congregacaoIds: number[] | null;
     redeIds: number[] | null;
@@ -109,13 +112,26 @@ export class PermissionService {
                 redes: true,
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
-                congregacoesKidsLeader: true
+                congregacoesKidsLeader: true,
+                roles: {
+                    include: {
+                        role: true
+                    }
+                }
             }
         });
 
         if (!dbMember) {
             return null;
         }
+
+        // Aggregate role permissions
+        const canManageDonation = permission.isAdmin || 
+            dbMember.roles.some(mr => mr.role.canManageDonation);
+        const canManageSocialMedia = permission.isAdmin || 
+            dbMember.roles.some(mr => mr.role.canManageSocialMedia);
+        const canManageMagazines = permission.isAdmin || 
+            dbMember.roles.some(mr => mr.role.canManageMagazines);
 
         return {
             id: dbMember.id,
@@ -127,6 +143,9 @@ export class PermissionService {
             pastorPresidente: permission.ministryType === $Enums.MinistryType.PRESIDENT_PASTOR,
             ministryType: permission.ministryType,
             isAdmin: permission.isAdmin,
+            canManageDonation,
+            canManageSocialMedia,
+            canManageMagazines,
             celulaIds: permission.celulaIds.length ? permission.celulaIds : null,
             congregacaoIds: permission.congregacaoIds.length ? permission.congregacaoIds : null,
             redeIds: permission.redeIds.length ? permission.redeIds : null,

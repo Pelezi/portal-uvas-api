@@ -119,13 +119,15 @@ model Celula {
 }
 
 model Role {
-  id        Int      @id @default(autoincrement())
-  name      String
-  matrixId  Int      @map("matrix_id")
-  isAdmin   Boolean  @default(false) @map("is_admin")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  // To do: Permissões de tesoureiro, gerenciar landing page, gerenciar revistas, etc.
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  matrixId             Int      @map("matrix_id")
+  isAdmin              Boolean  @default(false) @map("is_admin")
+  canManageDonation    Boolean  @default(false) @map("can_manage_donation")
+  canManageSocialMedia Boolean  @default(false) @map("can_manage_social_media")
+  canManageMagazines   Boolean  @default(false) @map("can_manage_magazines")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
 
   matrix  Matrix       @relation(fields: [matrixId], references: [id], onDelete: NoAction)
   members MemberRole[]
