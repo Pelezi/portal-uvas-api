@@ -1,0 +1,223 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
+  UseInterceptors
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { AnnouncementService } from '../service/announcement.service';
+import { RestrictedGuard } from '../../common/security/restricted.guard';
+import { PermissionGuard } from '../../common/security/permission.guard';
+import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
+import { FileUploadInterceptor } from '../../common/flow/file-upload.interceptor';
+import { AnnouncementData } from '../dto/announcement.dto';
+
+@Controller('announcements')
+@ApiTags('avisos')
+@UseGuards(RestrictedGuard, PermissionGuard)
+@ApiBearerAuth()
+export class AnnouncementController {
+  constructor(private readonly announcementService: AnnouncementService) {}
+
+  @Post()
+  @ApiOperation({ summary: 'Criar um novo aviso' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          description: 'Título do aviso'
+        },
+        description: {
+          type: 'string',
+          description: 'Descrição do aviso (opcional)'
+        },
+        link: {
+          type: 'string',
+          description: 'Link externo (opcional)'
+        },
+        startDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data de início'
+        },
+        endDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data de término'
+        },
+        desktopImage: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagem para desktop (opcional)'
+        },
+        mobileImage: {
+          type: 'string',
+          format: 'binary',
+          description: 'Imagem para mobile (opcional)'
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: 201, description: 'Aviso criado com sucesso' })
+  @UseInterceptors(FileUploadInterceptor)
+  public async create(
+    @Req() req: AuthenticatedRequest,
+    @Body() body: AnnouncementData.CreateAnnouncementInput
+  ) {
+    const desktopImage = req.uploadedFiles?.find((f: any) => f.fieldname === 'desktopImage');
+    const mobileImage = req.uploadedFiles?.find((f: any) => f.fieldname === 'mobileImage');
+
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    return this.announcementService.create(
+      matrixId,
+      body,
+      req.member!.id,
+      desktopImage,
+      mobileImage
+    );
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Atualizar um aviso' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          description: 'Título do aviso'
+        },
+        description: {
+          type: 'string',
+          description: 'Descrição do aviso'
+        },
+        link: {
+          type: 'string',
+          description: 'Link externo'
+        },
+        startDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data de início'
+        },
+        endDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data de término'
+        },
+        desktopImage: {
+          type: 'string',
+          format: 'binary',
+          description: 'Nova imagem para desktop (opcional)'
+        },
+        mobileImage: {
+          type: 'string',
+          format: 'binary',
+          description: 'Nova imagem para mobile (opcional)'
+        }
+      }
+    }
+  })
+  @ApiResponse({ status: 200, description: 'Aviso atualizado com sucesso' })
+  @UseInterceptors(FileUploadInterceptor)
+  public async update(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string,
+    @Body() body: AnnouncementData.UpdateAnnouncementInput
+  ) {
+    const desktopImage = req.uploadedFiles?.find((f: any) => f.fieldname === 'desktopImage');
+    const mobileImage = req.uploadedFiles?.find((f: any) => f.fieldname === 'mobileImage');
+
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    return this.announcementService.update(
+      parseInt(id),
+      matrixId,
+      body,
+      desktopImage,
+      mobileImage
+    );
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Listar avisos' })
+  @ApiResponse({ status: 200, description: 'Lista de avisos' })
+  public async list(
+    @Req() req: AuthenticatedRequest,
+    @Query('limit') limit?: number,
+    @Query('isActive') isActive?: string
+  ) {
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    const filters: AnnouncementData.AnnouncementListFilterInput = {
+      limit,
+      isActive: isActive === 'true' ? true : isActive === 'false' ? false : undefined
+    };
+
+    return this.announcementService.list(matrixId, filters);
+  }
+
+  @Get('active')
+  @ApiOperation({ summary: 'Obter avisos ativos' })
+  @ApiResponse({ status: 200, description: 'Lista de avisos ativos' })
+  public async getActive(@Req() req: AuthenticatedRequest) {
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    return this.announcementService.getActive(matrixId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Obter detalhes de um aviso' })
+  @ApiResponse({ status: 200, description: 'Detalhes do aviso' })
+  public async findById(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string
+  ) {
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    return this.announcementService.findById(parseInt(id), matrixId);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Excluir um aviso' })
+  @ApiResponse({ status: 200, description: 'Aviso excluído' })
+  public async delete(
+    @Req() req: AuthenticatedRequest,
+    @Param('id') id: string
+  ) {
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    await this.announcementService.delete(parseInt(id), matrixId);
+    return { message: 'Aviso excluído com sucesso' };
+  }
+}

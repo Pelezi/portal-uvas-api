@@ -32,6 +32,7 @@ model Matrix {
   reports       Report[]
   apiKeys       ApiKey[]
   magazines     Magazine[]
+  announcements Announcement[]
 
   @@map("matrix")
 }
@@ -249,6 +250,7 @@ model Member {
   socialMedia              MemberSocialMedia[]
   discipleOf               DiscipuladoDisciple[]
   uploadedMagazines        Magazine[]
+  createdAnnouncements     Announcement[]          @relation("AnnouncementCreatedBy")
 
   @@index([celulaId])
   @@index([ministryPositionId])
@@ -588,4 +590,29 @@ model Magazine {
   @@index([uploadedById])
 
   @@map("magazine")
+}
+
+model Announcement {
+  id               Int      @id @default(autoincrement())
+  matrixId         Int      @map("matrix_id")
+  title            String
+  description      String?
+  link             String?
+  desktopImageUrl  String?  @map("desktop_image_url")
+  mobileImageUrl   String?  @map("mobile_image_url")
+  startDate        DateTime @map("start_date")
+  endDate          DateTime @map("end_date")
+  createdById      Int      @map("created_by_id")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  matrix    Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)
+  createdBy Member @relation("AnnouncementCreatedBy", fields: [createdById], references: [id], onDelete: NoAction)
+
+  @@index([matrixId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([createdById])
+
+  @@map("announcement")
 }

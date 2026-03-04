@@ -16,12 +16,13 @@ export class FileUploadInterceptor implements NestInterceptor {
             const parts = request.parts();
             const fields: any = {};
             let file: any = null;
+            const files: any[] = [];
 
             for await (const part of parts) {
                 if (part.type === 'file') {
                     // Handle file upload
                     const buffer = await part.toBuffer();
-                    file = {
+                    const fileData = {
                         fieldname: part.fieldname,
                         originalname: part.filename,
                         encoding: part.encoding,
@@ -29,6 +30,14 @@ export class FileUploadInterceptor implements NestInterceptor {
                         buffer: buffer,
                         size: buffer.length
                     };
+                    
+                    // Keep first file for backward compatibility
+                    if (!file) {
+                        file = fileData;
+                    }
+                    
+                    // Add all files to array
+                    files.push(fileData);
                 } else {
                     // Handle form field
                     const fieldname = part.fieldname;
@@ -56,8 +65,9 @@ export class FileUploadInterceptor implements NestInterceptor {
                 }
             }
 
-            // Attach file and fields to request
+            // Attach file(s) and fields to request
             (request as any).uploadedFile = file;
+            (request as any).uploadedFiles = files.length > 0 ? files : undefined;
             (request as any).body = fields;
 
             return next.handle();

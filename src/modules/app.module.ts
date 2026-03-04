@@ -12,6 +12,7 @@ import { ConfigModule } from './config/config.module';
 import { ExternalModule } from './external/external.module';
 import { MatrixModule } from './matrix/matrix.module';
 import { MagazineModule } from './magazine/magazine.module';
+import { AnnouncementModule } from './announcement/announcement.module';
 import { MatrixValidationMiddleware } from './common/middleware/matrix-validation.middleware';
 
 @Module({
@@ -28,6 +29,7 @@ import { MatrixValidationMiddleware } from './common/middleware/matrix-validatio
         ConfigModule,
         ExternalModule,
         MagazineModule,
+        AnnouncementModule,
     ]
 })
 export class ApplicationModule implements NestModule {

@@ -17,4 +17,5 @@ export interface AuthenticatedRequest extends FastifyRequest {
     };
     permission: LoadedPermission;
     uploadedFile?: UploadedFile;
+    uploadedFiles?: UploadedFile[];
 }
