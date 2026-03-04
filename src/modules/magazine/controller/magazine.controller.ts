@@ -76,16 +76,34 @@ export class MagazineController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar revistas' })
+  @Public()
+  @ApiOperation({ summary: 'Listar revistas (rota pública)' })
   @ApiResponse({ status: 200, description: 'Lista de revistas' })
   public async list(
     @Req() req: AuthenticatedRequest,
+    @Headers('origin') origin?: string,
+    @Query('matrixId') matrixIdParam?: string,
     @Query('limit') limit?: number,
     @Query('year') year?: number
   ) {
-    const matrixId = req.member?.matrixId;
+    // Try to get matrixId from authenticated request first
+    let matrixId = req.member?.matrixId;
+
+    // If not authenticated, try to get from query parameter
+    if (!matrixId && matrixIdParam) {
+      matrixId = parseInt(matrixIdParam);
+    }
+
+    // If still no matrixId, try to get from origin header
+    if (!matrixId && origin) {
+      const matrix = await this.matrixService.findByDomain(origin);
+      if (matrix) {
+        matrixId = matrix.id;
+      }
+    }
+
     if (!matrixId) {
-      throw new Error('Matrix ID não encontrado');
+      throw new Error('Matrix ID não encontrado. Forneça o matrixId via query parameter ou origin header.');
     }
 
     return this.magazineService.list(matrixId, { limit, year });
