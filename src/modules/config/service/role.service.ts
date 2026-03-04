@@ -24,7 +24,8 @@ export class RoleService {
         isAdmin: boolean = false,
         canManageDonation: boolean = false,
         canManageSocialMedia: boolean = false,
-        canManageMagazines: boolean = false
+        canManageMagazines: boolean = false,
+        canManageAnnouncements: boolean = false
     ) {
         return this.prisma.role.create({ 
             data: { 
@@ -33,6 +34,7 @@ export class RoleService {
                 canManageDonation,
                 canManageSocialMedia,
                 canManageMagazines,
+                canManageAnnouncements,
                 matrix: { connect: { id: matrixId } } 
             } 
         });
@@ -44,14 +46,16 @@ export class RoleService {
         isAdmin?: boolean,
         canManageDonation?: boolean,
         canManageSocialMedia?: boolean,
-        canManageMagazines?: boolean
+        canManageMagazines?: boolean,
+        canManageAnnouncements?: boolean
     ) {
         const data: Prisma.RoleUpdateInput = { 
             name,
             ...(typeof isAdmin !== 'undefined' && { isAdmin }),
             ...(typeof canManageDonation !== 'undefined' && { canManageDonation }),
             ...(typeof canManageSocialMedia !== 'undefined' && { canManageSocialMedia }),
-            ...(typeof canManageMagazines !== 'undefined' && { canManageMagazines })
+            ...(typeof canManageMagazines !== 'undefined' && { canManageMagazines }),
+            ...(typeof canManageAnnouncements !== 'undefined' && { canManageAnnouncements })
         };
         return this.prisma.role.update({ where: { id }, data });
     }
