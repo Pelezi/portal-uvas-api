@@ -37,23 +37,29 @@ export class AnnouncementController {
           type: 'string',
           description: 'Título do aviso'
         },
-        description: {
-          type: 'string',
-          description: 'Descrição do aviso (opcional)'
-        },
         link: {
           type: 'string',
           description: 'Link externo (opcional)'
         },
+        eventDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data do evento (opcional)'
+        },
+        eventEndDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data final do evento (opcional)'
+        },
         startDate: {
           type: 'string',
           format: 'date',
-          description: 'Data de início'
+          description: 'Data de início de exibição'
         },
         endDate: {
           type: 'string',
           format: 'date',
-          description: 'Data de término'
+          description: 'Data de término de exibição'
         },
         desktopImage: {
           type: 'string',
@@ -102,23 +108,29 @@ export class AnnouncementController {
           type: 'string',
           description: 'Título do aviso'
         },
-        description: {
-          type: 'string',
-          description: 'Descrição do aviso'
-        },
         link: {
           type: 'string',
           description: 'Link externo'
         },
+        eventDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data do evento'
+        },
+        eventEndDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Data final do evento'
+        },
         startDate: {
           type: 'string',
           format: 'date',
-          description: 'Data de início'
+          description: 'Data de início de exibição'
         },
         endDate: {
           type: 'string',
           format: 'date',
-          description: 'Data de término'
+          description: 'Data de término de exibição'
         },
         desktopImage: {
           type: 'string',

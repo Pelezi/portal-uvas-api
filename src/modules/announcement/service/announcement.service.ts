@@ -68,10 +68,11 @@ export class AnnouncementService {
       data: {
         matrixId,
         title: data.title,
-        description: data.description || null,
         link: data.link || null,
         desktopImageUrl,
         mobileImageUrl,
+        eventDate: data.eventDate ? new Date(data.eventDate) : null,
+        eventEndDate: data.eventEndDate ? new Date(data.eventEndDate) : null,
         startDate: new Date(data.startDate),
         endDate: new Date(data.endDate),
         createdById
@@ -126,8 +127,9 @@ export class AnnouncementService {
 
     // Update text fields if provided
     if (data.title !== undefined) updateData.title = data.title;
-    if (data.description !== undefined) updateData.description = data.description;
     if (data.link !== undefined) updateData.link = data.link;
+    if (data.eventDate !== undefined) updateData.eventDate = data.eventDate ? new Date(data.eventDate) : null;
+    if (data.eventEndDate !== undefined) updateData.eventEndDate = data.eventEndDate ? new Date(data.eventEndDate) : null;
     if (data.startDate !== undefined) updateData.startDate = new Date(data.startDate);
     if (data.endDate !== undefined) updateData.endDate = new Date(data.endDate);
 
@@ -320,7 +322,6 @@ export class AnnouncementService {
     return {
       id: announcement.id,
       title: announcement.title,
-      description: announcement.description,
       link: announcement.link,
       desktopImageUrl: announcement.desktopImageUrl 
         ? this.cloudFrontService.getPhotoUrl(announcement.desktopImageUrl) || announcement.desktopImageUrl
@@ -328,6 +329,8 @@ export class AnnouncementService {
       mobileImageUrl: announcement.mobileImageUrl
         ? this.cloudFrontService.getPhotoUrl(announcement.mobileImageUrl) || announcement.mobileImageUrl
         : null,
+      eventDate: announcement.eventDate,
+      eventEndDate: announcement.eventEndDate,
       startDate: announcement.startDate,
       endDate: announcement.endDate,
       createdBy: announcement.createdBy,

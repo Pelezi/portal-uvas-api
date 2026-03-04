@@ -593,18 +593,19 @@ model Magazine {
 }
 
 model Announcement {
-  id               Int      @id @default(autoincrement())
-  matrixId         Int      @map("matrix_id")
+  id               Int       @id @default(autoincrement())
+  matrixId         Int       @map("matrix_id")
   title            String
-  description      String?
   link             String?
-  desktopImageUrl  String?  @map("desktop_image_url")
-  mobileImageUrl   String?  @map("mobile_image_url")
-  startDate        DateTime @map("start_date")
-  endDate          DateTime @map("end_date")
-  createdById      Int      @map("created_by_id")
-  createdAt        DateTime @default(now()) @map("created_at")
-  updatedAt        DateTime @updatedAt @map("updated_at")
+  desktopImageUrl  String?   @map("desktop_image_url")
+  mobileImageUrl   String?   @map("mobile_image_url")
+  eventDate        DateTime? @map("event_date")
+  eventEndDate     DateTime? @map("event_end_date")
+  startDate        DateTime  @map("start_date")
+  endDate          DateTime  @map("end_date")
+  createdById      Int       @map("created_by_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
 
   matrix    Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)
   createdBy Member @relation("AnnouncementCreatedBy", fields: [createdById], references: [id], onDelete: NoAction)

@@ -2,10 +2,11 @@ export namespace AnnouncementData {
   export interface AnnouncementOutput {
     id: number;
     title: string;
-    description?: string | null;
     link?: string | null;
     desktopImageUrl?: string | null;
     mobileImageUrl?: string | null;
+    eventDate?: Date | null;
+    eventEndDate?: Date | null;
     startDate: Date;
     endDate: Date;
     createdBy: {
@@ -23,16 +24,18 @@ export namespace AnnouncementData {
 
   export interface CreateAnnouncementInput {
     title: string;
-    description?: string;
     link?: string;
+    eventDate?: string;
+    eventEndDate?: string;
     startDate: string;
     endDate: string;
   }
 
   export interface UpdateAnnouncementInput {
     title?: string;
-    description?: string | null;
     link?: string | null;
+    eventDate?: string | null;
+    eventEndDate?: string | null;
     startDate?: string;
     endDate?: string;
   }
