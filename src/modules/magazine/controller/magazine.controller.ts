@@ -116,6 +116,20 @@ export class MagazineController {
     return { url };
   }
 
+  @Get('current-week/magazine')
+  @ApiOperation({ summary: 'Obter revista da semana atual' })
+  @ApiResponse({ status: 200, description: 'Revista da semana atual' })
+  public async getCurrentWeekMagazine(
+    @Req() req: AuthenticatedRequest
+  ) {
+    const matrixId = req.member?.matrixId;
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado');
+    }
+
+    return this.magazineService.getCurrentWeekMagazine(matrixId);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Excluir uma revista' })
   @ApiResponse({ status: 200, description: 'Revista excluída' })

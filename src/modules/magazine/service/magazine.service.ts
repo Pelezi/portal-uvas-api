@@ -236,6 +236,46 @@ export class MagazineService {
   }
 
   /**
+   * Get current week's magazine
+   */
+  public async getCurrentWeekMagazine(matrixId: number): Promise<MagazineData.MagazineOutput | null> {
+    // Calculate current week's Sunday (start of week)
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ...
+    const sunday = new Date(today);
+    sunday.setDate(today.getDate() - dayOfWeek);
+    sunday.setHours(0, 0, 0, 0);
+
+    // Calculate next Sunday (end of week range)
+    const nextSunday = new Date(sunday);
+    nextSunday.setDate(sunday.getDate() + 7);
+
+    const magazine = await this.prisma.magazine.findFirst({
+      where: {
+        matrixId,
+        weekStartDate: {
+          gte: sunday,
+          lt: nextSunday
+        }
+      },
+      include: {
+        uploadedBy: {
+          select: {
+            id: true,
+            name: true
+          }
+        }
+      }
+    });
+
+    if (!magazine) {
+      return null;
+    }
+
+    return this.formatMagazineOutput(magazine);
+  }
+
+  /**
    * Format magazine output
    */
   private formatMagazineOutput(magazine: any): MagazineData.MagazineOutput {
