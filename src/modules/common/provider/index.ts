@@ -2,3 +2,4 @@ export { configProvider } from './config.provider';
 export { LoggerService } from './logger.service';
 export { PrismaService } from './prisma.provider';
 export { CloudFrontService } from './cloudfront.provider';
+export { PdfThumbnailService } from './pdf-thumbnail.provider';

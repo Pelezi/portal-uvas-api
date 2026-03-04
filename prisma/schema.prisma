@@ -31,6 +31,7 @@ model Matrix {
   discipulados  Discipulado[]
   reports       Report[]
   apiKeys       ApiKey[]
+  magazines     Magazine[]
 
   @@map("matrix")
 }
@@ -245,6 +246,7 @@ model Member {
   passwordResetTokens      PasswordResetToken[]
   socialMedia              MemberSocialMedia[]
   discipleOf               DiscipuladoDisciple[]
+  uploadedMagazines        Magazine[]
 
   @@index([celulaId])
   @@index([ministryPositionId])
@@ -563,3 +565,25 @@ enum SocialMediaType {
   OUTRO
 }
 
+model Magazine {
+  id             Int      @id @default(autoincrement())
+  matrixId       Int      @map("matrix_id")
+  fileName       String   @map("file_name")
+  fileUrl        String   @map("file_url")
+  fileType       String   @map("file_type") // pdf, docx, doc
+  weekStartDate  DateTime @map("week_start_date") // Domingo da semana
+  weekEndDate    DateTime @map("week_end_date")   // Sábado da semana
+  uploadedById   Int      @map("uploaded_by_id")
+  thumbnailUrl   String?  @map("thumbnail_url") // Preview da primeira página
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  matrix     Matrix @relation(fields: [matrixId], references: [id], onDelete: Cascade)
+  uploadedBy Member @relation(fields: [uploadedById], references: [id], onDelete: NoAction)
+
+  @@index([matrixId])
+  @@index([weekStartDate])
+  @@index([uploadedById])
+
+  @@map("magazine")
+}

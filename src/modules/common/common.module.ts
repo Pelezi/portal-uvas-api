@@ -3,7 +3,7 @@ import { TerminusModule } from '@nestjs/terminus';
 
 import { HealthController } from './controller';
 import { LogInterceptor } from './flow';
-import { configProvider, LoggerService, PrismaService, CloudFrontService } from './provider';
+import { configProvider, LoggerService, PrismaService, CloudFrontService, PdfThumbnailService } from './provider';
 import { PermissionGuard } from './security/permission.guard';
 import { PermissionService } from './security/permission.service';
 import { ApiKeyGuard } from './security/api-key.guard';
@@ -24,7 +24,8 @@ import { AwsService } from './provider/aws.provider';
         ApiKeyGuard,
         EmailService,
         AwsService,
-        CloudFrontService
+        CloudFrontService,
+        PdfThumbnailService
     ],
     exports: [
         configProvider,
@@ -36,7 +37,8 @@ import { AwsService } from './provider/aws.provider';
         ApiKeyGuard,
         EmailService,
         CloudFrontService,
-        AwsService
+        AwsService,
+        PdfThumbnailService
     ],
     controllers: [
         HealthController
