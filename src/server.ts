@@ -61,7 +61,10 @@ async function bootstrap(): Promise<void> {
     // @ts-expect-error - Type mismatch between @nestjs/platform-fastify and @fastify/multipart versions
     fastifyAdapter.register(multipart, {
         limits: {
-            fileSize: 10 * 1024 * 1024, // 10MB max file size
+            fileSize: 50 * 1024 * 1024, // 50MB max file size
+            files: 10, // Maximum number of file fields
+            fieldSize: 100 * 1024 * 1024, // 100MB max field size (for JSON data)
+            fields: 100, // Maximum number of non-file fields
         },
     });
 
