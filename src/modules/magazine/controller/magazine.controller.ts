@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Post,
   Query,
@@ -16,13 +17,18 @@ import { RestrictedGuard } from '../../common/security/restricted.guard';
 import { PermissionGuard } from '../../common/security/permission.guard';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 import { FileUploadInterceptor } from '../../common/flow/file-upload.interceptor';
+import { Public } from '../../common/decorators/public.decorator';
+import { MatrixService } from '../../matrix/service/matrix.service';
 
 @Controller('magazines')
 @ApiTags('revistas')
 @UseGuards(RestrictedGuard, PermissionGuard)
 @ApiBearerAuth()
 export class MagazineController {
-  constructor(private readonly magazineService: MagazineService) {}
+  constructor(
+    private readonly magazineService: MagazineService,
+    private readonly matrixService: MatrixService
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Fazer upload de uma revista' })
@@ -117,14 +123,32 @@ export class MagazineController {
   }
 
   @Get('current-week/magazine')
-  @ApiOperation({ summary: 'Obter revista da semana atual' })
+  @Public()
+  @ApiOperation({ summary: 'Obter revista da semana atual (rota pública)' })
   @ApiResponse({ status: 200, description: 'Revista da semana atual' })
   public async getCurrentWeekMagazine(
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
+    @Headers('origin') origin?: string,
+    @Query('matrixId') matrixIdParam?: string
   ) {
-    const matrixId = req.member?.matrixId;
+    // Try to get matrixId from authenticated request first
+    let matrixId = req.member?.matrixId;
+
+    // If not authenticated, try to get from query parameter
+    if (!matrixId && matrixIdParam) {
+      matrixId = parseInt(matrixIdParam);
+    }
+
+    // If still no matrixId, try to get from origin header
+    if (!matrixId && origin) {
+      const matrix = await this.matrixService.findByDomain(origin);
+      if (matrix) {
+        matrixId = matrix.id;
+      }
+    }
+
     if (!matrixId) {
-      throw new Error('Matrix ID não encontrado');
+      throw new Error('Matrix ID não encontrado. Forneça o matrixId via query parameter ou origin header.');
     }
 
     return this.magazineService.getCurrentWeekMagazine(matrixId);

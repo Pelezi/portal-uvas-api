@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Post,
   Put,
@@ -18,13 +19,18 @@ import { PermissionGuard } from '../../common/security/permission.guard';
 import { AuthenticatedRequest } from '../../common/types/authenticated-request.interface';
 import { FileUploadInterceptor } from '../../common/flow/file-upload.interceptor';
 import { AnnouncementData } from '../dto/announcement.dto';
+import { Public } from '../../common/decorators/public.decorator';
+import { MatrixService } from '../../matrix/service/matrix.service';
 
 @Controller('announcements')
 @ApiTags('avisos')
 @UseGuards(RestrictedGuard, PermissionGuard)
 @ApiBearerAuth()
 export class AnnouncementController {
-  constructor(private readonly announcementService: AnnouncementService) {}
+  constructor(
+    private readonly announcementService: AnnouncementService,
+    private readonly matrixService: MatrixService
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Criar um novo aviso' })
@@ -191,12 +197,32 @@ export class AnnouncementController {
   }
 
   @Get('active')
-  @ApiOperation({ summary: 'Obter avisos ativos' })
+  @Public()
+  @ApiOperation({ summary: 'Obter avisos ativos (rota pública)' })
   @ApiResponse({ status: 200, description: 'Lista de avisos ativos' })
-  public async getActive(@Req() req: AuthenticatedRequest) {
-    const matrixId = req.member?.matrixId;
+  public async getActive(
+    @Req() req: AuthenticatedRequest,
+    @Headers('origin') origin?: string,
+    @Query('matrixId') matrixIdParam?: string
+  ) {
+    // Try to get matrixId from authenticated request first
+    let matrixId = req.member?.matrixId;
+
+    // If not authenticated, try to get from query parameter
+    if (!matrixId && matrixIdParam) {
+      matrixId = parseInt(matrixIdParam);
+    }
+
+    // If still no matrixId, try to get from origin header
+    if (!matrixId && origin) {
+      const matrix = await this.matrixService.findByDomain(origin);
+      if (matrix) {
+        matrixId = matrix.id;
+      }
+    }
+
     if (!matrixId) {
-      throw new Error('Matrix ID não encontrado');
+      throw new Error('Matrix ID não encontrado. Forneça o matrixId via query parameter ou origin header.');
     }
 
     return this.announcementService.getActive(matrixId);
