@@ -41,8 +41,14 @@ export class MagazineService {
     // Get matrix info
     const matrix = await this.matrixService.findById(matrixId);
 
+    // Convert the provided date to the nearest previous Sunday
+    const providedDate = new Date(weekStartDate);
+    const dayOfWeek = providedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const startDate = new Date(providedDate);
+    // Subtract the number of days to get to Sunday
+    startDate.setDate(providedDate.getDate() - dayOfWeek);
+    
     // Calculate week end date (Saturday)
-    const startDate = new Date(weekStartDate);
     const endDate = new Date(startDate);
     endDate.setDate(startDate.getDate() + 6);
 
@@ -273,6 +279,28 @@ export class MagazineService {
     }
 
     return this.formatMagazineOutput(magazine);
+  }
+
+  /**
+   * Get the oldest and newest magazine dates for a matrix
+   */
+  public async getDateRange(matrixId: number): Promise<{ oldestDate: Date | null; newestDate: Date | null }> {
+    const oldest = await this.prisma.magazine.findFirst({
+      where: { matrixId },
+      orderBy: { weekStartDate: 'asc' },
+      select: { weekStartDate: true }
+    });
+
+    const newest = await this.prisma.magazine.findFirst({
+      where: { matrixId },
+      orderBy: { weekStartDate: 'desc' },
+      select: { weekStartDate: true }
+    });
+
+    return {
+      oldestDate: oldest?.weekStartDate || null,
+      newestDate: newest?.weekStartDate || null
+    };
   }
 
   /**

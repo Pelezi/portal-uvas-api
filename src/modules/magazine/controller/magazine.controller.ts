@@ -172,6 +172,38 @@ export class MagazineController {
     return this.magazineService.getCurrentWeekMagazine(matrixId);
   }
 
+  @Get('date-range/info')
+  @Public()
+  @ApiOperation({ summary: 'Obter intervalo de datas das revistas (rota pública)' })
+  @ApiResponse({ status: 200, description: 'Datas da revista mais antiga e mais recente' })
+  public async getDateRange(
+    @Req() req: AuthenticatedRequest,
+    @Headers('origin') origin?: string,
+    @Query('matrixId') matrixIdParam?: string
+  ) {
+    // Try to get matrixId from authenticated request first
+    let matrixId = req.member?.matrixId;
+
+    // If not authenticated, try to get from query parameter
+    if (!matrixId && matrixIdParam) {
+      matrixId = parseInt(matrixIdParam);
+    }
+
+    // If still no matrixId, try to get from origin header
+    if (!matrixId && origin) {
+      const matrix = await this.matrixService.findByDomain(origin);
+      if (matrix) {
+        matrixId = matrix.id;
+      }
+    }
+
+    if (!matrixId) {
+      throw new Error('Matrix ID não encontrado. Forneça o matrixId via query parameter ou origin header.');
+    }
+
+    return this.magazineService.getDateRange(matrixId);
+  }
+
   @Delete(':id')
   @ApiOperation({ summary: 'Excluir uma revista' })
   @ApiResponse({ status: 200, description: 'Revista excluída' })
