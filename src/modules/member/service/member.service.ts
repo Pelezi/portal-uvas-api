@@ -2811,18 +2811,18 @@ export class MemberService {
                 gender: gender as any,
             },
             select: {
-                id: true,
-                name: true,
-                gender: true,
-                celulaId: true,
-                photoUrl: true,
-                celula: { select: { id: true, name: true } },
+                id: true
             },
             orderBy: { name: 'asc' },
         });
 
-        members.forEach(m => this.cloudFrontService.transformPhotoUrl(m));
-        return members;
+        // for each found member, do a this.findById and return the full member data with relations (except password)
+        const fullMembers = [];
+        for (const member of members) {
+            const fullMember = await this.findById(member.id);
+            fullMembers.push(fullMember);
+        }
+        return fullMembers;
     }
 
     /**
