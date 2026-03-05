@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService, CloudFrontService } from '../../common';
-import { canBePastor, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
+import { canBePastor, getMinistryTypeLabel, autoPromoteMemberIfNeeded } from '../../common/helpers/ministry-permissions.helper';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
 import { RedeWhereInput } from '../../../generated/prisma/models';
@@ -205,9 +205,19 @@ export class RedeService {
                 if (!pastor) {
                     throw new BadRequestException('Pastor não encontrado');
                 }
-                if (!canBePastor(pastor.ministryPosition?.type)) {
+                
+                // Auto-promote pastor if needed
+                await autoPromoteMemberIfNeeded(this.prisma, data.pastorMemberId, 'pastor', data.matrixId!);
+                
+                // Refresh pastor data after potential promotion
+                const updatedPastor = await this.prisma.member.findUnique({
+                    where: { id: data.pastorMemberId },
+                    include: { ministryPosition: true }
+                });
+                
+                if (!canBePastor(updatedPastor?.ministryPosition?.type)) {
                     throw new BadRequestException(
-                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(pastor.ministryPosition?.type)}. ` +
+                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(updatedPastor?.ministryPosition?.type)}. ` +
                         `É necessário ser Pastor.`
                     );
                 }
@@ -283,9 +293,19 @@ export class RedeService {
                 if (!pastor) {
                     throw new BadRequestException('Pastor não encontrado');
                 }
-                if (!canBePastor(pastor.ministryPosition?.type)) {
+                
+                // Auto-promote pastor if needed
+                await autoPromoteMemberIfNeeded(this.prisma, data.pastorMemberId, 'pastor', matrixId);
+                
+                // Refresh pastor data after potential promotion
+                const updatedPastor = await this.prisma.member.findUnique({
+                    where: { id: data.pastorMemberId },
+                    include: { ministryPosition: true }
+                });
+                
+                if (!canBePastor(updatedPastor?.ministryPosition?.type)) {
                     throw new BadRequestException(
-                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(pastor.ministryPosition?.type)}. ` +
+                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(updatedPastor?.ministryPosition?.type)}. ` +
                         `É necessário ser Pastor.`
                     );
                 }

@@ -2801,9 +2801,10 @@ export class MemberService {
 
     /**
      * Check for existing members with the same name and gender (duplicate detection).
+     * Also filters by birth date: if both members have birth dates and they differ, excludes from duplicates.
      * Returns a slim subset — no deep relations needed.
      */
-    public async findDuplicates(matrixId: number, name: string, gender: string) {
+    public async findDuplicates(matrixId: number, name: string, gender: string, birthDate?: string | null) {
         const members = await this.prisma.member.findMany({
             where: {
                 matrices: { some: { matrixId } },
@@ -2811,14 +2812,36 @@ export class MemberService {
                 gender: gender as any,
             },
             select: {
-                id: true
+                id: true,
+                birthDate: true
             },
             orderBy: { name: 'asc' },
         });
 
+        // Filter by birth date logic:
+        // - If birthDate parameter is provided AND member has birthDate AND they differ → exclude
+        // - If one or both don't have birth dates → include (potential duplicate)
+        let filteredMembers = members;
+        if (birthDate) {
+            const inputBirthDate = new Date(birthDate);
+            filteredMembers = members.filter(member => {
+                if (!member.birthDate) {
+                    // Member doesn't have birth date, consider as potential duplicate
+                    return true;
+                }
+                // Both have birth dates, compare them (ignoring time)
+                const memberBirthDate = new Date(member.birthDate);
+                const sameDate = 
+                    inputBirthDate.getFullYear() === memberBirthDate.getFullYear() &&
+                    inputBirthDate.getMonth() === memberBirthDate.getMonth() &&
+                    inputBirthDate.getDate() === memberBirthDate.getDate();
+                return sameDate;
+            });
+        }
+
         // for each found member, do a this.findById and return the full member data with relations (except password)
         const fullMembers = [];
-        for (const member of members) {
+        for (const member of filteredMembers) {
             const fullMember = await this.findById(member.id);
             fullMembers.push(fullMember);
         }

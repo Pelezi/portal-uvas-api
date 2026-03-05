@@ -53,12 +53,13 @@ export class MemberController {
     }
 
     @Get('check-duplicate')
-    @ApiOperation({ summary: 'Verificar duplicidade de membro por nome e gênero' })
-    @ApiResponse({ status: 200, description: 'Lista de membros com mesmo nome e gênero' })
+    @ApiOperation({ summary: 'Verificar duplicidade de membro por nome, gênero e data de nascimento' })
+    @ApiResponse({ status: 200, description: 'Lista de membros com mesmo nome e gênero (filtrado por data de nascimento se fornecida)' })
     public async checkDuplicate(
         @Req() req: AuthenticatedRequest,
         @Query('name') name: string,
-        @Query('gender') gender: string
+        @Query('gender') gender: string,
+        @Query('birthDate') birthDate?: string
     ) {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
@@ -66,7 +67,7 @@ export class MemberController {
         if (!name || !gender) {
             throw new HttpException('name e gender são obrigatórios', HttpStatus.BAD_REQUEST);
         }
-        return this.service.findDuplicates(req.member.matrixId, name, gender);
+        return this.service.findDuplicates(req.member.matrixId, name, gender, birthDate);
     }
 
     @Get(':memberId')

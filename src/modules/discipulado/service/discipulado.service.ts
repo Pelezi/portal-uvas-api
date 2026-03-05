@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService, CloudFrontService } from '../../common';
-import { canBeDiscipulador, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
+import { canBeDiscipulador, getMinistryTypeLabel, autoPromoteMemberIfNeeded } from '../../common/helpers/ministry-permissions.helper';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
 import * as DiscipuladoData from '../model';
@@ -207,9 +207,19 @@ export class DiscipuladoService {
             if (!discipulador) {
                 throw new BadRequestException('Discipulador não encontrado');
             }
-            if (!canBeDiscipulador(discipulador.ministryPosition?.type)) {
+            
+            // Auto-promote discipulador if needed
+            await autoPromoteMemberIfNeeded(this.prisma, data.discipuladorMemberId, 'discipulador', data.matrixId!);
+            
+            // Refresh discipulador data after potential promotion
+            const updatedDiscipulador = await this.prisma.member.findUnique({
+                where: { id: data.discipuladorMemberId },
+                include: { ministryPosition: true }
+            });
+            
+            if (!canBeDiscipulador(updatedDiscipulador?.ministryPosition?.type)) {
                 throw new BadRequestException(
-                    `Membro não pode ser discipulador. Nível ministerial atual: ${getMinistryTypeLabel(discipulador.ministryPosition?.type)}. ` +
+                    `Membro não pode ser discipulador. Nível ministerial atual: ${getMinistryTypeLabel(updatedDiscipulador?.ministryPosition?.type)}. ` +
                     `É necessário ser pelo menos Discipulador.`
                 );
             }
@@ -287,9 +297,19 @@ export class DiscipuladoService {
             if (!discipulador) {
                 throw new BadRequestException('Discipulador não encontrado');
             }
-            if (!canBeDiscipulador(discipulador.ministryPosition.type)) {
+            
+            // Auto-promote discipulador if needed
+            await autoPromoteMemberIfNeeded(this.prisma, data.discipuladorMemberId, 'discipulador', matrixId);
+            
+            // Refresh discipulador data after potential promotion
+            const updatedDiscipulador = await this.prisma.member.findUnique({
+                where: { id: data.discipuladorMemberId },
+                include: { ministryPosition: true }
+            });
+            
+            if (!canBeDiscipulador(updatedDiscipulador?.ministryPosition?.type)) {
                 throw new BadRequestException(
-                    `Membro não pode ser discipulador. Nível ministerial atual: ${getMinistryTypeLabel(discipulador.ministryPosition?.type)}. ` +
+                    `Membro não pode ser discipulador. Nível ministerial atual: ${getMinistryTypeLabel(updatedDiscipulador?.ministryPosition?.type)}. ` +
                     `É necessário ser pelo menos Discipulador.`
                 );
             }

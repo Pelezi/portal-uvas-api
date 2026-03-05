@@ -1,5 +1,6 @@
 import { Injectable, BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService, CloudFrontService } from '../../common';
+import { autoPromoteMemberIfNeeded } from '../../common/helpers/ministry-permissions.helper';
 import * as CongregacaoData from '../model';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { LoadedPermission } from '../../common/security/permission.service';
@@ -217,13 +218,20 @@ export class CongregacaoService {
 
         // Validate pastor belongs to same matrix
         await validator.validateMemberBelongsToMatrix(data.pastorGovernoMemberId, data.matrixId!);
+        
+        // Auto-promote pastor if needed
+        await autoPromoteMemberIfNeeded(this.prisma, data.pastorGovernoMemberId, 'pastor', data.matrixId!);
 
         if (data.vicePresidenteMemberId) {
             await validator.validateMemberBelongsToMatrix(data.vicePresidenteMemberId, data.matrixId!);
+            // Auto-promote vice-presidente if needed (pastor level)
+            await autoPromoteMemberIfNeeded(this.prisma, data.vicePresidenteMemberId, 'pastor', data.matrixId!);
         }
 
         if (data.kidsLeaderMemberId) {
             await validator.validateMemberBelongsToMatrix(data.kidsLeaderMemberId, data.matrixId!);
+            // Auto-promote kids leader if needed (discipulador level)
+            await autoPromoteMemberIfNeeded(this.prisma, data.kidsLeaderMemberId, 'pastor', data.matrixId!);
         }
 
         // If setting as principal, unset any existing principal for this matrix
@@ -301,14 +309,20 @@ export class CongregacaoService {
         // Validate members belong to matrix
         if (data.pastorGovernoMemberId) {
             await validator.validateMemberBelongsToMatrix(data.pastorGovernoMemberId, matrixId);
+            // Auto-promote pastor if needed
+            await autoPromoteMemberIfNeeded(this.prisma, data.pastorGovernoMemberId, 'pastor', matrixId);
         }
 
         if (data.vicePresidenteMemberId !== undefined && data.vicePresidenteMemberId !== null) {
             await validator.validateMemberBelongsToMatrix(data.vicePresidenteMemberId, matrixId);
+            // Auto-promote vice-presidente if needed (pastor level)
+            await autoPromoteMemberIfNeeded(this.prisma, data.vicePresidenteMemberId, 'pastor', matrixId);
         }
 
         if (data.kidsLeaderMemberId !== undefined && data.kidsLeaderMemberId !== null) {
             await validator.validateMemberBelongsToMatrix(data.kidsLeaderMemberId, matrixId);
+            // Auto-promote kids leader if needed (pastor level)
+            await autoPromoteMemberIfNeeded(this.prisma, data.kidsLeaderMemberId, 'pastor', matrixId);
         }
 
         // If setting as principal, unset any existing principal for this matrix

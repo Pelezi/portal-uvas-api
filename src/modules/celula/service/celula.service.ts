@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService, CloudFrontService } from '../../common';
 import * as CelulaData from '../model';
-import { canBeLeader, getMinistryTypeLabel } from '../../common/helpers/ministry-permissions.helper';
+import { canBeLeader, getMinistryTypeLabel, autoPromoteMemberIfNeeded } from '../../common/helpers/ministry-permissions.helper';
 import { Prisma } from '../../../generated/prisma/client';
 import { createMatrixValidator } from '../../common/helpers/matrix-validation.helper';
 import { MemberWhereInput } from '../../../generated/prisma/models';
@@ -243,9 +243,19 @@ export class CelulaService {
         if (!leader) {
             throw new HttpException('Líder não encontrado', HttpStatus.BAD_REQUEST);
         }
-        if (!canBeLeader(leader.ministryPosition?.type)) {
+        
+        // Auto-promote leader if needed
+        await autoPromoteMemberIfNeeded(this.prisma, body.leaderMemberId, 'leader', matrixId);
+        
+        // Refresh leader data after potential promotion
+        const updatedLeader = await this.prisma.member.findUnique({
+            where: { id: body.leaderMemberId },
+            include: { ministryPosition: true }
+        });
+        
+        if (!canBeLeader(updatedLeader?.ministryPosition?.type)) {
             throw new HttpException(
-                `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(leader.ministryPosition?.type)}. ` +
+                `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(updatedLeader?.ministryPosition?.type)}. ` +
                 `É necessário ser pelo menos Membro.`,
                 HttpStatus.BAD_REQUEST
             );
@@ -414,9 +424,19 @@ export class CelulaService {
                 if (!leader) {
                     throw new HttpException('Líder não encontrado', HttpStatus.BAD_REQUEST);
                 }
-                if (!canBeLeader(leader.ministryPosition?.type)) {
+                
+                // Auto-promote leader if needed
+                await autoPromoteMemberIfNeeded(this.prisma, data.leaderMemberId, 'leader', matrixId);
+                
+                // Refresh leader data after potential promotion
+                const updatedLeader = await this.prisma.member.findUnique({
+                    where: { id: data.leaderMemberId },
+                    include: { ministryPosition: true }
+                });
+                
+                if (!canBeLeader(updatedLeader?.ministryPosition?.type)) {
                     throw new HttpException(
-                        `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(leader.ministryPosition?.type)}. ` +
+                        `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(updatedLeader?.ministryPosition?.type)}. ` +
                         `É necessário ser pelo menos Membro.`,
                         HttpStatus.BAD_REQUEST
                     );
@@ -492,26 +512,9 @@ export class CelulaService {
                     }))
                 });
 
-                // Atualizar cargo ministerial para LEADER_IN_TRAINING se necessário
-                const ministryTypeHierarchy = ['VISITOR', 'REGULAR_ATTENDEE', 'MEMBER'];
-                for (const member of members) {
-                    const currentType = member.ministryPosition?.type;
-                    if (currentType && ministryTypeHierarchy.includes(currentType)) {
-                        // Buscar cargo de LEADER_IN_TRAINING na mesma matriz
-                        const leaderInTrainingMinistry = await this.prisma.ministry.findFirst({
-                            where: {
-                                matrixId,
-                                type: 'LEADER_IN_TRAINING'
-                            }
-                        });
-
-                        if (leaderInTrainingMinistry) {
-                            await this.prisma.member.update({
-                                where: { id: member.id },
-                                data: { ministryPositionId: leaderInTrainingMinistry.id }
-                            });
-                        }
-                    }
+                // Auto-promote leaders in training if needed
+                for (const memberId of data.leaderInTrainingIds) {
+                    await autoPromoteMemberIfNeeded(this.prisma, memberId, 'leaderInTraining', matrixId);
                 }
             }
         }
