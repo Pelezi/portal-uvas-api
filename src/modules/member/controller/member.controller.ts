@@ -76,7 +76,7 @@ export class MemberController {
     @ApiResponse({ status: 404, description: 'Membro não encontrado' })
     public async getById(@Req() req: AuthenticatedRequest, @Param('memberId') memberIdParam: string) {
         const memberId = Number(memberIdParam);
-        const member = await this.service.findById(memberId, req.member?.id);
+        const member = await this.service.findById(memberId, req.member?.id, req.member?.matrixId);
         if (!member) throw new HttpException('Membro não encontrado', HttpStatus.NOT_FOUND);
         return member;
     }
@@ -212,7 +212,7 @@ export class MemberController {
         if (!req.member) {
             throw new HttpException('Requisição não autenticada', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.getOwnProfile(req.member.id);
+        return this.service.getOwnProfile(req.member.id, req.member.matrixId);
     }
 
     @Put('profile/password')
@@ -260,7 +260,7 @@ export class MemberController {
         const photo = req.uploadedFile;
         const shouldDeletePhoto = deletePhoto === 'true';
         
-        return this.service.updateOwnProfile(req.member.id, body, photo, shouldDeletePhoto);
+        return this.service.updateOwnProfile(req.member.id, req.member.matrixId, body, photo, shouldDeletePhoto);
     }
 
     @Post('set-password')

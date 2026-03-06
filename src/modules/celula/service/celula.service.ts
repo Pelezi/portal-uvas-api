@@ -238,7 +238,12 @@ export class CelulaService {
 
         const leader = await this.prisma.member.findUnique({
             where: { id: body.leaderMemberId },
-            include: { ministryPosition: true }
+            include: {
+                ministryPositions: {
+                    where: { matrixId },
+                    include: { ministry: true }
+                }
+            }
         });
         if (!leader) {
             throw new HttpException('Líder não encontrado', HttpStatus.BAD_REQUEST);
@@ -250,12 +255,17 @@ export class CelulaService {
         // Refresh leader data after potential promotion
         const updatedLeader = await this.prisma.member.findUnique({
             where: { id: body.leaderMemberId },
-            include: { ministryPosition: true }
+            include: {
+                ministryPositions: {
+                    where: { matrixId },
+                    include: { ministry: true }
+                }
+            }
         });
         
-        if (!canBeLeader(updatedLeader?.ministryPosition?.type)) {
+        if (!canBeLeader(updatedLeader?.ministryPositions?.[0]?.ministry?.type)) {
             throw new HttpException(
-                `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(updatedLeader?.ministryPosition?.type)}. ` +
+                `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(updatedLeader?.ministryPositions?.[0]?.ministry?.type)}. ` +
                 `É necessário ser pelo menos Membro.`,
                 HttpStatus.BAD_REQUEST
             );
@@ -333,7 +343,12 @@ export class CelulaService {
             where,
             orderBy: { name: 'asc' },
             include: {
-                ministryPosition: true,
+                ministryPositions: matrixId ? {
+                    where: { matrixId },
+                    include: { ministry: true }
+                } : {
+                    include: { ministry: true }
+                },
                 winnerPath: true,
                 roles: { include: { role: true } },
                 celula: {
@@ -352,6 +367,11 @@ export class CelulaService {
         this.cloudFrontService.transformPhotoUrls(members);
         members.forEach(m => {
             this.cloudFrontService.transformPhotoUrl(m.celula?.discipulado?.discipulador);
+            // Transform ministryPositions to single ministryPosition for frontend compatibility
+            if (m.ministryPositions) {
+                (m as any).ministryPosition = m.ministryPositions[0]?.ministry || null;
+                delete (m as any).ministryPositions;
+            }
         });
         return members;
     }
@@ -419,7 +439,12 @@ export class CelulaService {
 
                 const leader = await this.prisma.member.findUnique({
                     where: { id: data.leaderMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 if (!leader) {
                     throw new HttpException('Líder não encontrado', HttpStatus.BAD_REQUEST);
@@ -431,12 +456,17 @@ export class CelulaService {
                 // Refresh leader data after potential promotion
                 const updatedLeader = await this.prisma.member.findUnique({
                     where: { id: data.leaderMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 
-                if (!canBeLeader(updatedLeader?.ministryPosition?.type)) {
+                if (!canBeLeader(updatedLeader?.ministryPositions?.[0]?.ministry?.type)) {
                     throw new HttpException(
-                        `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(updatedLeader?.ministryPosition?.type)}. ` +
+                        `Membro não pode ser líder de célula. Nível ministerial atual: ${getMinistryTypeLabel(updatedLeader?.ministryPositions?.[0]?.ministry?.type)}. ` +
                         `É necessário ser pelo menos Membro.`,
                         HttpStatus.BAD_REQUEST
                     );
@@ -488,7 +518,12 @@ export class CelulaService {
                         id: { in: data.leaderInTrainingIds },
                         celulaId: id
                     },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
                 });
 
                 if (members.length !== data.leaderInTrainingIds.length && !!!celula?.discipulado?.rede?.isKids) {
@@ -562,17 +597,22 @@ export class CelulaService {
 
                 const leader = await tx.member.findUnique({
                     where: { id: newLeaderMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 if (!leader) {
                     throw new HttpException('Novo líder não encontrado', HttpStatus.BAD_REQUEST);
                 }
 
                 // Se o membro não tem ministry adequado para ser líder, promove automaticamente
-                if (!canBeLeader(leader.ministryPosition.type)) {
+                if (!canBeLeader(leader.ministryPositions?.[0]?.ministry?.type)) {
                     // Busca uma Ministry com type LEADER
                     let leaderMinistry = await tx.ministry.findFirst({
-                        where: { type: 'LEADER' }
+                        where: { type: 'LEADER', matrixId }
                     });
 
                     // Se não existir, cria uma
@@ -580,10 +620,16 @@ export class CelulaService {
                         throw new HttpException('Posição ministerial para Líder não encontrada. Contate o administrador do sistema.', HttpStatus.INTERNAL_SERVER_ERROR);
                     }
 
-                    // Atualiza o membro para ter a posição de Líder
-                    await tx.member.update({
-                        where: { id: newLeaderMemberId },
-                        data: { ministryPositionId: leaderMinistry.id }
+                    // Delete existing ministry position for this matrix and add new one
+                    await tx.memberMinistry.deleteMany({
+                        where: { memberId: newLeaderMemberId, matrixId }
+                    });
+                    await tx.memberMinistry.create({
+                        data: {
+                            memberId: newLeaderMemberId,
+                            ministryId: leaderMinistry.id,
+                            matrixId
+                        }
                     });
                 }
 
@@ -613,14 +659,30 @@ export class CelulaService {
                 });
 
                 // Remove celulaId from both leaders if they were in the original celula
-                const newLeader = await tx.member.findUnique({ where: { id: newLeaderMemberId }, include: { ministryPosition: true } });
+                const newLeader = await tx.member.findUnique({
+                    where: { id: newLeaderMemberId },
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
+                });
                 if (newLeader && newLeader.celulaId === originalCelulaId) {
                     await tx.member.update({
                         where: { id: newLeaderMemberId },
                         data: { celulaId: null }
                     });
                 }
-                const oldLeader = await tx.member.findUnique({ where: { id: oldLeaderMemberId }, include: { ministryPosition: true } });
+                const oldLeader = await tx.member.findUnique({
+                    where: { id: oldLeaderMemberId },
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
+                });
                 if (oldLeader && oldLeader.celulaId === originalCelulaId) {
                     await tx.member.update({
                         where: { id: oldLeaderMemberId },
@@ -629,21 +691,33 @@ export class CelulaService {
                 }
 
                 // update both leaders ministry type to leader if they are leader in training
-                if (newLeader && newLeader.ministryPosition?.type === 'LEADER_IN_TRAINING') {
-                    const leaderMinistry = await tx.ministry.findFirst({ where: { type: 'LEADER' } });
+                if (newLeader && newLeader.ministryPositions?.[0]?.ministry?.type === 'LEADER_IN_TRAINING') {
+                    const leaderMinistry = await tx.ministry.findFirst({ where: { type: 'LEADER', matrixId } });
                     if (leaderMinistry) {
-                        await tx.member.update({
-                            where: { id: newLeaderMemberId },
-                            data: { ministryPositionId: leaderMinistry.id }
+                        await tx.memberMinistry.deleteMany({
+                            where: { memberId: newLeaderMemberId, matrixId }
+                        });
+                        await tx.memberMinistry.create({
+                            data: {
+                                memberId: newLeaderMemberId,
+                                ministryId: leaderMinistry.id,
+                                matrixId
+                            }
                         });
                     }
                 }
-                if (oldLeader && oldLeader.ministryPosition?.type === 'LEADER_IN_TRAINING') {
-                    const leaderMinistry = await tx.ministry.findFirst({ where: { type: 'LEADER' } });
+                if (oldLeader && oldLeader.ministryPositions?.[0]?.ministry?.type === 'LEADER_IN_TRAINING') {
+                    const leaderMinistry = await tx.ministry.findFirst({ where: { type: 'LEADER', matrixId } });
                     if (leaderMinistry) {
-                        await tx.member.update({
-                            where: { id: oldLeaderMemberId },
-                            data: { ministryPositionId: leaderMinistry.id }
+                        await tx.memberMinistry.deleteMany({
+                            where: { memberId: oldLeaderMemberId, matrixId }
+                        });
+                        await tx.memberMinistry.create({
+                            data: {
+                                memberId: oldLeaderMemberId,
+                                ministryId: leaderMinistry.id,
+                                matrixId
+                            }
                         });
                     }
                 }

@@ -37,7 +37,6 @@ export class PermissionGuard implements CanActivate {
                 id: member.id,
                 isAdmin: false,
                 ministryType: null,
-                ministryPositionId: null,
                 celulaIds: [],
                 congregacaoIds: [],
                 redeIds: [],

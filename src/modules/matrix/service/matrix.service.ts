@@ -342,8 +342,13 @@ export class MatrixService {
                 gender: 'MALE',
                 OR: [
                     {
-                        ministryPosition: {
-                            type: 'PRESIDENT_PASTOR'
+                        ministryPositions: {
+                            some: {
+                                matrixId: matrix.id,
+                                ministry: {
+                                    type: 'PRESIDENT_PASTOR'
+                                }
+                            }
                         }
                     },
                     {
@@ -366,10 +371,15 @@ export class MatrixService {
                 id: true,
                 name: true,
                 photoUrl: true,
-                ministryPosition: {
+                ministryPositions: {
+                    where: { matrixId: matrix.id },
                     select: {
-                        name: true,
-                        type: true
+                        ministry: {
+                            select: {
+                                name: true,
+                                type: true
+                            }
+                        }
                     }
                 },
                 congregacoesPastorGoverno: {
@@ -392,9 +402,28 @@ export class MatrixService {
                 }
             },
             orderBy: [
-                { ministryPosition: { type: 'asc' } }, // PRESIDENT_PASTOR comes first
                 { name: 'asc' }
             ]
+        });
+
+        // Sort by ministry type in memory (PRESIDENT_PASTOR comes first)
+        const ministryTypeOrder: Record<string, number> = { 
+            'PRESIDENT_PASTOR': 0, 
+            'PASTOR': 1, 
+            'DISCIPULADOR': 2, 
+            'LEADER': 3, 
+            'LEADER_IN_TRAINING': 4,
+            'MEMBER': 5,
+            'REGULAR_ATTENDEE': 6,
+            'VISITOR': 7
+        };
+        pastoralTeam.sort((a, b) => {
+            const aType = a.ministryPositions?.[0]?.ministry?.type || 'MEMBER';
+            const bType = b.ministryPositions?.[0]?.ministry?.type || 'MEMBER';
+            const aOrder = ministryTypeOrder[aType] ?? 999;
+            const bOrder = ministryTypeOrder[bType] ?? 999;
+            if (aOrder !== bOrder) return aOrder - bOrder;
+            return a.name.localeCompare(b.name);
         });
 
         // Transform photo URLs using CloudFront
@@ -403,6 +432,14 @@ export class MatrixService {
             this.cloudFrontService.transformPhotoUrl(cong.pastorGoverno);
             this.cloudFrontService.transformPhotoUrl(cong.vicePresidente);
             this.cloudFrontService.transformPhotoUrl(cong.kidsLeader);
+        });
+        
+        // Transform ministryPositions to single ministryPosition for pastoralTeam
+        pastoralTeam.forEach(member => {
+            if (member.ministryPositions) {
+                (member as any).ministryPosition = member.ministryPositions[0]?.ministry || null;
+                delete (member as any).ministryPositions;
+            }
         });
 
         return {

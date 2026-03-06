@@ -83,13 +83,7 @@ export class CelulaController {
     @UseGuards(RestrictedGuard, PermissionGuard)
     @Get(':id')
     public async get(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
-        const permission = req.permission;
         const celulaId = Number(id);
-        
-        const celulaAccess = await this.permissionService.hasCelulaAccess(permission, celulaId);
-        if (!celulaAccess) {
-            throw new HttpException('Você não tem acesso a esta célula', HttpStatus.UNAUTHORIZED);
-        }
 
         return this.service.findById(celulaId);
     }

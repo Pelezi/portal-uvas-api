@@ -55,7 +55,7 @@ export class CongregacaoController {
         if (!req.member?.matrixId) {
             throw new HttpException('Matrix ID não encontrado', HttpStatus.UNAUTHORIZED);
         }
-        return this.service.getById(Number(id), req.member.matrixId, req.permission);
+        return this.service.getById(Number(id), req.member.matrixId);
     }
 
     @UseGuards(RestrictedGuard, PermissionGuard)

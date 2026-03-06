@@ -148,34 +148,9 @@ export class CongregacaoService {
         return congregacoes;
     }
 
-    public async getById(id: number, matrixId: number, permission?: LoadedPermission | null) {
+    public async getById(id: number, matrixId: number) {
         const validator = createMatrixValidator(this.prisma);
         await validator.validateCongregacaoBelongsToMatrix(id, matrixId);
-
-        // Check access permissions
-        if (permission && !permission.isAdmin) {
-            const congregacao = await this.prisma.congregacao.findUnique({ where: { id } });
-            if (!congregacao) {
-                throw new HttpException('Congregação não encontrada', HttpStatus.NOT_FOUND);
-            }
-
-            // Check if user is pastor of principal congregation
-            const principalCongregacao = await this.prisma.congregacao.findFirst({
-                where: {
-                    matrixId,
-                    isPrincipal: true,
-                    OR: [
-                        { pastorGovernoMemberId: permission.id },
-                        { vicePresidenteMemberId: permission.id }
-                    ]
-                }
-            });
-
-            // If not pastor of principal and not pastor of this congregacao
-            if (!principalCongregacao && !permission.congregacaoIds.includes(id)) {
-                throw new HttpException('Você não tem permissão para visualizar esta congregação', HttpStatus.FORBIDDEN);
-            }
-        }
 
         const congregacao = await this.prisma.congregacao.findUnique({
             where: { id },

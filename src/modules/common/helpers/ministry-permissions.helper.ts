@@ -88,17 +88,22 @@ export async function autoPromoteMemberIfNeeded(
     role: 'pastor' | 'discipulador' | 'leader' | 'leaderInTraining',
     matrixId: number
 ): Promise<boolean> {
-    // Get the member with their current ministry position
+    // Get the member with their current ministry position in this matrix
     const member = await prisma.member.findUnique({
         where: { id: memberId },
-        include: { ministryPosition: true }
+        include: {
+            ministryPositions: {
+                where: { matrixId },
+                include: { ministry: true }
+            }
+        }
     });
 
     if (!member) {
         throw new Error('Member not found');
     }
 
-    const currentMinistryType = member.ministryPosition?.type;
+    const currentMinistryType = member.ministryPositions?.[0]?.ministry?.type;
     const requiredMinistryType = getMinimumMinistryTypeFor(role);
 
     // Check if promotion is needed
@@ -142,11 +147,19 @@ export async function autoPromoteMemberIfNeeded(
         throw new Error(`Ministry position of type ${requiredMinistryType} not found in matrix ${matrixId}`);
     }
 
-    // Update the member's ministry position
-    await prisma.member.update({
-        where: { id: memberId },
+    // Delete existing ministry position for this matrix and create new one
+    await prisma.memberMinistry.deleteMany({
+        where: {
+            memberId: memberId,
+            matrixId: matrixId
+        }
+    });
+
+    await prisma.memberMinistry.create({
         data: {
-            ministryPositionId: targetMinistry.id
+            memberId: memberId,
+            ministryId: targetMinistry.id,
+            matrixId: matrixId
         }
     });
 

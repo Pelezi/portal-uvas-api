@@ -200,7 +200,12 @@ export class RedeService {
 
                 const pastor = await this.prisma.member.findUnique({
                     where: { id: data.pastorMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId: data.matrixId! },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 if (!pastor) {
                     throw new BadRequestException('Pastor não encontrado');
@@ -212,12 +217,17 @@ export class RedeService {
                 // Refresh pastor data after potential promotion
                 const updatedPastor = await this.prisma.member.findUnique({
                     where: { id: data.pastorMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId: data.matrixId! },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 
-                if (!canBePastor(updatedPastor?.ministryPosition?.type)) {
+                if (!canBePastor(updatedPastor?.ministryPositions?.[0]?.ministry?.type)) {
                     throw new BadRequestException(
-                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(updatedPastor?.ministryPosition?.type)}. ` +
+                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(updatedPastor?.ministryPositions?.[0]?.ministry?.type)}. ` +
                         `É necessário ser Pastor.`
                     );
                 }
@@ -288,7 +298,12 @@ export class RedeService {
 
                 const pastor = await this.prisma.member.findUnique({
                     where: { id: data.pastorMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 if (!pastor) {
                     throw new BadRequestException('Pastor não encontrado');
@@ -300,12 +315,17 @@ export class RedeService {
                 // Refresh pastor data after potential promotion
                 const updatedPastor = await this.prisma.member.findUnique({
                     where: { id: data.pastorMemberId },
-                    include: { ministryPosition: true }
+                    include: {
+                        ministryPositions: {
+                            where: { matrixId },
+                            include: { ministry: true }
+                        }
+                    }
                 });
                 
-                if (!canBePastor(updatedPastor?.ministryPosition?.type)) {
+                if (!canBePastor(updatedPastor?.ministryPositions?.[0]?.ministry?.type)) {
                     throw new BadRequestException(
-                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(updatedPastor?.ministryPosition?.type)}. ` +
+                        `Membro não pode ser pastor de rede. Nível ministerial atual: ${getMinistryTypeLabel(updatedPastor?.ministryPositions?.[0]?.ministry?.type)}. ` +
                         `É necessário ser Pastor.`
                     );
                 }

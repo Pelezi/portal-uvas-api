@@ -210,7 +210,10 @@ export class ReportService {
                     include: { 
                         member: {
                             include: {
-                                ministryPosition: true
+                                ministryPositions: {
+                                    where: { matrixId },
+                                    include: { ministry: true }
+                                }
                             }
                         } 
                     } 
@@ -231,7 +234,10 @@ export class ReportService {
             },
             orderBy: { name: 'asc' },
             include: {
-                ministryPosition: true
+                ministryPositions: {
+                    where: { matrixId },
+                    include: { ministry: true }
+                }
             }
         });
 
@@ -239,7 +245,22 @@ export class ReportService {
         this.cloudFrontService.transformPhotoUrls(allMembers);
         reports.forEach(r => {
             if (r.attendances) {
-                r.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
+                r.attendances.forEach(a => {
+                    this.cloudFrontService.transformPhotoUrl(a.member);
+                    // Transform ministryPositions to single ministryPosition
+                    if (a.member.ministryPositions) {
+                        (a.member as any).ministryPosition = a.member.ministryPositions[0]?.ministry || null;
+                        delete (a.member as any).ministryPositions;
+                    }
+                });
+            }
+        });
+        
+        // Transform ministryPositions for allMembers
+        allMembers.forEach(m => {
+            if (m.ministryPositions) {
+                (m as any).ministryPosition = m.ministryPositions[0]?.ministry || null;
+                delete (m as any).ministryPositions;
             }
         });
 
@@ -422,7 +443,10 @@ export class ReportService {
                     include: { 
                         member: {
                             include: {
-                                ministryPosition: true
+                                ministryPositions: {
+                                    where: { matrixId },
+                                    include: { ministry: true }
+                                }
                             }
                         } 
                     } 
@@ -444,7 +468,10 @@ export class ReportService {
             },
             orderBy: [{ celulaId: 'asc' }, { name: 'asc' }],
             include: {
-                ministryPosition: true,
+                ministryPositions: {
+                    where: { matrixId },
+                    include: { ministry: true }
+                },
                 celula: {
                     include: {
                         discipulado: {
@@ -459,9 +486,25 @@ export class ReportService {
 
         // Transform photoUrls for all members and report attendances
         this.cloudFrontService.transformPhotoUrls(allMembers);
+        
+        // Transform ministryPositions to single ministryPosition for allMembers
+        allMembers.forEach(m => {
+            if (m.ministryPositions) {
+                (m as any).ministryPosition = m.ministryPositions[0]?.ministry || null;
+                delete (m as any).ministryPositions;
+            }
+        });
+        
         reports.forEach(report => {
             if (report.attendances) {
-                report.attendances.forEach(a => this.cloudFrontService.transformPhotoUrl(a.member));
+                report.attendances.forEach(a => {
+                    this.cloudFrontService.transformPhotoUrl(a.member);
+                    // Transform ministryPositions to single ministryPosition
+                    if (a.member.ministryPositions) {
+                        (a.member as any).ministryPosition = a.member.ministryPositions[0]?.ministry || null;
+                        delete (a.member as any).ministryPositions;
+                    }
+                });
             }
         });
 

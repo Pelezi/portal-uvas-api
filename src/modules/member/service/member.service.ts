@@ -234,8 +234,13 @@ export class MemberService {
             // Filtrar por tipo de ministério (para selecionar pastores, discipuladores, líderes)
             if (filters.ministryType) {
                 const ministryTypes = filters.ministryType.split(',');
-                where.ministryPosition = {
-                    type: { in: ministryTypes as any }
+                where.ministryPositions = {
+                    some: {
+                        matrixId: matrixId,
+                        ministry: {
+                            type: { in: ministryTypes as any }
+                        }
+                    }
                 };
             }
 
@@ -377,7 +382,14 @@ export class MemberService {
                             },
                         },
                     },
-                    ministryPosition: { select: { id: true, name: true, type: true, priority: true } },
+                    ministryPositions: {
+                        where: { matrixId: matrixId },
+                        select: {
+                            ministry: {
+                                select: { id: true, name: true, type: true, priority: true }
+                            }
+                        }
+                    },
                 },
                 orderBy: { name: 'asc' },
                 skip: (page - 1) * pageSize,
@@ -393,7 +405,12 @@ export class MemberService {
                 id: true,
                 roles: { select: { role: { select: { isAdmin: true } } } },
                 congregacoesPastorGoverno: { select: { id: true, isPrincipal: true } },
-                ministryPosition: { select: { priority: true } },
+                ministryPositions: {
+                    where: { matrixId: matrixId },
+                    select: {
+                        ministry: { select: { priority: true } }
+                    }
+                },
                 ledCelulas: { select: { id: true } },
                 leadingInTrainingCelulas: { select: { celulaId: true } },
             },
@@ -401,7 +418,7 @@ export class MemberService {
 
         const isAdmin = requestingUser?.roles?.some(r => r.role.isAdmin) || false;
         const isPastorPresidente = requestingUser?.congregacoesPastorGoverno?.some(c => c.isPrincipal) || false;
-        const userPriority = requestingUser?.ministryPosition?.priority ?? null;
+        const userPriority = requestingUser?.ministryPositions?.[0]?.ministry?.priority ?? null;
         const userCelulaIds = new Set([
             ...(requestingUser?.ledCelulas?.map(c => c.id) || []),
             ...(requestingUser?.leadingInTrainingCelulas?.map(c => c.celulaId) || []),
@@ -428,7 +445,7 @@ export class MemberService {
 
             // --- Compute canManage ---
             let canManage = false;
-            const memberPriority = member.ministryPosition?.priority ?? null;
+            const memberPriority = member.ministryPositions?.[0]?.ministry?.priority ?? null;
 
             if (isAdmin || isPastorPresidente) {
                 canManage = true;
@@ -526,7 +543,7 @@ export class MemberService {
                 celulaId: member.celulaId,
                 isActive: member.isActive,
                 celula: member.celula ? { id: member.celula.id, name: member.celula.name } : null,
-                ministryPosition: member.ministryPosition,
+                ministryPosition: member.ministryPositions?.[0]?.ministry || null,
                 canManage,
                 leadershipTags,
             };
@@ -554,7 +571,7 @@ export class MemberService {
             };
         }
         
-        return await this.prisma.member.findMany({
+        const members = await this.prisma.member.findMany({
             where,
             include: {
                 celula: {
@@ -568,11 +585,20 @@ export class MemberService {
                     }
                 },
                 roles: {
+                    where: matrixId ? { role: { matrixId: matrixId } } : undefined,
                     include: { role: true }
+                },
+                ministryPositions: matrixId ? {
+                    where: { matrixId },
+                    include: { ministry: true }
+                } : {
+                    include: { ministry: true }
                 }
             },
             orderBy: { name: 'asc' }
         });
+        
+        return this.transformMinistryPositions(members);
     }
 
     /**
@@ -707,7 +733,7 @@ export class MemberService {
         return hierarchyConditions;
     }
 
-    public async findById(memberId: number, requestingMemberId?: number) {
+    public async findById(memberId: number, requestingMemberId?: number, matrixId?: number) {
         const userInfo = await this.prisma.member.findUnique({
             where: { id: memberId },
             include: {
@@ -742,9 +768,15 @@ export class MemberService {
                 redes: { include: { congregacao: true } },
                 congregacoesPastorGoverno: { select: { id: true, isPrincipal: true } },
                 congregacoesVicePresidente: { select: { id: true, pastorGovernoMemberId: true, vicePresidenteMemberId: true, kidsLeaderMemberId: true } },
-                roles: { include: { role: true } },
+                roles: {
+                    where: matrixId ? { role: { matrixId: matrixId } } : undefined,
+                    include: { role: true }
+                },
                 socialMedia: true,
-                ministryPosition: true,
+                ministryPositions: {
+                    where: matrixId ? { matrixId: matrixId } : undefined,
+                    include: { ministry: true }
+                },
                 spouse: { select: { id: true, name: true } },
                 congregacoesKidsLeader: { select: { id: true, name: true } },
                 discipleOf: { select: { discipulado: { select: { discipulador: { select: { id: true, name: true } }, rede: { select: { id: true, name: true, isKids: true, congregacao: { select: { id: true, name: true } } } } } } } },
@@ -761,7 +793,8 @@ export class MemberService {
 
         // If requesting member is the same as the member being viewed, return full data
         if (requestingMemberId && requestingMemberId === memberId) {
-            return this.cloudFrontService.transformPhotoUrl(userInfo);
+            const transformed = this.transformMinistryPositions(userInfo);
+            return this.cloudFrontService.transformPhotoUrl(transformed);
         }
 
         // Check privacy settings and censor contact data if needed
@@ -789,7 +822,8 @@ export class MemberService {
         }
 
         // replace photoUrl with full CloudFront URL if it exists
-        return this.cloudFrontService.transformPhotoUrl(userInfo);
+        const transformed = this.transformMinistryPositions(userInfo);
+        return this.cloudFrontService.transformPhotoUrl(transformed);
     }
 
     /**
@@ -1089,7 +1123,11 @@ export class MemberService {
                             }
                         }
                     },
-                    ministryPosition: { select: { type: true } }
+                    ministryPositions: {
+                        select: {
+                            ministry: { select: { type: true } }
+                        }
+                    }
                 }
             })
         ]);
@@ -1104,7 +1142,8 @@ export class MemberService {
         }
 
         // If the target member is pastor or president_pastor, allow access
-        if (targetMember.ministryPosition?.type === 'PASTOR' || targetMember.ministryPosition?.type === 'PRESIDENT_PASTOR') {
+        const targetMinistry = targetMember.ministryPositions?.[0]?.ministry;
+        if (targetMinistry?.type === 'PASTOR' || targetMinistry?.type === 'PRESIDENT_PASTOR') {
             return true;
         }
 
@@ -1342,7 +1381,7 @@ export class MemberService {
 
         // Validar hierarquia ministerial: usuário só pode criar membros com cargos abaixo do seu
         if (body.ministryPositionId && requestingMemberId) {
-            await this.validateMinistryHierarchy(requestingMemberId, body.ministryPositionId);
+            await this.validateMinistryHierarchy(requestingMemberId, body.ministryPositionId, matrixId);
         }
 
         // Validar cônjuge se casado
@@ -1350,7 +1389,7 @@ export class MemberService {
             await this.validateAndUpdateSpouse(body.spouseId, null);
         }
 
-        const { roleIds, socialMedia, ...memberData } = body;
+        const { roleIds, socialMedia, ministryPositionId, ...memberData } = body;
 
         // Se hasSystemAccess é true e não foi fornecida senha, definir senha padrão
         if (memberData.hasSystemAccess && !memberData.password) {
@@ -1422,6 +1461,17 @@ export class MemberService {
                 });
             }
 
+            // Criar associação de ministry se fornecida
+            if (ministryPositionId) {
+                await this.prisma.memberMinistry.create({
+                    data: {
+                        memberId: member.id,
+                        ministryId: ministryPositionId,
+                        matrixId: matrixId
+                    }
+                });
+            }
+
             // Atualizar cônjuge se casado
             if (body.maritalStatus === 'MARRIED' && body.spouseId) {
                 await this.updateSpouseMaritalStatus(body.spouseId, member.id);
@@ -1432,14 +1482,22 @@ export class MemberService {
                 await this.upsertSocialMedia(member.id, body.socialMedia);
             }
 
-            return await this.prisma.member.findUnique({
+            const createdMember = await this.prisma.member.findUnique({
                 where: { id: member.id },
                 include: {
-                    roles: { include: { role: true } },
+                    roles: {
+                        where: { role: { matrixId: matrixId } },
+                        include: { role: true }
+                    },
                     celula: true,
-                    socialMedia: true
+                    socialMedia: true,
+                    ministryPositions: {
+                        where: { matrixId },
+                        include: { ministry: true }
+                    }
                 }
             });
+            return this.transformMinistryPositions(createdMember);
         } catch (error) {
             throw new HttpException(`Falha ao criar membro ${error.message}`, error.status || HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -1496,7 +1554,7 @@ export class MemberService {
 
             // Validar hierarquia ministerial: usuário só pode atualizar cargos para níveis abaixo do seu
             if (data.ministryPositionId !== undefined && requestingMemberId) {
-                await this.validateMinistryHierarchy(requestingMemberId, data.ministryPositionId);
+                await this.validateMinistryHierarchy(requestingMemberId, data.ministryPositionId, matrixId);
             }
 
             // Se está ativando hasSystemAccess e não tinha senha, definir senha padrão
@@ -1513,7 +1571,7 @@ export class MemberService {
                 await this.validateAndUpdateSpouse(updatedData.spouseId, memberId);
             }
 
-            const { roleIds, socialMedia, ...memberData } = updatedData;
+            const { roleIds, socialMedia, ministryPositionId, ...memberData } = updatedData;
 
             // Handle photo upload and deletion
             let newPhotoUrl = currentMember.photoUrl;
@@ -1652,6 +1710,28 @@ export class MemberService {
                 }
             }
 
+            // Atualizar ministry position se fornecida
+            if (ministryPositionId !== undefined) {
+                // Remover ministry position existente para este membro nesta matriz
+                await this.prisma.memberMinistry.deleteMany({
+                    where: {
+                        memberId: memberId,
+                        matrixId: matrixId
+                    }
+                });
+
+                // Criar nova associação se ministryPositionId não for null
+                if (ministryPositionId !== null) {
+                    await this.prisma.memberMinistry.create({
+                        data: {
+                            memberId: memberId,
+                            ministryId: ministryPositionId,
+                            matrixId: matrixId
+                        }
+                    });
+                }
+            }
+
             // Atualizar cônjuge se casado
             if (data.maritalStatus === 'MARRIED' && data.spouseId) {
                 await this.updateSpouseMaritalStatus(data.spouseId, memberId);
@@ -1662,14 +1742,22 @@ export class MemberService {
                 await this.upsertSocialMedia(memberId, data.socialMedia);
             }
 
-            return await this.prisma.member.findUnique({
+            const updatedMember = await this.prisma.member.findUnique({
                 where: { id: memberId },
                 include: {
-                    roles: { include: { role: true } },
+                    roles: {
+                        where: { role: { matrixId: matrixId } },
+                        include: { role: true }
+                    },
                     celula: true,
-                    socialMedia: true
+                    socialMedia: true,
+                    ministryPositions: {
+                        where: { matrixId },
+                        include: { ministry: true }
+                    }
                 }
             });
+            return this.transformMinistryPositions(updatedMember);
         } catch (err) {
             throw new HttpException(`Falha ao atualizar membro: ${err.message}`, err.status || HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -1906,14 +1994,17 @@ export class MemberService {
                 congregacoesPastorGoverno: { select: { id: true } },
                 congregacoesVicePresidente: { select: { id: true } },
                 congregacoesKidsLeader: { select: { id: true } },
-                ministryPosition: { select: { type: true } },
+                ministryPositions: {
+                    where: { matrixId: matrixId },
+                    select: { ministry: { select: { type: true } } }
+                },
             },
         });
 
         // Leadership types (LEADER and above)
         const leadershipTypes = ['LEADER', 'DISCIPULADOR', 'PASTOR', 'PRESIDENT_PASTOR'];
         const leadership = members.filter(m =>
-            m.ministryPosition && leadershipTypes.includes(m.ministryPosition.type)
+            m.ministryPositions?.[0]?.ministry && leadershipTypes.includes(m.ministryPositions[0].ministry.type)
         ).length;
 
         const total = members.length;
@@ -2208,9 +2299,10 @@ export class MemberService {
         }
 
         // replace photoUrl with cloudfront URL if exists
-        this.cloudFrontService.transformPhotoUrl(member);
+        const transformed = this.transformMinistryPositions(member);
+        this.cloudFrontService.transformPhotoUrl(transformed);
 
-        const memberWithoutPassword = { ...member, password: undefined };
+        const memberWithoutPassword = { ...transformed, password: undefined };
 
         // Verificar se o membro tem acesso ao sistema
         if (!member.hasSystemAccess) {
@@ -2401,7 +2493,7 @@ export class MemberService {
     /**
      * Update own profile (authenticated user) - Only personal and address fields
      */
-    public async updateOwnProfile(memberId: number, data: MemberData.UpdateOwnProfileInput, photo?: File, deletePhoto?: boolean) {
+    public async updateOwnProfile(memberId: number, matrixId: number, data: MemberData.UpdateOwnProfileInput, photo?: File, deletePhoto?: boolean) {
         // Get current member data to check if phone is being added
         const currentMember = await this.prisma.member.findUnique({
             where: { id: memberId },
@@ -2421,8 +2513,7 @@ export class MemberService {
         // Handle photo upload and deletion
         let newPhotoUrl: string | null | undefined = currentMember.photoUrl;
         if (photo || deletePhoto) {
-            // Get matrix info for photo folder
-            const matrixId = currentMember?.matrices?.[0]?.matrixId;
+            // Use the matrixId from parameter
             if (!matrixId) {
                 throw new HttpException('Matrix ID não encontrado', HttpStatus.BAD_REQUEST);
             }
@@ -2493,9 +2584,13 @@ export class MemberService {
                     }
                 },
                 spouse: true,
-                ministryPosition: true,
+                ministryPositions: {
+                    where: { matrixId: matrixId },
+                    include: { ministry: true }
+                },
                 winnerPath: true,
                 roles: {
+                    where: { role: { matrixId: matrixId } },
                     include: {
                         role: true
                     }
@@ -2529,9 +2624,13 @@ export class MemberService {
                     }
                 },
                 spouse: true,
-                ministryPosition: true,
+                ministryPositions: {
+                    where: { matrixId: matrixId },
+                    include: { ministry: true }
+                },
                 winnerPath: true,
                 roles: {
+                    where: { role: { matrixId: matrixId } },
                     include: {
                         role: true
                     }
@@ -2542,13 +2641,14 @@ export class MemberService {
         });
 
         // replace photoUrl with full CloudFront URL if it exists
-        return this.cloudFrontService.transformPhotoUrl(updatedMember);
+        const transformed = this.transformMinistryPositions(updatedMember);
+        return this.cloudFrontService.transformPhotoUrl(transformed);
     }
 
     /**
      * Get own profile (authenticated user)
      */
-    public async getOwnProfile(memberId: number) {
+    public async getOwnProfile(memberId: number, matrixId: number) {
         const member = await this.prisma.member.findUnique({
             where: { id: memberId },
             include: {
@@ -2567,9 +2667,13 @@ export class MemberService {
                     }
                 },
                 spouse: true,
-                ministryPosition: true,
+                ministryPositions: {
+                    where: { matrixId: matrixId },
+                    include: { ministry: true }
+                },
                 winnerPath: true,
                 roles: {
+                    where: { role: { matrixId: matrixId } },
                     include: {
                         role: true
                     }
@@ -2584,7 +2688,8 @@ export class MemberService {
         }
 
         // replace photoUrl with full CloudFront URL if it exists
-        return this.cloudFrontService.transformPhotoUrl(member);
+        const transformed = this.transformMinistryPositions(member);
+        return this.cloudFrontService.transformPhotoUrl(transformed);
     }
 
     /**
@@ -2617,7 +2722,7 @@ export class MemberService {
      * based on hierarchy (user can only assign positions below their own)
      * Admins and pastors can assign any position
      */
-    private async validateMinistryHierarchy(requestingMemberId: number, targetMinistryPositionId: number) {
+    private async validateMinistryHierarchy(requestingMemberId: number, targetMinistryPositionId: number, matrixId: number) {
         // Carregar permissões do usuário solicitante
         const requestingPermission = await this.permissionService.loadPermissionForMember(requestingMemberId);
 
@@ -2627,14 +2732,27 @@ export class MemberService {
             return;
         }
 
+        // Get requesting member's ministry position in this matrix
+        const requestingMember = await this.prisma.member.findUnique({
+            where: { id: requestingMemberId },
+            include: {
+                ministryPositions: {
+                    where: { matrixId },
+                    include: { ministry: true }
+                }
+            }
+        });
+
+        const requestingMinistryId = requestingMember?.ministryPositions?.[0]?.ministryId;
+
         // Se o usuário não tem cargo ministerial, não pode criar membros
-        if (!requestingPermission?.ministryPositionId) {
+        if (!requestingMinistryId) {
             throw new HttpException('Você não tem permissão para criar membros com cargo ministerial', HttpStatus.UNAUTHORIZED);
         }
 
         // Buscar os cargos ministeriais
         const [requestingMinistry, targetMinistry] = await Promise.all([
-            this.prisma.ministry.findUnique({ where: { id: requestingPermission.ministryPositionId } }),
+            this.prisma.ministry.findUnique({ where: { id: requestingMinistryId } }),
             this.prisma.ministry.findUnique({ where: { id: targetMinistryPositionId } })
         ]);
 
@@ -2676,6 +2794,7 @@ export class MemberService {
                 discipulados: true,
                 redes: true,
                 roles: {
+                    where: { role: { matrixId: matrixId } },
                     include: { role: true }
                 }
             },
@@ -2720,7 +2839,14 @@ export class MemberService {
         }
         if (filters?.ministryType) {
             const types = filters.ministryType.split(',');
-            where.ministryPosition = { type: { in: types as any } };
+            where.ministryPositions = {
+                some: {
+                    matrixId: matrixId,
+                    ministry: {
+                        type: { in: types as any }
+                    }
+                }
+            };
         }
         if (filters?.gender) {
             where.gender = filters.gender as any;
@@ -2785,10 +2911,16 @@ export class MemberService {
                         },
                     },
                 },
-                ministryPosition: {
-                    select: { id: true, name: true, type: true, priority: true },
+                ministryPositions: {
+                    where: { matrixId },
+                    select: {
+                        ministry: {
+                            select: { id: true, name: true, type: true, priority: true }
+                        }
+                    }
                 },
                 roles: {
+                    where: { role: { matrixId: matrixId } },
                     select: { role: { select: { id: true, name: true } } },
                 },
             },
@@ -2842,7 +2974,7 @@ export class MemberService {
         // for each found member, do a this.findById and return the full member data with relations (except password)
         const fullMembers = [];
         for (const member of filteredMembers) {
-            const fullMember = await this.findById(member.id);
+            const fullMember = await this.findById(member.id, undefined, matrixId);
             fullMembers.push(fullMember);
         }
         return fullMembers;
@@ -2857,9 +2989,14 @@ export class MemberService {
             where: {
                 matrices: { some: { matrixId, isHidden: false } },
                 isActive: true,
-                ministryPosition: {
-                    type: {
-                        in: ['PRESIDENT_PASTOR', 'PASTOR', 'DISCIPULADOR', 'LEADER']
+                ministryPositions: {
+                    some: {
+                        matrixId,
+                        ministry: {
+                            type: {
+                                in: ['PRESIDENT_PASTOR', 'PASTOR', 'DISCIPULADOR', 'LEADER']
+                            }
+                        }
                     }
                 },
                 email: { not: null }
@@ -2940,7 +3077,10 @@ export class MemberService {
                     }
                 },
                 celula: true,
-                ministryPosition: true
+                ministryPositions: {
+                    where: { matrixId: matrixId },
+                    include: { ministry: true }
+                }
             }
         });
 
@@ -2982,7 +3122,8 @@ export class MemberService {
         }
 
         // Check if has PRESIDENT_PASTOR ministry position
-        if (member.ministryPosition && member.ministryPosition.type === 'PRESIDENT_PASTOR') {
+        const memberMinistry = member.ministryPositions?.[0]?.ministry;
+        if (memberMinistry && memberMinistry.type === 'PRESIDENT_PASTOR') {
             blockingReasons.push('Possui cargo ministerial de Pastor Presidente');
         }
 
@@ -3071,5 +3212,24 @@ export class MemberService {
         });
 
         return { success: true, memberId, isHidden };
+    }
+
+    /**
+     * Transform ministryPositions array to single ministryPosition for frontend compatibility
+     */
+    private transformMinistryPositions(member: any): any {
+        if (!member) return member;
+        
+        if (Array.isArray(member)) {
+            return member.map(m => this.transformMinistryPositions(m));
+        }
+        
+        if (member.ministryPositions) {
+            const ministry = member.ministryPositions[0]?.ministry;
+            member.ministryPosition = ministry || null;
+            delete member.ministryPositions;
+        }
+        
+        return member;
     }
 }

@@ -6,7 +6,6 @@ export interface LoadedPermission {
     id: number;
     isAdmin: boolean;
     ministryType: $Enums.MinistryType | null;
-    ministryPositionId: number | null;
     celulaIds: number[];
     congregacaoIds: number[];
     redeIds: number[];
@@ -50,7 +49,9 @@ export class PermissionService {
                 leadingInTrainingCelulas: true,
                 congregacoesPastorGoverno: true,
                 congregacoesVicePresidente: true,
-                ministryPosition: true,
+                ministryPositions: {
+                    include: { ministry: true }
+                },
                 roles: {
                     include: { role: true }
                 }
@@ -84,8 +85,7 @@ export class PermissionService {
         return {
             id: dbMember.id,
             isAdmin,
-            ministryType: dbMember.ministryPosition?.type ?? null,
-            ministryPositionId: dbMember.ministryPositionId,
+            ministryType: dbMember.ministryPositions?.[0]?.ministry?.type ?? null,
             celulaIds,
             discipuladoIds,
             redeIds,

@@ -149,8 +149,8 @@ model Ministry {
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
 
-  matrix  Matrix   @relation(fields: [matrixId], references: [id], onDelete: NoAction)
-  members Member[]
+  matrix  Matrix              @relation(fields: [matrixId], references: [id], onDelete: NoAction)
+  members MemberMinistry[]
 
   @@unique([name, matrixId])
   @@index([matrixId])
@@ -202,7 +202,6 @@ model Member {
   spouseId      Int?          @unique @map("spouse_id")
   
   // Church info
-  ministryPositionId  Int       @map("ministry_position_id")
   winnerPathId        Int?      @map("winner_path_id")
   canBeHost           Boolean   @default(false) @map("can_be_host")
   
@@ -238,12 +237,12 @@ model Member {
   congregacoesVicePresidente Congregacao[]         @relation("CongregacaoVicePresidente")
   congregacoesKidsLeader   Congregacao[]           @relation("CongregacaoKidsLeader")
   celula                   Celula?                 @relation(fields: [celulaId], references: [id], onDelete: NoAction)
-  ministryPosition         Ministry                @relation(fields: [ministryPositionId], references: [id], onDelete: NoAction)
   winnerPath               WinnerPath?             @relation(fields: [winnerPathId], references: [id], onDelete: NoAction)
   spouse                   Member?                 @relation("MemberSpouse", fields: [spouseId], references: [id], onDelete: NoAction)
   spouseOf                 Member?                 @relation("MemberSpouse")
   roles                    MemberRole[]
-  refreshTokens            RefreshToken[]
+  refreshTokens              RefreshToken[]
+  ministryPositions        MemberMinistry[]
   createdApiKeys           ApiKey[]
   matrices                 MemberMatrix[]
   leadingInTrainingCelulas CelulaLeaderInTraining[]
@@ -254,7 +253,6 @@ model Member {
   createdAnnouncements     Announcement[]          @relation("AnnouncementCreatedBy")
 
   @@index([celulaId])
-  @@index([ministryPositionId])
   @@index([winnerPathId])
   @@index([spouseId])
 
@@ -480,6 +478,23 @@ model MemberRole {
   @@index([roleId])
 
   @@map("member_role")
+}
+
+model MemberMinistry {
+  id         Int @id @default(autoincrement())
+  memberId   Int @map("member_id")
+  ministryId Int @map("ministry_id")
+  matrixId   Int @map("matrix_id")
+
+  member   Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  ministry Ministry @relation(fields: [ministryId], references: [id], onDelete: Cascade)
+
+  @@unique([memberId, matrixId])
+  @@index([memberId])
+  @@index([ministryId])
+  @@index([matrixId])
+
+  @@map("member_ministry")
 }
 
 model RefreshToken {
