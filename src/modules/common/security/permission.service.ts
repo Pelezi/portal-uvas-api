@@ -25,6 +25,8 @@ export interface SimplifiedPermission {
     canManageDonation: boolean;
     canManageSocialMedia: boolean;
     canManageMagazines: boolean;
+    canManageAnnouncements: boolean;
+    canManageLandingPagePastors: boolean;
     celulaIds: number[] | null;
     congregacaoIds: number[] | null;
     redeIds: number[] | null;
@@ -132,6 +134,10 @@ export class PermissionService {
             dbMember.roles.some(mr => mr.role.canManageSocialMedia);
         const canManageMagazines = permission.isAdmin || 
             dbMember.roles.some(mr => mr.role.canManageMagazines);
+        const canManageAnnouncements = permission.isAdmin || 
+            dbMember.roles.some(mr => mr.role.canManageAnnouncements);
+        const canManageLandingPagePastors = permission.isAdmin || 
+            dbMember.roles.some(mr => mr.role.canManageLandingPagePastors);
 
         return {
             id: dbMember.id,
@@ -146,6 +152,8 @@ export class PermissionService {
             canManageDonation,
             canManageSocialMedia,
             canManageMagazines,
+            canManageAnnouncements,
+            canManageLandingPagePastors,
             celulaIds: permission.celulaIds.length ? permission.celulaIds : null,
             congregacaoIds: permission.congregacaoIds.length ? permission.congregacaoIds : null,
             redeIds: permission.redeIds.length ? permission.redeIds : null,
@@ -298,6 +306,28 @@ export class PermissionService {
         }
 
         return false;
+    }
+
+    /**
+     * Check if member can manage landing page pastors
+     */
+    async canManageLandingPagePastors(memberId: number): Promise<boolean> {
+        const dbMember = await this.prisma.member.findUnique({
+            where: { id: memberId },
+            include: {
+                roles: {
+                    include: { role: true }
+                }
+            }
+        });
+
+        if (!dbMember) return false;
+
+        // Check if admin or has specific permission
+        const isAdmin = dbMember.roles?.some(mr => mr.role.isAdmin) ?? false;
+        const hasPermission = dbMember.roles?.some(mr => mr.role.canManageLandingPagePastors) ?? false;
+
+        return isAdmin || hasPermission;
     }
 
 }

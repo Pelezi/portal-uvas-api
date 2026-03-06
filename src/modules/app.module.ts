@@ -13,6 +13,7 @@ import { ExternalModule } from './external/external.module';
 import { MatrixModule } from './matrix/matrix.module';
 import { MagazineModule } from './magazine/magazine.module';
 import { AnnouncementModule } from './announcement/announcement.module';
+import { LandingPagePastorModule } from './landing-page-pastor/landing-page-pastor.module';
 import { MatrixValidationMiddleware } from './common/middleware/matrix-validation.middleware';
 
 @Module({
@@ -30,6 +31,7 @@ import { MatrixValidationMiddleware } from './common/middleware/matrix-validatio
         ExternalModule,
         MagazineModule,
         AnnouncementModule,
+        LandingPagePastorModule,
     ]
 })
 export class ApplicationModule implements NestModule {

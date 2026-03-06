@@ -328,103 +328,34 @@ export class MatrixService {
 
         const matrix = matrixDomain.matrix;
 
-        // Get all members who are pastors with their responsibilities
-        // Include: PRESIDENT_PASTOR, pastors of congregations, and pastors of redes
-        const pastoralTeam = await this.prisma.member.findMany({
+        // Get configured landing page pastors
+        const landingPagePastorEntries = await this.prisma.landingPagePastor.findMany({
             where: {
-                matrices: {
-                    some: {
-                        matrixId: matrix.id,
-                        isHidden: false
-                    }
-                },
-                isActive: true,
-                gender: 'MALE',
-                OR: [
-                    {
-                        ministryPositions: {
-                            some: {
-                                matrixId: matrix.id,
-                                ministry: {
-                                    type: 'PRESIDENT_PASTOR'
-                                }
-                            }
-                        }
-                    },
-                    {
-                        congregacoesPastorGoverno: {
-                            some: {
-                                matrixId: matrix.id
-                            }
-                        }
-                    },
-                    {
-                        redes: {
-                            some: {
-                                matrixId: matrix.id
-                            }
-                        }
-                    }
-                ]
+                matrixId: matrix.id
             },
-            select: {
-                id: true,
-                name: true,
-                photoUrl: true,
-                ministryPositions: {
-                    where: { matrixId: matrix.id },
-                    select: {
-                        ministry: {
-                            select: {
-                                name: true,
-                                type: true
-                            }
-                        }
-                    }
-                },
-                congregacoesPastorGoverno: {
-                    where: {
-                        matrixId: matrix.id
-                    },
+            include: {
+                member: {
                     select: {
                         id: true,
-                        name: true
-                    }
-                },
-                redes: {
-                    where: {
-                        matrixId: matrix.id
-                    },
-                    select: {
-                        id: true,
-                        name: true
+                        name: true,
+                        photoUrl: true
                     }
                 }
             },
             orderBy: [
-                { name: 'asc' }
+                { order: 'asc' },
+                { member: { name: 'asc' } }
             ]
         });
 
-        // Sort by ministry type in memory (PRESIDENT_PASTOR comes first)
-        const ministryTypeOrder: Record<string, number> = { 
-            'PRESIDENT_PASTOR': 0, 
-            'PASTOR': 1, 
-            'DISCIPULADOR': 2, 
-            'LEADER': 3, 
-            'LEADER_IN_TRAINING': 4,
-            'MEMBER': 5,
-            'REGULAR_ATTENDEE': 6,
-            'VISITOR': 7
-        };
-        pastoralTeam.sort((a, b) => {
-            const aType = a.ministryPositions?.[0]?.ministry?.type || 'MEMBER';
-            const bType = b.ministryPositions?.[0]?.ministry?.type || 'MEMBER';
-            const aOrder = ministryTypeOrder[aType] ?? 999;
-            const bOrder = ministryTypeOrder[bType] ?? 999;
-            if (aOrder !== bOrder) return aOrder - bOrder;
-            return a.name.localeCompare(b.name);
-        });
+        // Transform to pastoral team format
+        const pastoralTeam = landingPagePastorEntries.map(entry => ({
+            id: entry.member.id,
+            name: entry.member.name,
+            photoUrl: entry.member.photoUrl,
+            descriptions: entry.descriptions,
+            order: entry.order
+        }));
 
         // Transform photo URLs using CloudFront
         this.cloudFrontService.transformPhotoUrls(pastoralTeam);
@@ -432,14 +363,6 @@ export class MatrixService {
             this.cloudFrontService.transformPhotoUrl(cong.pastorGoverno);
             this.cloudFrontService.transformPhotoUrl(cong.vicePresidente);
             this.cloudFrontService.transformPhotoUrl(cong.kidsLeader);
-        });
-        
-        // Transform ministryPositions to single ministryPosition for pastoralTeam
-        pastoralTeam.forEach(member => {
-            if (member.ministryPositions) {
-                (member as any).ministryPosition = member.ministryPositions[0]?.ministry || null;
-                delete (member as any).ministryPositions;
-            }
         });
 
         return {

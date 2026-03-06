@@ -39,6 +39,7 @@ export class RoleController {
             canManageSocialMedia?: boolean;
             canManageMagazines?: boolean;
             canManageAnnouncements?: boolean;
+            canManageLandingPagePastors?: boolean;
         }
     ) {
         try {
@@ -53,7 +54,8 @@ export class RoleController {
             body.canManageDonation,
             body.canManageSocialMedia,
             body.canManageMagazines,
-            body.canManageAnnouncements
+            body.canManageAnnouncements,
+            body.canManageLandingPagePastors
         );
     }
 
@@ -68,6 +70,7 @@ export class RoleController {
             canManageSocialMedia?: boolean;
             canManageMagazines?: boolean;
             canManageAnnouncements?: boolean;
+            canManageLandingPagePastors?: boolean;
         }
     ) {
         try {
@@ -82,7 +85,8 @@ export class RoleController {
             body.canManageDonation,
             body.canManageSocialMedia,
             body.canManageMagazines,
-            body.canManageAnnouncements
+            body.canManageAnnouncements,
+            body.canManageLandingPagePastors
         );
     }
 
