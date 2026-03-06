@@ -19,12 +19,21 @@ export class RestrictedGuard implements CanActivate {
             context.getClass(),
         ]);
 
+        const request = context.switchToHttp().getRequest<FastifyRequest>() as AuthenticatedRequest;
+        const payload = extractTokenPayload(request);
+
+        // For public routes, optionally attach user info if token is provided
         if (isPublic) {
+            if (payload) {
+                request.member = {
+                    id: payload.userId,
+                    matrixId: payload.matrixId
+                };
+            }
             return true;
         }
 
-        const request = context.switchToHttp().getRequest<FastifyRequest>() as AuthenticatedRequest;
-        const payload = extractTokenPayload(request);
+        // For protected routes, require authentication
         if (!payload) {
             return false;
         }
