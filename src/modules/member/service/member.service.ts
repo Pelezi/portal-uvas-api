@@ -3032,13 +3032,13 @@ export class MemberService {
         let successCount = 0;
         let failureCount = 0;
 
+        const defaultPassword = '123456';
+        const password = await bcrypt.hash(defaultPassword, this.securityConfig.bcryptSaltRounds);
+        const hasDefaultPassword = true;
         // Enviar convite para cada membro
         for (const member of members) {
             try {
                 console.log(`Enviando convite para ${member.name} (${member.email})`);
-                const defaultPassword = '123456';
-                const password = await bcrypt.hash(defaultPassword, this.securityConfig.bcryptSaltRounds);
-                const hasDefaultPassword = true;
                 await this.prisma.member.update({
                     where: { id: member.id },
                     data: { hasSystemAccess: true, password, hasDefaultPassword}
