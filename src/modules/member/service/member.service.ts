@@ -560,7 +560,7 @@ export class MemberService {
     public async findByCelula(celulaId: number, matrixId?: number) {
         // Build where clause
         const where: PrismaModels.MemberWhereInput = { celulaId };
-        
+
         // If matrixId is provided, filter by matrix and hidden status
         if (matrixId) {
             where.matrices = {
@@ -570,7 +570,7 @@ export class MemberService {
                 }
             };
         }
-        
+
         const members = await this.prisma.member.findMany({
             where,
             include: {
@@ -597,7 +597,7 @@ export class MemberService {
             },
             orderBy: { name: 'asc' }
         });
-        
+
         return this.transformMinistryPositions(members);
     }
 
@@ -2976,7 +2976,7 @@ export class MemberService {
                 }
                 // Both have birth dates, compare them (ignoring time)
                 const memberBirthDate = new Date(member.birthDate);
-                const sameDate = 
+                const sameDate =
                     inputBirthDate.getFullYear() === memberBirthDate.getFullYear() &&
                     inputBirthDate.getMonth() === memberBirthDate.getMonth() &&
                     inputBirthDate.getDate() === memberBirthDate.getDate();
@@ -3036,9 +3036,12 @@ export class MemberService {
         for (const member of members) {
             try {
                 console.log(`Enviando convite para ${member.name} (${member.email})`);
+                const defaultPassword = '123456';
+                const password = await bcrypt.hash(defaultPassword, this.securityConfig.bcryptSaltRounds);
+                const hasDefaultPassword = true;
                 await this.prisma.member.update({
                     where: { id: member.id },
-                    data: { hasSystemAccess: true }
+                    data: { hasSystemAccess: true, password, hasDefaultPassword}
                 });
                 const inviteResponse = await this.sendInvite(member.id, matrixId);
                 results.push({
@@ -3235,17 +3238,17 @@ export class MemberService {
      */
     private transformMinistryPositions(member: any): any {
         if (!member) return member;
-        
+
         if (Array.isArray(member)) {
             return member.map(m => this.transformMinistryPositions(m));
         }
-        
+
         if (member.ministryPositions) {
             const ministry = member.ministryPositions[0]?.ministry;
             member.ministryPosition = ministry || null;
             delete member.ministryPositions;
         }
-        
+
         return member;
     }
 }
