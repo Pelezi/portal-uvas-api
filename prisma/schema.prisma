@@ -12,6 +12,11 @@ model Matrix {
   name           String
   whatsappApiKey String?  @map("whatsapp_api_key")
   whatsappNumber String?  @map("whatsapp_number")
+  smtpHost       String?  @map("smtp_host")
+  smtpPort       Int?     @map("smtp_port")
+  smtpUser       String?  @map("smtp_user")
+  smtpPass       String?  @map("smtp_pass")
+  smtpFrom       String?  @map("smtp_from")
   pixKey         String?  @map("pix_key")
   pixCode        String?  @map("pix_code")
   instagramUrl   String?  @map("instagram_url")

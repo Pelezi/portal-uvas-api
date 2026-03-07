@@ -6,6 +6,21 @@ export class MatrixCreateInput {
 
     @ApiProperty({ description: 'Matrix domains', example: ['videira-caruaru.com.br', 'localhost:3000'], type: [String] })
     public readonly domains: string[];
+
+    @ApiProperty({ description: 'SMTP host for matrix emails', example: 'smtp.gmail.com', required: false })
+    public readonly smtpHost?: string;
+
+    @ApiProperty({ description: 'SMTP port for matrix emails', example: 587, required: false })
+    public readonly smtpPort?: number;
+
+    @ApiProperty({ description: 'SMTP username for matrix emails', example: 'contato@igreja.com', required: false })
+    public readonly smtpUser?: string;
+
+    @ApiProperty({ description: 'SMTP password for matrix emails', example: 'app-password', required: false })
+    public readonly smtpPass?: string;
+
+    @ApiProperty({ description: 'Sender email used in matrix emails', example: 'contato@igreja.com', required: false })
+    public readonly smtpFrom?: string;
 }
 
 export class MatrixUpdateInput {
@@ -17,6 +32,21 @@ export class MatrixUpdateInput {
 
     @ApiProperty({ description: 'WhatsApp Manager API Key', example: 'sk-abc123xyz', required: false })
     public readonly whatsappApiKey?: string;
+
+    @ApiProperty({ description: 'SMTP host for matrix emails', example: 'smtp.gmail.com', required: false })
+    public readonly smtpHost?: string;
+
+    @ApiProperty({ description: 'SMTP port for matrix emails', example: 587, required: false })
+    public readonly smtpPort?: number;
+
+    @ApiProperty({ description: 'SMTP username for matrix emails', example: 'contato@igreja.com', required: false })
+    public readonly smtpUser?: string;
+
+    @ApiProperty({ description: 'SMTP password for matrix emails', example: 'app-password', required: false })
+    public readonly smtpPass?: string;
+
+    @ApiProperty({ description: 'Sender email used in matrix emails', example: 'contato@igreja.com', required: false })
+    public readonly smtpFrom?: string;
 
     @ApiProperty({ description: 'PIX Code for donations', example: '00020126...', required: false })
     public readonly pixCode?: string;

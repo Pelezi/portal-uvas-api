@@ -113,4 +113,13 @@ export class MatrixController {
     public async getMemberMatrices(@Param('memberId') memberId: string) {
         return this.matrixService.getMemberMatrices(Number(memberId));
     }
+
+    @Post(':id/test-smtp')
+    @ApiOperation({ summary: 'Test SMTP connection for a matrix' })
+    @ApiResponse({ status: 200, description: 'SMTP connection test result' })
+    @ApiResponse({ status: 400, description: 'Matrix does not have SMTP configured' })
+    @ApiResponse({ status: 404, description: 'Matrix not found' })
+    public async testSmtpConnection(@Param('id') id: string) {
+        return this.matrixService.testSmtpConnection(Number(id));
+    }
 }

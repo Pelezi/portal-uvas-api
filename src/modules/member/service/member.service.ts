@@ -2140,6 +2140,13 @@ export class MemberService {
         let matrixName = 'Igreja Videira'; // Default fallback
         let matrixDomain = frontend;
         let whatsappApiKey: string | null = null;
+        let matrixSmtpConfig: {
+            host?: string | null;
+            port?: number | null;
+            user?: string | null;
+            pass?: string | null;
+            from?: string | null;
+        } | undefined;
 
         if (matrixId) {
             try {
@@ -2151,6 +2158,13 @@ export class MemberService {
                 if (matrix) {
                     matrixName = matrix.name;
                     whatsappApiKey = matrix.whatsappApiKey || null;
+                    matrixSmtpConfig = {
+                        host: matrix.smtpHost,
+                        port: matrix.smtpPort,
+                        user: matrix.smtpUser,
+                        pass: matrix.smtpPass,
+                        from: matrix.smtpFrom
+                    };
                     // Use the first domain if available, otherwise use frontend URL
                     if (matrix.domains && matrix.domains.length > 0) {
                         // Construct full URL with protocol
@@ -2168,7 +2182,7 @@ export class MemberService {
         let whatsappSent = false;
 
         try {
-            await this.emailService.sendWelcomeEmail(email, loginLink, name, '123456', matrixName);
+            await this.emailService.sendWelcomeEmail(email, loginLink, name, '123456', matrixName, matrixSmtpConfig);
             // Marcar como enviado
             await this.prisma.member.update({
                 where: { id: memberId },
@@ -2206,7 +2220,6 @@ export class MemberService {
                     );
 
                     whatsappSent = true;
-                    console.log(`WhatsApp enviado com sucesso para ${phone}`);
                 }
             } catch (err: unknown) {
                 const message = err instanceof Error ? err.message : 'Erro desconhecido';

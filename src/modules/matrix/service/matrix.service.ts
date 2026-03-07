@@ -1,6 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService, CloudFrontService } from '../../common';
 import { MatrixCreateInput, MatrixUpdateInput } from '../model/matrix.input';
+import { validateSmtpConfig, encryptSmtpPassword, decryptSmtpPassword } from '../../common/helpers';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class MatrixService {
@@ -88,6 +90,18 @@ export class MatrixService {
             throw new HttpException('At least one domain is required', HttpStatus.BAD_REQUEST);
         }
 
+        // Validate SMTP configuration if provided
+        const smtpValidation = validateSmtpConfig({
+            smtpHost: data.smtpHost,
+            smtpPort: data.smtpPort,
+            smtpUser: data.smtpUser,
+            smtpPass: data.smtpPass
+        });
+
+        if (!smtpValidation.valid) {
+            throw new HttpException(smtpValidation.error!, HttpStatus.BAD_REQUEST);
+        }
+
         // Normalize all domains before checking/saving
         const normalizedDomains = data.domains.map(d => this.normalizeDomain(d));
 
@@ -105,9 +119,17 @@ export class MatrixService {
             );
         }
 
+        // Encrypt SMTP password before saving
+        const encryptedSmtpPass = data.smtpPass ? encryptSmtpPassword(data.smtpPass) : null;
+
         return this.prisma.matrix.create({
             data: {
                 name: data.name,
+                smtpHost: data.smtpHost,
+                smtpPort: data.smtpPort,
+                smtpUser: data.smtpUser,
+                smtpPass: encryptedSmtpPass,
+                smtpFrom: data.smtpFrom,
                 domains: {
                     create: normalizedDomains.map(domain => ({ domain }))
                 }
@@ -119,7 +141,26 @@ export class MatrixService {
     }
 
     public async update(id: number, data: MatrixUpdateInput) {
-        await this.findById(id); // Verificar se existe
+        const existingMatrix = await this.findById(id); // Verificar se existe
+
+        // Build SMTP config from incoming data + existing data for validation
+        const smtpConfigToValidate = {
+            smtpHost: data.smtpHost !== undefined ? data.smtpHost : existingMatrix.smtpHost,
+            smtpPort: data.smtpPort !== undefined ? data.smtpPort : existingMatrix.smtpPort,
+            smtpUser: data.smtpUser !== undefined ? data.smtpUser : existingMatrix.smtpUser,
+            smtpPass: data.smtpPass !== undefined ? data.smtpPass : (existingMatrix.smtpPass ? 'existing' : null)
+        };
+
+        // Validate SMTP configuration if any SMTP field is being updated
+        const hasSmtpUpdate = data.smtpHost !== undefined || data.smtpPort !== undefined || 
+                              data.smtpUser !== undefined || data.smtpPass !== undefined;
+        
+        if (hasSmtpUpdate) {
+            const smtpValidation = validateSmtpConfig(smtpConfigToValidate);
+            if (!smtpValidation.valid) {
+                throw new HttpException(smtpValidation.error!, HttpStatus.BAD_REQUEST);
+            }
+        }
 
         const updateData: any = {};
 
@@ -129,6 +170,27 @@ export class MatrixService {
 
         if (data.whatsappApiKey !== undefined) {
             updateData.whatsappApiKey = data.whatsappApiKey;
+        }
+
+        if (data.smtpHost !== undefined) {
+            updateData.smtpHost = data.smtpHost;
+        }
+
+        if (data.smtpPort !== undefined) {
+            updateData.smtpPort = data.smtpPort;
+        }
+
+        if (data.smtpUser !== undefined) {
+            updateData.smtpUser = data.smtpUser;
+        }
+
+        if (data.smtpPass !== undefined) {
+            // Encrypt password before saving
+            updateData.smtpPass = data.smtpPass ? encryptSmtpPassword(data.smtpPass) : null;
+        }
+
+        if (data.smtpFrom !== undefined) {
+            updateData.smtpFrom = data.smtpFrom;
         }
 
         if (data.pixKey !== undefined) {
@@ -377,5 +439,57 @@ export class MatrixService {
             congregacoes: matrix.congregacoes,
             pastoralTeam
         };
+    }
+
+    /**
+     * Test SMTP connection for a matrix
+     */
+    public async testSmtpConnection(id: number): Promise<{ success: boolean; message: string }> {
+        const matrix = await this.findById(id);
+
+        if (!matrix.smtpHost || !matrix.smtpUser || !matrix.smtpPass) {
+            throw new HttpException(
+                'Matrix does not have SMTP configured. Please configure SMTP settings first.',
+                HttpStatus.BAD_REQUEST
+            );
+        }
+
+        try {
+            // Decrypt password before testing
+            const decryptedPass = decryptSmtpPassword(matrix.smtpPass);
+            
+            if (!decryptedPass) {
+                throw new Error('Failed to decrypt SMTP password');
+            }
+
+            const port = matrix.smtpPort || 587;
+            const transporter = nodemailer.createTransport({
+                host: matrix.smtpHost,
+                port: port,
+                secure: port === 465,
+                auth: {
+                    user: matrix.smtpUser,
+                    pass: decryptedPass
+                }
+            });
+
+            // Verify connection
+            await transporter.verify();
+
+            return {
+                success: true,
+                message: `SMTP connection successful to ${matrix.smtpHost}:${port}`
+            };
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            // Sanitize error to avoid exposing credentials
+            const sanitizedMsg = errorMessage.replace(/auth|password|pass|user|login/gi, '***');
+            console.error(`SMTP test failed for matrix ${id}:`, sanitizedMsg);
+            
+            return {
+                success: false,
+                message: `SMTP connection failed: ${sanitizedMsg}`
+            };
+        }
     }
 }

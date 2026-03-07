@@ -1,9 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
+import { decryptSmtpPassword } from '../helpers';
+
+export interface MatrixSmtpConfig {
+    host?: string | null;
+    port?: number | null;
+    user?: string | null;
+    pass?: string | null;
+    from?: string | null;
+}
 
 @Injectable()
 export class EmailService {
-    private transporter: nodemailer.Transporter;
+    private readonly transporter?: nodemailer.Transporter;
 
     constructor() {
         const host = process.env.SMTP_HOST;
@@ -11,22 +20,58 @@ export class EmailService {
         const user = process.env.SMTP_USER;
         const pass = process.env.SMTP_PASS;
 
-        if (host && user) {
-            this.transporter = nodemailer.createTransport({
-                host,
-                port,
-                secure: port === 465,
-                auth: user && pass ? { user, pass } : undefined
-            });
-        }
+        this.transporter = this.createTransporter(host, port, user, pass);
     }
 
-    public async sendWelcomeEmail(to: string, loginLink: string, fullname: string, defaultPassword: string, matrixName: string = 'Portal Uvas') {
+    private createTransporter(host?: string | null, port?: number | null, user?: string | null, pass?: string | null): nodemailer.Transporter | undefined {
+        if (!host || !user) {
+            return undefined;
+        }
+
+        const smtpPort = Number(port || 587);
+
+        return nodemailer.createTransport({
+            host,
+            port: smtpPort,
+            secure: smtpPort === 465,
+            auth: { user, pass: pass || '' }
+        });
+    }
+
+    private resolveMailer(matrixSmtpConfig?: MatrixSmtpConfig): { transporter?: nodemailer.Transporter; from: string } {
+        const matrixHasSmtp = Boolean(matrixSmtpConfig?.host && matrixSmtpConfig?.user);
+
+        if (matrixHasSmtp) {
+            // Decrypt password before creating transporter
+            const decryptedPass = matrixSmtpConfig?.pass ? decryptSmtpPassword(matrixSmtpConfig.pass) : null;
+            
+            const matrixTransporter = this.createTransporter(
+                matrixSmtpConfig?.host,
+                matrixSmtpConfig?.port,
+                matrixSmtpConfig?.user,
+                decryptedPass
+            );
+
+            if (matrixTransporter) {
+                return {
+                    transporter: matrixTransporter,
+                    from: matrixSmtpConfig?.from || process.env.EMAIL_FROM || `no-reply@${matrixSmtpConfig?.host}`
+                };
+            }
+        }
+
+        return {
+            transporter: this.transporter,
+            from: process.env.EMAIL_FROM || `no-reply@${process.env.SMTP_HOST || 'example.com'}`
+        };
+    }
+
+    public async sendWelcomeEmail(to: string, loginLink: string, fullname: string, defaultPassword: string, matrixName: string = 'Portal Uvas', matrixSmtpConfig?: MatrixSmtpConfig) {
         if (!to) {
             console.warn('EmailService.sendWelcomeEmail called without recipient (to is empty) - skipping SMTP send.');
             return;
         }
-        const from = process.env.EMAIL_FROM || `no-reply@${process.env.SMTP_HOST || 'example.com'}`;
+        const { from, transporter } = this.resolveMailer(matrixSmtpConfig);
         const platformName = matrixName ? `Portal Uvas - ${matrixName}` : 'Portal Uvas';
         const subject = `Bem-vindo ao ${platformName}`;
         const html = `
@@ -118,26 +163,29 @@ export class EmailService {
 </body>
 </html>`;
 
-        if (!this.transporter) {
+        if (!transporter) {
             console.log(`Welcome email to ${to}. Login: ${to}, Password: ${defaultPassword}, Link: ${loginLink}`);
             return;
         }
 
         try {
-            await this.transporter.sendMail({ from, to, subject, html });
+            await transporter.sendMail({ from, to, subject, html });
         } catch (err: unknown) {
-            console.error('Failed to send welcome email, falling back to console. Error:', err);
+            const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+            // Sanitize error message to avoid exposing SMTP credentials
+            const sanitizedMsg = errorMsg.replace(/auth|password|pass|user|login/gi, '***');
+            console.error('Failed to send welcome email, falling back to console. Error:', sanitizedMsg);
             console.log(`Welcome email to ${to}. Login: ${to}, Password: ${defaultPassword}, Link: ${loginLink}`);
             return;
         }
     }
 
-    public async sendPasswordResetEmail(to: string, resetLink: string, fullname: string, matrixName: string = 'Portal Uvas') {
+    public async sendPasswordResetEmail(to: string, resetLink: string, fullname: string, matrixName: string = 'Portal Uvas', matrixSmtpConfig?: MatrixSmtpConfig) {
         if (!to) {
             console.warn('EmailService.sendPasswordResetEmail called without recipient (to is empty) - skipping SMTP send.');
             return;
         }
-        const from = process.env.EMAIL_FROM || `no-reply@${process.env.SMTP_HOST || 'example.com'}`;
+        const { from, transporter } = this.resolveMailer(matrixSmtpConfig);
         const platformName = matrixName ? `Portal Uvas - ${matrixName}` : 'Portal Uvas';
         const subject = `Redefinição de Senha - ${platformName}`;
         const html = `
@@ -229,15 +277,18 @@ export class EmailService {
 </body>
 </html>`;
 
-        if (!this.transporter) {
+        if (!transporter) {
             console.log(`Password reset email to ${to}. Link: ${resetLink}`);
             return;
         }
 
         try {
-            await this.transporter.sendMail({ from, to, subject, html });
+            await transporter.sendMail({ from, to, subject, html });
         } catch (err: unknown) {
-            console.error('Failed to send password reset email, falling back to console. Error:', err);
+            const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+            // Sanitize error message to avoid exposing SMTP credentials
+            const sanitizedMsg = errorMsg.replace(/auth|password|pass|user|login/gi, '***');
+            console.error('Failed to send password reset email, falling back to console. Error:', sanitizedMsg);
             console.log(`Password reset email to ${to}. Link: ${resetLink}`);
             return;
         }

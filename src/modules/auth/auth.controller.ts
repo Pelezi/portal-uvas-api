@@ -354,8 +354,18 @@ export class AuthController {
                 ? member.matrices[0].matrix.whatsappApiKey 
                 : null;
 
+            const matrixSmtpConfig = member.matrices && member.matrices.length > 0
+                ? {
+                    host: member.matrices[0].matrix.smtpHost,
+                    port: member.matrices[0].matrix.smtpPort,
+                    user: member.matrices[0].matrix.smtpUser,
+                    pass: member.matrices[0].matrix.smtpPass,
+                    from: member.matrices[0].matrix.smtpFrom
+                }
+                : undefined;
+
             // Send email
-            await this.emailService.sendPasswordResetEmail(member.email!, resetLink, member.name, matrixName);
+            await this.emailService.sendPasswordResetEmail(member.email!, resetLink, member.name, matrixName, matrixSmtpConfig);
 
             // Send WhatsApp if phone exists
             if (member.phone && member.phone.trim()) {
