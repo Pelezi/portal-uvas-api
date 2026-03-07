@@ -155,6 +155,9 @@ export class BulkInviteResponse {
     @ApiProperty({ description: 'Número de convites enviados com sucesso', example: 8 })
     public readonly successCount: number;
 
+    @ApiProperty({ description: 'Número de convites enviados com sucesso via WhatsApp', example: 7 })
+    public readonly successWhatsappCount: number;
+
     @ApiProperty({ description: 'Número de convites que falharam', example: 2 })
     public readonly failureCount: number;
 
@@ -302,11 +305,11 @@ export class UpdateOwnProfileInput {
     public readonly socialMedia?: SocialMediaInput[];
 
     // Privacy
-    @ApiProperty({ 
-        description: 'Contact privacy level', 
+    @ApiProperty({
+        description: 'Contact privacy level',
         example: 'MY_LEADERSHIP_AND_DISCIPLES',
         enum: ['MY_LEADERSHIP_AND_DISCIPLES', 'ALL_DISCIPULADO', 'ALL_REDE', 'ALL_CONGREGACAO', 'ALL'],
-        required: false 
+        required: false
     })
     public readonly contactPrivacyLevel?: ContactPrivacyLevel;
 

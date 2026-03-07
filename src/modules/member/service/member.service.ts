@@ -3030,6 +3030,7 @@ export class MemberService {
         }> = [];
 
         let successCount = 0;
+        let successWhatsappCount = 0;
         let failureCount = 0;
 
         const defaultPassword = '123456';
@@ -3050,6 +3051,9 @@ export class MemberService {
                     success: true
                 });
                 successCount++;
+                if (inviteResponse.whatsappSent) {
+                    successWhatsappCount++;
+                }
                 console.log(`Convite enviado com sucesso: `, inviteResponse.message);
             } catch (error) {
                 results.push({
@@ -3066,6 +3070,7 @@ export class MemberService {
         return {
             totalMembers: members.length,
             successCount,
+            successWhatsappCount,
             failureCount,
             results
         };
