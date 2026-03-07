@@ -95,7 +95,6 @@ model Celula {
   type               CelulaType?
   level              CelulaLevel?
   parallelCelulaId   Int?       @map("parallel_celula_id")
-  isOk               Boolean    @default(false) @map("is_ok")
 
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")

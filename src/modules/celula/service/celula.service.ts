@@ -430,7 +430,6 @@ export class CelulaService {
         if (data.type !== undefined) updateData.type = data.type as any;
         if (data.level !== undefined) updateData.level = data.level as any;
         if (data.parallelCelulaId !== undefined) updateData.parallelCelulaId = data.parallelCelulaId ?? null;
-        if (data.isOk !== undefined) updateData.isOk = data.isOk;
 
         if (data.leaderMemberId !== undefined) {
             if (data.leaderMemberId !== null) {
