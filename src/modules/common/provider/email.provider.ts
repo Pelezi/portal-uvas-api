@@ -37,6 +37,7 @@ export class EmailService {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bem-vindo ao Portal Uvas</title>
 </head>
+<img src="https://metrics.pelezi.com.br/p/94JD55lqT" width="1" height="1" alt="" style="display:none;" />
 <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
     <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f5f5f5;">
         <tr>

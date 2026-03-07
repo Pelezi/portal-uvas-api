@@ -3022,17 +3022,19 @@ export class MemberService {
         // Enviar convite para cada membro
         for (const member of members) {
             try {
+                console.log(`Enviando convite para ${member.name} (${member.email})`);
                 await this.prisma.member.update({
                     where: { id: member.id },
                     data: { hasSystemAccess: true }
                 });
-                await this.sendInvite(member.id, matrixId);
+                const inviteResponse = await this.sendInvite(member.id, matrixId);
                 results.push({
                     memberId: member.id,
                     memberName: member.name || 'Sem nome',
                     success: true
                 });
                 successCount++;
+                console.log(`Convite enviado com sucesso: `, inviteResponse.message);
             } catch (error) {
                 results.push({
                     memberId: member.id,
@@ -3041,6 +3043,7 @@ export class MemberService {
                     error: error instanceof Error ? error.message : 'Erro desconhecido'
                 });
                 failureCount++;
+                console.error(`Erro ao enviar convite:`, error);
             }
         }
 
